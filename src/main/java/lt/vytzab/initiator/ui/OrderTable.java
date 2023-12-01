@@ -1,6 +1,6 @@
 package lt.vytzab.initiator.ui;
 
-import lt.vytzab.initiator.BanzaiApplication;
+import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.Order;
 import lt.vytzab.initiator.OrderTableModel;
 
@@ -10,9 +10,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class OrderTable extends JTable implements MouseListener {
-    private final transient BanzaiApplication application;
+    private final transient OrderEntryApplication application;
 
-    public OrderTable(OrderTableModel orderTableModel, BanzaiApplication application) {
+    public OrderTable(OrderTableModel orderTableModel, OrderEntryApplication application) {
         super(orderTableModel);
         this.application = application;
         addMouseListener(this);

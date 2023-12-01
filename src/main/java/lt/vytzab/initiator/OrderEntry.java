@@ -7,44 +7,31 @@ import java.util.concurrent.CountDownLatch;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
+import lt.vytzab.initiator.ui.LogPanel;
 import org.quickfixj.jmx.JmxExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import quickfix.DefaultMessageFactory;
-import quickfix.FileStoreFactory;
-import quickfix.Initiator;
-import quickfix.LogFactory;
-import quickfix.MessageFactory;
-import quickfix.MessageStoreFactory;
-import quickfix.ScreenLogFactory;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionSettings;
-import quickfix.SocketInitiator;
-import lt.vytzab.initiator.ui.BanzaiFrame;
+import quickfix.*;
+import lt.vytzab.initiator.ui.OrderEntryFrame;
 
-/**
- * Entry point for the Banzai application.
- */
-public class Banzai {
+public class OrderEntry {
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
-
-    private static final Logger log = LoggerFactory.getLogger(Banzai.class);
-    private static Banzai banzai;
+    private static final Logger log = LoggerFactory.getLogger(OrderEntry.class);
+    private static OrderEntry banzai;
     private boolean initiatorStarted = false;
     private Initiator initiator = null;
     private JFrame frame = null;
 
-    public Banzai(String[] args) throws Exception {
+    public OrderEntry(String[] args) throws Exception {
         InputStream inputStream = null;
         if (args.length == 0) {
-            inputStream = Banzai.class.getResourceAsStream("/banzai.cfg");
+            inputStream = OrderEntry.class.getResourceAsStream("/orderEntry.cfg");
         } else if (args.length == 1) {
             inputStream = new FileInputStream(args[0]);
         }
         if (inputStream == null) {
-            System.out.println("usage: " + Banzai.class.getName() + " [configFile].");
+            System.out.println("usage: " + OrderEntry.class.getName() + " [configFile].");
             return;
         }
         SessionSettings settings = new SessionSettings(inputStream);
@@ -54,7 +41,8 @@ public class Banzai {
 
         OrderTableModel orderTableModel = new OrderTableModel();
         ExecutionTableModel executionTableModel = new ExecutionTableModel();
-        BanzaiApplication application = new BanzaiApplication(orderTableModel, executionTableModel);
+        LogPanel logPanel = new LogPanel();
+        OrderEntryApplication application = new OrderEntryApplication(orderTableModel, executionTableModel, logPanel);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true, logHeartbeats);
         MessageFactory messageFactory = new DefaultMessageFactory();
@@ -64,7 +52,7 @@ public class Banzai {
         JmxExporter exporter = new JmxExporter();
         exporter.register(initiator);
 
-        frame = new BanzaiFrame(orderTableModel, executionTableModel, application);
+        frame = new OrderEntryFrame(orderTableModel, executionTableModel, logPanel, application);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
@@ -97,7 +85,7 @@ public class Banzai {
         return frame;
     }
 
-    public static Banzai get() {
+    public static OrderEntry get() {
         return banzai;
     }
 
@@ -107,7 +95,9 @@ public class Banzai {
         } catch (Exception e) {
             log.info(e.getMessage(), e);
         }
-        banzai = new Banzai(args);
+        log.info("initiating Banzai!");
+        banzai = new OrderEntry(args);
+        log.info("Banzai initiated.");
         if (!System.getProperties().containsKey("openfix")) {
             banzai.logon();
         }

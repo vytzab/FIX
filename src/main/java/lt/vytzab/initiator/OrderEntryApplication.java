@@ -1,5 +1,9 @@
 package lt.vytzab.initiator;
 
+import lt.vytzab.initiator.ui.LogPanel;
+import lt.vytzab.utils.CustomFixMessageParser;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import quickfix.Application;
 import quickfix.DefaultMessageFactory;
 import quickfix.DoNotSend;
@@ -52,12 +56,13 @@ import java.util.HashSet;
 import java.util.Observable;
 import java.util.Observer;
 
-public class BanzaiApplication implements Application {
+public class OrderEntryApplication implements Application {
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
     private OrderTableModel orderTableModel = null;
     private ExecutionTableModel executionTableModel = null;
     private final ObservableOrder observableOrder = new ObservableOrder();
     private final ObservableLogon observableLogon = new ObservableLogon();
+    private final LogPanel logPanel;
     private boolean isAvailable = true;
     private boolean isMissingField;
 
@@ -65,11 +70,11 @@ public class BanzaiApplication implements Application {
     static private final TwoWayMap typeMap = new TwoWayMap();
     static private final TwoWayMap tifMap = new TwoWayMap();
     static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
-
-    public BanzaiApplication(OrderTableModel orderTableModel,
-                             ExecutionTableModel executionTableModel) {
+    private final Logger logger = LoggerFactory.getLogger(OrderEntryApplication.class);
+    public OrderEntryApplication(OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, LogPanel logPanel) {
         this.orderTableModel = orderTableModel;
         this.executionTableModel = executionTableModel;
+        this.logPanel = logPanel;
     }
 
     public void onCreate(SessionID sessionID) {
@@ -84,17 +89,27 @@ public class BanzaiApplication implements Application {
     }
 
     public void toAdmin(quickfix.Message message, SessionID sessionID) {
+        displayFixMessageInLogs("toAdmin:" + message.toString());
+        System.out.println("toADMIN!");
+        logger.info("toAdmin:" + message);
     }
 
     public void toApp(quickfix.Message message, SessionID sessionID) throws DoNotSend {
+        displayFixMessageInLogs("toApp:" + message.toString());
+        System.out.println("toAPP!");
+        logger.info("toApp:" + message);
     }
 
-    public void fromAdmin(quickfix.Message message, SessionID sessionID) throws FieldNotFound,
-            IncorrectDataFormat, IncorrectTagValue, RejectLogon {
+    public void fromAdmin(quickfix.Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
+        displayFixMessageInLogs("fromAdmin:" + message.toString());
+        System.out.println("fromADMIN!");
+        logger.info("fromAdmin:" + message);
     }
 
-    public void fromApp(quickfix.Message message, SessionID sessionID) throws FieldNotFound,
-            IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
+    public void fromApp(quickfix.Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
+        displayFixMessageInLogs("fromApp:" + message.toString());
+        System.out.println("fromAPP!");
+        logger.info("fromApp:" + message);
         try {
             SwingUtilities.invokeLater(new MessageProcessor(message, sessionID));
         } catch (Exception e) {
@@ -580,5 +595,13 @@ public class BanzaiApplication implements Application {
 
     public void setAvailable(boolean isAvailable) {
         this.isAvailable = isAvailable;
+    }
+
+    public void displayFixMessageInLogs(String fixMessage) {
+        SwingUtilities.invokeLater(() -> {
+            logPanel.getLogModel().addElement(CustomFixMessageParser.parse(fixMessage));
+            logPanel.revalidate();
+            logPanel.repaint();
+        });
     }
 }

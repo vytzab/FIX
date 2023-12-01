@@ -10,12 +10,9 @@ import javax.swing.JTable;
 
 import lt.vytzab.initiator.ExecutionTableModel;
 
-/**
- * Contains the executions panel
- */
-public class ExecutionPanel extends JPanel {
+public class ExecutedOrderPanel extends JPanel {
 
-    public ExecutionPanel(ExecutionTableModel executionTableModel) {
+    public ExecutedOrderPanel(ExecutionTableModel executionTableModel) {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();

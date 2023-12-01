@@ -15,8 +15,6 @@ public class ExecutionTable extends JTable {
     }
 
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
-        //Execution execution = (Execution) ((ExecutionTableModel) dataModel).getExecution(row);
-
         DefaultTableCellRenderer r = (DefaultTableCellRenderer) renderer;
         r.setForeground(Color.black);
         r.setBackground(row % 2 == 0 ? Color.white : Color.lightGray);

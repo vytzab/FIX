@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
-import lt.vytzab.initiator.BanzaiApplication;
+import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.OrderTableModel;
 
 /**
@@ -18,7 +18,7 @@ public class OrderPanel extends JPanel {
 
     private JTable orderTable = null;
 
-    public OrderPanel(OrderTableModel orderTableModel, BanzaiApplication application) {
+    public OrderPanel(OrderTableModel orderTableModel, OrderEntryApplication application) {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new GridBagLayout());
         GridBagConstraints constraints = new GridBagConstraints();
