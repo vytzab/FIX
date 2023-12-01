@@ -1,0 +1,21 @@
+2023-10-30 18:12:41,126 INFO [main] l.v.a.Engine [Engine.java:62] - Acceptor registered with JMX, name=org.quickfixj:type=Connector,role=Acceptor,id=1
+2023-10-30 18:12:41,184 INFO [main] q.DefaultSessionSchedule [DefaultSessionSchedule.java:87] - [FIX.4.2:EXEC->BANZAI] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-10-30 18:12:41,198 INFO [main] q.SocketAcceptor [SessionConnector.java:319] - SessionTimer started
+2023-10-30 18:12:41,264 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-10-30 18:12:41,264 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-10-30 18:12:41,264 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-10-30 18:12:41,273 INFO [main] q.SocketAcceptor [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9878 for session(s) [FIX.4.2:EXEC->BANZAI]
+2023-10-30 18:12:41,274 INFO [QFJ Message Processor] q.SocketAcceptor [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-10-30 18:12:57,722 INFO [main] l.v.i.Banzai [Banzai.java:102] - initiating Banzai!
+2023-10-30 18:12:58,746 INFO [main] l.v.i.Banzai [Banzai.java:104] - Banzai initiated.
+2023-10-30 18:12:58,804 INFO [main] q.DefaultSessionSchedule [DefaultSessionSchedule.java:87] - [FIX.4.2:BANZAI->EXEC] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-10-30 18:12:58,822 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-10-30 18:12:58,822 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-10-30 18:12:58,822 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-10-30 18:12:58,888 INFO [main] q.SocketInitiator [SessionConnector.java:319] - SessionTimer started
+2023-10-30 18:12:58,889 INFO [QFJ Message Processor] q.SocketInitiator [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-10-30 18:12:58,894 INFO [NioProcessor-2] q.m.a.AcceptorIoHandler [AcceptorIoHandler.java:58] - MINA session created: local=/127.0.0.1:9878, class org.apache.mina.transport.socket.nio.NioSocketSession, remote=/127.0.0.1:63941
+2023-10-30 18:12:59,916 INFO [QFJ Timer] l.v.i.BanzaiApplication [BanzaiApplication.java:94] - toAdmin:8=FIX.4.29=6635=A34=4849=BANZAI52=20231030-16:12:59.90256=EXEC98=0108=3010=019
+2023-10-30 18:12:59,962 INFO [QFJ Message Processor] l.v.i.BanzaiApplication [BanzaiApplication.java:106] - fromAdmin:8=FIX.4.29=6635=A34=2449=EXEC52=20231030-16:12:59.95556=BANZAI98=0108=3010=021
+2023-10-30 18:13:29,903 INFO [QFJ Timer] l.v.i.BanzaiApplication [BanzaiApplication.java:94] - toAdmin:8=FIX.4.29=5435=034=4949=BANZAI52=20231030-16:13:29.90356=EXEC10=230
+2023-10-30 18:13:30,215 INFO [QFJ Message Processor] l.v.i.BanzaiApplication [BanzaiApplication.java:106] - fromAdmin:8=FIX.4.29=5435=034=2549=EXEC52=20231030-16:13:30.21456=BANZAI10=211

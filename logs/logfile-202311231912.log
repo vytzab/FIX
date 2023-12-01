@@ -1,0 +1,23 @@
+2023-11-23 19:11:33,195 INFO [DefaultSessionSchedule.java:87] - [FIX.4.4:EXEC->BANZAI] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-11-23 19:11:33,211 INFO [SessionConnector.java:319] - SessionTimer started
+2023-11-23 19:11:33,273 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-11-23 19:11:33,273 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-11-23 19:11:33,273 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-11-23 19:11:33,280 INFO [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9878 for session(s) [FIX.4.4:EXEC->BANZAI]
+2023-11-23 19:11:33,281 INFO [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-11-23 19:11:44,752 INFO [Banzai.java:102] - initiating Banzai!
+2023-11-23 19:11:45,670 INFO [Banzai.java:104] - Banzai initiated.
+2023-11-23 19:11:45,748 INFO [DefaultSessionSchedule.java:87] - [FIX.4.4:BANZAI->EXEC] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-11-23 19:11:45,768 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-11-23 19:11:45,769 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-11-23 19:11:45,769 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-11-23 19:11:45,829 INFO [SessionConnector.java:319] - SessionTimer started
+2023-11-23 19:11:45,830 INFO [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-11-23 19:11:45,833 INFO [AcceptorIoHandler.java:58] - MINA session created: local=/127.0.0.1:9878, class org.apache.mina.transport.socket.nio.NioSocketSession, remote=/127.0.0.1:61087
+2023-11-23 19:11:46,853 INFO [BanzaiApplication.java:94] - toAdmin:8=FIX.4.49=6535=A34=149=BANZAI52=20231123-17:11:46.83656=EXEC98=0108=3010=222
+2023-11-23 19:11:46,883 INFO [BanzaiApplication.java:106] - fromAdmin:8=FIX.4.49=6535=A34=149=EXEC52=20231123-17:11:46.87856=BANZAI98=0108=3010=228
+2023-11-23 19:11:55,117 INFO [BanzaiApplication.java:100] - toApp:8=FIX.4.49=13035=D34=249=BANZAI52=20231123-17:11:55.11756=EXEC11=170075951509821=138=10040=154=155=AAPL59=060=20231123-17:11:55.11610=089
+2023-11-23 19:12:17,229 INFO [BanzaiApplication.java:106] - fromAdmin:8=FIX.4.49=5335=034=249=EXEC52=20231123-17:12:17.22756=BANZAI10=171
+2023-11-23 19:12:24,699 INFO [BanzaiApplication.java:100] - toApp:8=FIX.4.49=13035=D34=349=BANZAI52=20231123-17:12:24.69956=EXEC11=170075954470121=138=10040=154=255=AAPL59=060=20231123-17:12:24.69910=109
+2023-11-23 19:12:47,225 INFO [BanzaiApplication.java:106] - fromAdmin:8=FIX.4.49=5335=034=349=EXEC52=20231123-17:12:47.22456=BANZAI10=172
+2023-11-23 19:12:54,834 INFO [BanzaiApplication.java:94] - toAdmin:8=FIX.4.49=5335=034=449=BANZAI52=20231123-17:12:54.83456=EXEC10=178

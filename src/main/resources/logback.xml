@@ -1,0 +1,21 @@
+<configuration>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/logfile.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- Set the filename pattern for the rolled log files -->
+            <FileNamePattern>logs/logfile-%d{yyyyMMddHHmm}.log</FileNamePattern>
+
+            <!-- Set the maximum history of rolled log files (optional) -->
+        </rollingPolicy>
+        <immediateFlush>true</immediateFlush>
+        <!-- Define the encoder for log messages -->
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%date %level [%file:%line] - %msg%n</Pattern>
+        </encoder>
+    </appender>
+
+    <!-- Set the root logger level and appender -->
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>

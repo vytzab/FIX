@@ -1,0 +1,53 @@
+2023-10-30 17:18:14,199 INFO [main] l.v.a.Engine [Engine.java:62] - Acceptor registered with JMX, name=org.quickfixj:type=Connector,role=Acceptor,id=1
+2023-10-30 17:18:14,256 INFO [main] q.DefaultSessionSchedule [DefaultSessionSchedule.java:87] - [FIX.4.2:EXEC->BANZAI] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-10-30 17:18:14,270 INFO [main] q.SocketAcceptor [SessionConnector.java:319] - SessionTimer started
+2023-10-30 17:18:14,339 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-10-30 17:18:14,339 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-10-30 17:18:14,339 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-10-30 17:18:14,354 INFO [main] q.SocketAcceptor [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9878 for session(s) [FIX.4.2:EXEC->BANZAI]
+2023-10-30 17:18:14,357 INFO [QFJ Message Processor] q.SocketAcceptor [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-10-30 17:28:53,849 INFO [main] l.v.a.Engine [Engine.java:62] - Acceptor registered with JMX, name=org.quickfixj:type=Connector,role=Acceptor,id=1
+2023-10-30 17:28:53,906 INFO [main] q.DefaultSessionSchedule [DefaultSessionSchedule.java:87] - [FIX.4.2:EXEC->BANZAI] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-10-30 17:28:53,920 INFO [main] q.SocketAcceptor [SessionConnector.java:319] - SessionTimer started
+2023-10-30 17:28:53,978 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-10-30 17:28:53,978 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-10-30 17:28:53,978 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-10-30 17:28:53,985 INFO [main] q.SocketAcceptor [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9878 for session(s) [FIX.4.2:EXEC->BANZAI]
+2023-10-30 17:28:53,986 INFO [QFJ Message Processor] q.SocketAcceptor [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-10-30 17:29:13,450 INFO [main] l.v.i.Banzai [Banzai.java:102] - initiating Banzai!
+2023-10-30 17:29:14,431 INFO [main] l.v.i.Banzai [Banzai.java:104] - Banzai initiated.
+2023-10-30 17:29:14,486 INFO [main] q.DefaultSessionSchedule [DefaultSessionSchedule.java:87] - [FIX.4.2:BANZAI->EXEC] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-10-30 17:29:14,504 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-10-30 17:29:14,504 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-10-30 17:29:14,504 INFO [main] q.m.NetworkingOptions [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-10-30 17:29:14,565 INFO [main] q.SocketInitiator [SessionConnector.java:319] - SessionTimer started
+2023-10-30 17:29:14,566 INFO [QFJ Message Processor] q.SocketInitiator [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-10-30 17:29:14,570 INFO [NioProcessor-2] q.m.a.AcceptorIoHandler [AcceptorIoHandler.java:58] - MINA session created: local=/127.0.0.1:9878, class org.apache.mina.transport.socket.nio.NioSocketSession, remote=/127.0.0.1:63649
+2023-10-30 17:29:15,590 INFO [QFJ Timer] l.v.i.BanzaiApplication [BanzaiApplication.java:94] - toAdmin:8=FIX.4.29=6635=A34=4649=BANZAI52=20231030-15:29:15.57756=EXEC98=0108=3010=024
+2023-10-30 17:29:15,593 DEBUG [NioProcessor-2] o.a.m.f.c.ProtocolCodecFilter [ProtocolCodecFilter.java:233] - Processing a MESSAGE_RECEIVED for session 1
+2023-10-30 17:29:15,594 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:142] - detected header: pos=0,lim=88,rem=88,offset=0,state=1
+2023-10-30 17:29:15,594 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:168] - body length = 66: pos=0,lim=88,rem=88,offset=15,state=3
+2023-10-30 17:29:15,594 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:189] - message body found: pos=0,lim=88,rem=88,offset=81,state=4
+2023-10-30 17:29:15,594 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:204] - found checksum: pos=0,lim=88,rem=88,offset=81,state=4
+2023-10-30 17:29:15,594 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:223] - parsed message: pos=88,lim=88,rem=0,offset=88,state=4 8=FIX.4.29=6635=A34=4649=BANZAI52=20231030-15:29:15.57756=EXEC98=0108=3010=024
+2023-10-30 17:29:15,620 DEBUG [NioProcessor-2] o.a.m.f.c.ProtocolCodecFilter [ProtocolCodecFilter.java:233] - Processing a MESSAGE_RECEIVED for session 1
+2023-10-30 17:29:15,621 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:142] - detected header: pos=0,lim=88,rem=88,offset=0,state=1
+2023-10-30 17:29:15,621 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:168] - body length = 66: pos=0,lim=88,rem=88,offset=15,state=3
+2023-10-30 17:29:15,621 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:189] - message body found: pos=0,lim=88,rem=88,offset=81,state=4
+2023-10-30 17:29:15,621 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:204] - found checksum: pos=0,lim=88,rem=88,offset=81,state=4
+2023-10-30 17:29:15,621 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:223] - parsed message: pos=88,lim=88,rem=0,offset=88,state=4 8=FIX.4.29=6635=A34=2249=EXEC52=20231030-15:29:15.61856=BANZAI98=0108=3010=014
+2023-10-30 17:29:15,623 INFO [QFJ Message Processor] l.v.i.BanzaiApplication [BanzaiApplication.java:106] - fromAdmin:8=FIX.4.29=6635=A34=2249=EXEC52=20231030-15:29:15.61856=BANZAI98=0108=3010=014
+2023-10-30 17:29:33,192 INFO [AWT-EventQueue-0] l.v.i.BanzaiApplication [BanzaiApplication.java:100] - toApp:8=FIX.4.29=13135=D34=4749=BANZAI52=20231030-15:29:33.19256=EXEC11=169867977318721=138=10040=154=155=AAPL59=060=20231030-15:29:33.19110=173
+2023-10-30 17:29:33,193 DEBUG [NioProcessor-2] o.a.m.f.c.ProtocolCodecFilter [ProtocolCodecFilter.java:233] - Processing a MESSAGE_RECEIVED for session 1
+2023-10-30 17:29:33,193 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:142] - detected header: pos=0,lim=154,rem=154,offset=0,state=1
+2023-10-30 17:29:33,194 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:168] - body length = 131: pos=0,lim=154,rem=154,offset=16,state=3
+2023-10-30 17:29:33,194 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:189] - message body found: pos=0,lim=154,rem=154,offset=147,state=4
+2023-10-30 17:29:33,194 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:204] - found checksum: pos=0,lim=154,rem=154,offset=147,state=4
+2023-10-30 17:29:33,194 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:223] - parsed message: pos=154,lim=154,rem=0,offset=154,state=4 8=FIX.4.29=13135=D34=4749=BANZAI52=20231030-15:29:33.19256=EXEC11=169867977318721=138=10040=154=155=AAPL59=060=20231030-15:29:33.19110=173
+2023-10-30 17:29:45,932 DEBUG [NioProcessor-2] o.a.m.f.c.ProtocolCodecFilter [ProtocolCodecFilter.java:233] - Processing a MESSAGE_RECEIVED for session 1
+2023-10-30 17:29:45,932 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:142] - detected header: pos=0,lim=76,rem=76,offset=0,state=1
+2023-10-30 17:29:45,932 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:168] - body length = 54: pos=0,lim=76,rem=76,offset=15,state=3
+2023-10-30 17:29:45,932 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:189] - message body found: pos=0,lim=76,rem=76,offset=69,state=4
+2023-10-30 17:29:45,932 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:204] - found checksum: pos=0,lim=76,rem=76,offset=69,state=4
+2023-10-30 17:29:45,932 DEBUG [NioProcessor-2] q.m.m.FIXMessageDecoder [FIXMessageDecoder.java:223] - parsed message: pos=76,lim=76,rem=0,offset=76,state=4 8=FIX.4.29=5435=034=2349=EXEC52=20231030-15:29:45.93156=BANZAI10=227
+2023-10-30 17:29:45,933 INFO [QFJ Message Processor] l.v.i.BanzaiApplication [BanzaiApplication.java:106] - fromAdmin:8=FIX.4.29=5435=034=2349=EXEC52=20231030-15:29:45.93156=BANZAI10=227
