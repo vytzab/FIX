@@ -1,0 +1,8 @@
+2023-12-01 07:16:02,546 INFO [OrderEntry.java:98] - initiating Banzai!
+2023-12-01 07:16:03,318 INFO [OrderEntry.java:100] - Banzai initiated.
+2023-12-01 07:16:03,371 INFO [DefaultSessionSchedule.java:87] - [FIX.4.2:BANZAI->EXEC] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-12-01 07:16:03,388 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-12-01 07:16:03,388 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-12-01 07:16:03,388 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-12-01 07:16:03,446 INFO [SessionConnector.java:319] - SessionTimer started
+2023-12-01 07:16:03,447 INFO [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
