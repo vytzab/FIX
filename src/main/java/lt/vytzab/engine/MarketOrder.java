@@ -4,7 +4,7 @@ import quickfix.field.Side;
 
 public class MarketOrder {
     private final long entryTime;
-    private final String clientOrderId;
+    private String clientOrderId;
     private final String symbol;
     private final String owner;
     private final String target;
@@ -31,6 +31,10 @@ public class MarketOrder {
         this.quantity = quantity;
         openQuantity = quantity;
         entryTime = System.currentTimeMillis();
+    }
+
+    public void setClientOrderId(String clientOrderId) {
+        this.clientOrderId = clientOrderId;
     }
 
     public double getAvgExecutedPrice() {

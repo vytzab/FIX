@@ -17,15 +17,19 @@ import javax.swing.event.ListSelectionListener;
 
 import lt.vytzab.engine.EngineApplication;
 import lt.vytzab.engine.LogPanel;
+import lt.vytzab.engine.OrderTableModel;
 
 /**
  * Main content panel
  */
 public class EnginePanel extends JPanel implements Observer, ActionListener {
+    private final OrderPanel orderPanel;
     private final LogPanel logPanel;
+    private final OrderTableModel orderTableModel;
 
-    public EnginePanel(LogPanel logPanel, EngineApplication application) {
+    public EnginePanel(OrderTableModel orderTableModel, LogPanel logPanel, EngineApplication application) {
         setName("Engine Panel");
+        this.orderTableModel = orderTableModel;
         this.logPanel = logPanel;
 
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -38,6 +42,8 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
         constraints.weighty = 10;
 
         JTabbedPane tabbedPane = new JTabbedPane();
+        orderPanel = new OrderPanel(orderTableModel, application);
+        tabbedPane.add("Orders", orderPanel);
         tabbedPane.add("Logs", logPanel);
         add(tabbedPane, constraints);
 

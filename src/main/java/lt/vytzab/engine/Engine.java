@@ -54,8 +54,9 @@ public class Engine {
         // Uzfiksuojamas dabartinis laikas logams
         String currentTime = getCurrentDateTimeAsString();
         LogPanel logPanel = new LogPanel();
+        OrderTableModel orderTableModel = new OrderTableModel();
         // Sukuriama Engine aplikacija
-        EngineApplication application = new EngineApplication(logPanel);
+        EngineApplication application = new EngineApplication(orderTableModel, logPanel);
         // Kaupia FIX zinutes
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         // Ivykiu registravimas
@@ -66,7 +67,7 @@ public class Engine {
         // Sukuriamas acceptorius priimantis connections is iniciatoriu
         acceptor = new SocketAcceptor(application, messageStoreFactory, settings, logFactory, messageFactory);
 
-        frame = new EngineFrame(logPanel, application);
+        frame = new EngineFrame(orderTableModel, logPanel, application);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 

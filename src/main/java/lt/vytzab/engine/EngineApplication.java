@@ -12,11 +12,13 @@ import lt.vytzab.utils.CustomFixMessageParser;
 
 public class EngineApplication extends MessageCracker implements quickfix.Application {
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
+    private OrderTableModel orderTableModel = null;
     private final MarketController marketController = new MarketController();
     private final OrderIdGenerator generator = new OrderIdGenerator();
     private final LogPanel logPanel;
 
-    public EngineApplication(LogPanel logPanel) {
+    public EngineApplication(OrderTableModel orderTableModel, LogPanel logPanel) {
+        this.orderTableModel = orderTableModel;
         this.logPanel = logPanel;
     }
 
@@ -95,7 +97,6 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     private void rejectOrder(String senderCompId, String targetCompId, String clOrdId, String symbol, char side, String message) {
-
         ExecutionReport fixOrder = new ExecutionReport(new OrderID(clOrdId), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW),
                 new ExecType(ExecType.REJECTED), new OrdStatus(ExecType.REJECTED), new Symbol(symbol),
                 new Side(side), new LeavesQty(0), new CumQty(0), new AvgPx(0));
@@ -109,6 +110,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         } catch (SessionNotFound e) {
             e.printStackTrace();
         }
+        //TODO add to table
     }
 
     private void rejectOrder(MarketOrder order) {

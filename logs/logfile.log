@@ -1,5 +1,13 @@
-2023-12-02 19:31:10,633 INFO [SessionConnector.java:241] - Logging out all sessions
-2023-12-02 19:31:10,636 INFO [AbstractSocketAcceptor.java:270] - No longer accepting connections on /[0:0:0:0:0:0:0:0]:9881
-2023-12-02 19:31:10,637 INFO [AbstractSocketAcceptor.java:270] - No longer accepting connections on /[0:0:0:0:0:0:0:0]:9882
-2023-12-02 19:31:10,637 INFO [SessionConnector.java:325] - SessionTimer canceled
-2023-12-02 19:31:10,637 INFO [SingleThreadedEventHandlingStrategy.java:146] - Stopped QFJ Message Processor
+2023-12-02 20:35:28,715 INFO [DefaultSessionSchedule.java:87] - [FIX.4.2:ENGINE->ORDERENTRY2] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-12-02 20:35:28,727 INFO [DefaultSessionSchedule.java:87] - [FIX.4.2:ENGINE->ORDERENTRY1] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-12-02 20:35:28,729 INFO [SessionConnector.java:319] - SessionTimer started
+2023-12-02 20:35:28,794 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-12-02 20:35:28,794 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-12-02 20:35:28,794 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-12-02 20:35:28,801 INFO [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9881 for session(s) [FIX.4.2:ENGINE->ORDERENTRY1]
+2023-12-02 20:35:28,808 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-12-02 20:35:28,808 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-12-02 20:35:28,808 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-12-02 20:35:28,809 INFO [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9882 for session(s) [FIX.4.2:ENGINE->ORDERENTRY2]
+2023-12-02 20:35:28,810 INFO [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-12-02 20:35:38,435 INFO [AcceptorIoHandler.java:58] - MINA session created: local=/127.0.0.1:9881, class org.apache.mina.transport.socket.nio.NioSocketSession, remote=/127.0.0.1:55344

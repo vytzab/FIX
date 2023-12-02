@@ -26,36 +26,30 @@ public class OrderTableModel extends AbstractTableModel {
         idToRow = new HashMap<>();
         idToOrder = new HashMap<>();
 
-        headers = new String[]
-                {"Symbol", "Quantity", "Open", "Executed",
-                        "Side", "Type", "Limit", "Stop", "AvgPx",
-                        "Target"};
-    }
-
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+        headers = new String[] {"Symbol", "Quantity", "Open", "Executed", "Side",
+                "Type", "Limit", "Stop", "AvgPx", "Target"};
     }
 
     public void addOrder(MarketOrder order) {
         int row = rowToOrder.size();
 
         rowToOrder.put(row, order);
-        idToRow.put(order.getID(), row);
-        idToOrder.put(order.getID(), order);
+        idToRow.put(order.getClientOrderId(), row);
+        idToOrder.put(order.getClientOrderId(), order);
 
         fireTableRowsInserted(row, row);
     }
 
     public void updateOrder(MarketOrder order, String id) {
 
-        if (!id.equals(order.getID())) {
-            String originalID = order.getID();
-            order.setID(id);
+        if (!id.equals(order.getClientOrderId())) {
+            String originalID = order.getClientOrderId();
+            order.setClientOrderId(id);
             replaceOrder(order, originalID);
             return;
         }
 
-        Integer row = idToRow.get(order.getID());
+        Integer row = idToRow.get(order.getClientOrderId());
         if (row == null)
             return;
         fireTableRowsUpdated(row, row);
@@ -68,8 +62,8 @@ public class OrderTableModel extends AbstractTableModel {
             return;
 
         rowToOrder.put(row, order);
-        idToRow.put(order.getID(), row);
-        idToOrder.put(order.getID(), order);
+        idToRow.put(order.getClientOrderId(), row);
+        idToOrder.put(order.getClientOrderId(), order);
 
         fireTableRowsUpdated(row, row);
     }
@@ -112,21 +106,19 @@ public class OrderTableModel extends AbstractTableModel {
             case QUANTITY:
                 return order.getQuantity();
             case OPEN:
-                return order.getOpen();
+                return order.getOpenQuantity();
             case EXECUTED:
-                return order.getExecuted();
+                return order.getExecutedQuantity();
             case SIDE:
                 return order.getSide();
             case TYPE:
                 return order.getType();
             case LIMITPRICE:
-                return order.getLimit();
+                return order.getPrice();
             case STOPPRICE:
-                return order.getStop();
+                return order.getPrice();
             case AVGPX:
-                return order.getAvgPx();
-            case TARGET:
-                return order.getSessionID().getTargetCompID();
+                return order.getAvgExecutedPrice();
         }
         return "";
     }
