@@ -1,5 +1,6 @@
 package lt.vytzab.engine;
 
+import lt.vytzab.engine.ui.EngineFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.ConfigError;
@@ -15,6 +16,7 @@ import quickfix.SessionSettings;
 import quickfix.SocketAcceptor;
 
 import javax.management.JMException;
+import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -24,6 +26,7 @@ import static lt.vytzab.utils.DateTimeString.getCurrentDateTimeAsString;
 public class Engine {
     private final static Logger log = LoggerFactory.getLogger(Engine.class);
     private final SocketAcceptor acceptor;
+    private JFrame frame = null;
 
     public static void main(String[] args) throws Exception {
         try {
@@ -50,8 +53,9 @@ public class Engine {
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
         // Uzfiksuojamas dabartinis laikas logams
         String currentTime = getCurrentDateTimeAsString();
+        LogPanel logPanel = new LogPanel();
         // Sukuriama Engine aplikacija
-        EngineApplication engineApplication = new EngineApplication();
+        EngineApplication application = new EngineApplication(logPanel);
         // Kaupia FIX zinutes
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         // Ivykiu registravimas
@@ -60,7 +64,10 @@ public class Engine {
         MessageFactory messageFactory = new DefaultMessageFactory();
 
         // Sukuriamas acceptorius priimantis connections is iniciatoriu
-        acceptor = new SocketAcceptor(engineApplication, messageStoreFactory, settings, logFactory, messageFactory);
+        acceptor = new SocketAcceptor(application, messageStoreFactory, settings, logFactory, messageFactory);
+
+        frame = new EngineFrame(logPanel, application);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
     }
 
     private void start() throws RuntimeError, ConfigError {

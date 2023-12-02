@@ -5,37 +5,44 @@ import quickfix.MessageCracker;
 import quickfix.field.*;
 import quickfix.fix42.*;
 
+import javax.swing.*;
 import java.util.ArrayList;
 
+import lt.vytzab.utils.CustomFixMessageParser;
+
 public class EngineApplication extends MessageCracker implements quickfix.Application {
+    private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
     private final MarketController marketController = new MarketController();
     private final OrderIdGenerator generator = new OrderIdGenerator();
+    private final LogPanel logPanel;
+
+    public EngineApplication(LogPanel logPanel) {
+        this.logPanel = logPanel;
+    }
 
     public void onCreate(SessionID sessionId) {
     }
 
     public void onLogon(SessionID sessionId) {
-//        System.out.println("Logon - " + sessionId);
     }
 
     public void onLogout(SessionID sessionId) {
-//        System.out.println("Logout - " + sessionId);
     }
 
     public void toAdmin(quickfix.Message message, SessionID sessionID) {
-//        System.out.println("toAdmin :  " + CustomFixMessageParser.parse(message.toString()));
+        displayFixMessageInLogs("toAdmin:" + message.toString());
     }
 
     public void toApp(quickfix.Message message, SessionID sessionID) throws DoNotSend {
-//        System.out.println("toApp : " + CustomFixMessageParser.parse(message.toString()));
+        displayFixMessageInLogs("toApp:" + message.toString());
     }
 
     public void fromAdmin(quickfix.Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
-//        System.out.println("fromAdmin : " + CustomFixMessageParser.parse(message.toString()));
+        displayFixMessageInLogs("fromAdmin:" + message.toString());
     }
 
     public void fromApp(quickfix.Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
-//        System.out.println("fromApp : " + CustomFixMessageParser.parse(message.toString()));
+        displayFixMessageInLogs("fromApp:" + message.toString());
         crack(message, sessionID);
         marketController.display();
     }
@@ -89,7 +96,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     private void rejectOrder(String senderCompId, String targetCompId, String clOrdId, String symbol, char side, String message) {
 
-        ExecutionReport fixOrder = new ExecutionReport(new OrderID(clOrdId), new ExecID(generator .genExecutionID()), new ExecTransType(ExecTransType.NEW),
+        ExecutionReport fixOrder = new ExecutionReport(new OrderID(clOrdId), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW),
                 new ExecType(ExecType.REJECTED), new OrdStatus(ExecType.REJECTED), new Symbol(symbol),
                 new Side(side), new LeavesQty(0), new CumQty(0), new AvgPx(0));
 
@@ -198,7 +205,16 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         } catch (SessionNotFound e) {
         }
     }
+
     public MarketController orderMatcher() {
         return marketController;
+    }
+
+    public void displayFixMessageInLogs(String fixMessage) {
+        SwingUtilities.invokeLater(() -> {
+            logPanel.getLogModel().addElement(CustomFixMessageParser.parse(fixMessage));
+            logPanel.revalidate();
+            logPanel.repaint();
+        });
     }
 }

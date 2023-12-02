@@ -1,8 +1,5 @@
-2023-12-01 07:20:28,987 INFO [DefaultSessionSchedule.java:87] - [FIX.4.2:EXEC->BANZAI] daily, 00:00:00-UTC - 00:00:00-UTC
-2023-12-01 07:20:29,001 INFO [SessionConnector.java:319] - SessionTimer started
-2023-12-01 07:20:29,061 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
-2023-12-01 07:20:29,061 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
-2023-12-01 07:20:29,061 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
-2023-12-01 07:20:29,067 INFO [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9878 for session(s) [FIX.4.2:EXEC->BANZAI]
-2023-12-01 07:20:29,068 INFO [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
-2023-12-01 07:20:30,793 INFO [AcceptorIoHandler.java:58] - MINA session created: local=/127.0.0.1:9878, class org.apache.mina.transport.socket.nio.NioSocketSession, remote=/127.0.0.1:56776
+2023-12-02 19:31:10,633 INFO [SessionConnector.java:241] - Logging out all sessions
+2023-12-02 19:31:10,636 INFO [AbstractSocketAcceptor.java:270] - No longer accepting connections on /[0:0:0:0:0:0:0:0]:9881
+2023-12-02 19:31:10,637 INFO [AbstractSocketAcceptor.java:270] - No longer accepting connections on /[0:0:0:0:0:0:0:0]:9882
+2023-12-02 19:31:10,637 INFO [SessionConnector.java:325] - SessionTimer canceled
+2023-12-02 19:31:10,637 INFO [SingleThreadedEventHandlingStrategy.java:146] - Stopped QFJ Message Processor
