@@ -23,7 +23,7 @@ public class Market {
             }
             MarketOrder bidOrder = bidOrders.get(0);
             MarketOrder askOrder = askOrders.get(0);
-            if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET
+            if (bidOrder.getOrdType() == OrdType.MARKET || askOrder.getOrdType() == OrdType.MARKET
                     || (bidOrder.getPrice() >= askOrder.getPrice())) {
                 match(bidOrder, askOrder);
                 if (!orders.contains(bidOrder)) {
@@ -45,8 +45,8 @@ public class Market {
     }
 
     private void match(MarketOrder bid, MarketOrder ask) {
-        double price = ask.getType() == OrdType.LIMIT ? ask.getPrice() : bid.getPrice();
-        long quantity = bid.getOpenQuantity() >= ask.getOpenQuantity() ? ask.getOpenQuantity() : bid.getOpenQuantity();
+        double price = ask.getOrdType() == OrdType.LIMIT ? ask.getPrice() : bid.getPrice();
+        long quantity = Math.min(bid.getOpenQuantity(), ask.getOpenQuantity());
 
         bid.execute(price, quantity);
         ask.execute(price, quantity);
@@ -56,29 +56,29 @@ public class Market {
         return order.getSide() == Side.BUY ? insert(order, true, bidOrders) : insert(order, false, askOrders);
     }
 
-    private boolean insert(MarketOrder order, boolean descending, List<MarketOrder> orders) {
-        if (orders.size() == 0) {
-            orders.add(order);
-        } else if (order.getType() == OrdType.MARKET) {
-            orders.add(0, order);
+    private boolean insert(MarketOrder newOrder, boolean descending, List<MarketOrder> activeOrders) {
+        if (activeOrders.isEmpty()) {
+            activeOrders.add(newOrder);
+        } else if (newOrder.getOrdType() == OrdType.MARKET) {
+            activeOrders.add(0, newOrder);
         } else {
-            for (int i = 0; i < orders.size(); i++) {
-                MarketOrder o = orders.get(i);
-                if ((descending ? order.getPrice() > o.getPrice() : order.getPrice() < o.getPrice())
-                        && order.getEntryTime() < o.getEntryTime()) {
-                    orders.add(i, order);
+            for (int i = 0; i < activeOrders.size(); i++) {
+                MarketOrder activeOrder = activeOrders.get(i);
+                //If newOrder.side = BUY and price is higher than an active selling orders -
+                if ((descending ? newOrder.getPrice() > activeOrder.getPrice() : newOrder.getPrice() < activeOrder.getPrice()) && newOrder.getEntryTime() < activeOrder.getEntryTime()) {
+                    activeOrders.add(i, newOrder);
                 }
             }
-            orders.add(order);
+            activeOrders.add(newOrder);
         }
         return true;
     }
 
     public void erase(MarketOrder order) {
         if (order.getSide() == Side.BUY) {
-            bidOrders.remove(find(bidOrders, order.getClientOrderId()));
+            bidOrders.remove(find(bidOrders, order.getClOrdID()));
         } else {
-            askOrders.remove(find(askOrders, order.getClientOrderId()));
+            askOrders.remove(find(askOrders, order.getClOrdID()));
         }
     }
 
@@ -88,16 +88,23 @@ public class Market {
 
     private MarketOrder find(List<MarketOrder> orders, String clientOrderId) {
         for (MarketOrder order : orders) {
-            if (order.getClientOrderId().equals(clientOrderId)) {
+            if (order.getClOrdID().equals(clientOrderId)) {
                 return order;
             }
         }
         return null;
     }
 
-    public void display() {
-        displaySide(bidOrders, "BIDS");
-        displaySide(askOrders, "ASKS");
+    public void display(String symbol) {
+        if (!bidOrders.isEmpty() || !askOrders.isEmpty()) {
+            System.out.println("MARKET: " + symbol);
+        }
+        if (!bidOrders.isEmpty()) {
+            displaySide(askOrders, "ASKS");
+        }
+        if (!askOrders.isEmpty()) {
+            displaySide(askOrders, "ASKS");
+        }
     }
 
     private void displaySide(List<MarketOrder> orders, String title) {
@@ -106,7 +113,7 @@ public class Market {
         System.out.println(title + ":\n----");
         for (MarketOrder order : orders) {
             System.out.println(qtyFormat.format(order.getOpenQuantity()) + " x " + priceFormat.format(order.getPrice()) + "$  |"
-                    +  " - entered by " + order.getOwner() + " at " + new Date(order.getEntryTime()));
+                    +  " - entered by " + order.getSenderCompID() + " at " + new Date(order.getEntryTime()));
         }
     }
 

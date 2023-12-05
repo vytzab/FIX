@@ -4,12 +4,12 @@ import quickfix.field.Side;
 
 public class MarketOrder {
     private final long entryTime;
-    private String clientOrderId;
+    private String clOrdID;
     private final String symbol;
-    private final String owner;
-    private final String target;
+    private final String senderCompID;
+    private final String targetCompID;
     private final char side;
-    private final char type;
+    private final char ordType;
     private final double price;
     private final long quantity;
     private long openQuantity;
@@ -18,31 +18,29 @@ public class MarketOrder {
     private double lastExecutedPrice;
     private long lastExecutedQuantity;
 
-    public MarketOrder(String clientId, String symbol, String owner, String target, char side, char type,
+    public MarketOrder(String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType,
                        double price, long quantity) {
         super();
-        this.clientOrderId = clientId;
+        this.clOrdID = clOrdID;
         this.symbol = symbol;
-        this.owner = owner;
-        this.target = target;
+        this.senderCompID = senderCompID;
+        this.targetCompID = targetCompID;
         this.side = side;
-        this.type = type;
+        this.ordType = ordType;
         this.price = price;
         this.quantity = quantity;
         openQuantity = quantity;
         entryTime = System.currentTimeMillis();
     }
 
-    public void setClientOrderId(String clientOrderId) {
-        this.clientOrderId = clientOrderId;
-    }
+    //Getters
 
     public double getAvgExecutedPrice() {
         return avgExecutedPrice;
     }
 
-    public String getClientOrderId() {
-        return clientOrderId;
+    public String getClOrdID() {
+        return clOrdID;
     }
 
     public long getExecutedQuantity() {
@@ -57,8 +55,8 @@ public class MarketOrder {
         return openQuantity;
     }
 
-    public String getOwner() {
-        return owner;
+    public String getSenderCompID() {
+        return senderCompID;
     }
 
     public double getPrice() {
@@ -77,14 +75,21 @@ public class MarketOrder {
         return symbol;
     }
 
-    public String getTarget() {
-        return target;
+    public String getTargetCompID() {
+        return targetCompID;
     }
 
-    public char getType() {
-        return type;
+    public char getOrdType() {
+        return ordType;
     }
 
+    //Setters
+
+    public void setClOrdID(String clOrdID) {
+        this.clOrdID = clOrdID;
+    }
+
+    //Returns true if order filled
     public boolean isFilled() {
         return quantity == executedQuantity;
     }
@@ -98,8 +103,7 @@ public class MarketOrder {
     }
 
     public void execute(double price, long quantity) {
-        avgExecutedPrice = ((quantity * price) + (avgExecutedPrice * executedQuantity))
-                / (quantity + executedQuantity);
+        avgExecutedPrice = ((quantity * price) + (avgExecutedPrice * executedQuantity)) / (quantity + executedQuantity);
 
         openQuantity -= quantity;
         executedQuantity += quantity;
@@ -117,5 +121,9 @@ public class MarketOrder {
 
     public double getLastExecutedPrice() {
         return lastExecutedPrice;
+    }
+
+    public boolean isFullyExecuted() {
+        return getOpenQuantity() == 0;
     }
 }

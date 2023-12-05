@@ -14,8 +14,7 @@ public class EngineFrame extends JFrame {
         super();
         setTitle("Engine Frame");
         setSize(600, 400);
-        getContentPane().add(new EnginePanel(orderTableModel, logPanel, application),
-                BorderLayout.CENTER);
+        getContentPane().add(new EnginePanel(orderTableModel, logPanel, application), BorderLayout.CENTER);
         setVisible(true);
     }
 }

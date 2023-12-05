@@ -1,9 +1,14 @@
 package lt.vytzab.engine;
 
 import javax.swing.table.AbstractTableModel;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 
 public class OrderTableModel extends AbstractTableModel {
+    private List<MarketOrder> orders = new ArrayList<>();
+
     private final static int SYMBOL = 0;
     private final static int QUANTITY = 1;
     private final static int OPEN = 2;
@@ -32,24 +37,25 @@ public class OrderTableModel extends AbstractTableModel {
 
     public void addOrder(MarketOrder order) {
         int row = rowToOrder.size();
+        orders.add(order);
 
         rowToOrder.put(row, order);
-        idToRow.put(order.getClientOrderId(), row);
-        idToOrder.put(order.getClientOrderId(), order);
+        idToRow.put(order.getClOrdID(), row);
+        idToOrder.put(order.getClOrdID(), order);
 
         fireTableRowsInserted(row, row);
     }
 
     public void updateOrder(MarketOrder order, String id) {
 
-        if (!id.equals(order.getClientOrderId())) {
-            String originalID = order.getClientOrderId();
-            order.setClientOrderId(id);
+        if (!id.equals(order.getClOrdID())) {
+            String originalID = order.getClOrdID();
+            order.setClOrdID(id);
             replaceOrder(order, originalID);
             return;
         }
 
-        Integer row = idToRow.get(order.getClientOrderId());
+        Integer row = idToRow.get(order.getClOrdID());
         if (row == null)
             return;
         fireTableRowsUpdated(row, row);
@@ -62,10 +68,28 @@ public class OrderTableModel extends AbstractTableModel {
             return;
 
         rowToOrder.put(row, order);
-        idToRow.put(order.getClientOrderId(), row);
-        idToOrder.put(order.getClientOrderId(), order);
+        idToRow.put(order.getClOrdID(), row);
+        idToOrder.put(order.getClOrdID(), order);
 
         fireTableRowsUpdated(row, row);
+    }
+
+    public void removeFullyExecutedOrders() {
+        Iterator<MarketOrder> iterator = orders.iterator();
+        while (iterator.hasNext()) {
+            MarketOrder order = iterator.next();
+            if (order.isFullyExecuted()) {
+                // Remove the order from the mappings
+                int row = idToRow.get(order.getClOrdID());
+                rowToOrder.remove(row);
+                idToRow.remove(order.getClOrdID());
+                idToOrder.remove(order.getClOrdID());
+
+                iterator.remove();
+            }
+        }
+
+        fireTableDataChanged();
     }
 
     public void addID(MarketOrder order, String newID) {
@@ -112,7 +136,7 @@ public class OrderTableModel extends AbstractTableModel {
             case SIDE:
                 return order.getSide();
             case TYPE:
-                return order.getType();
+                return order.getOrdType();
             case LIMITPRICE:
                 return order.getPrice();
             case STOPPRICE:

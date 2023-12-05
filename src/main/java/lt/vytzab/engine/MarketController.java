@@ -27,11 +27,8 @@ public class MarketController {
     }
 
     public void display() {
-//        System.out.println("markets = ");
-//        System.out.println(markets);
         for (String symbol : markets.keySet()) {
-            System.out.println("MARKET: " + symbol);
-            getMarket(symbol).display();
+                getMarket(symbol).display(symbol);
         }
     }
 

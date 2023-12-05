@@ -1,13 +1,13 @@
-2023-12-02 20:35:28,715 INFO [DefaultSessionSchedule.java:87] - [FIX.4.2:ENGINE->ORDERENTRY2] daily, 00:00:00-UTC - 00:00:00-UTC
-2023-12-02 20:35:28,727 INFO [DefaultSessionSchedule.java:87] - [FIX.4.2:ENGINE->ORDERENTRY1] daily, 00:00:00-UTC - 00:00:00-UTC
-2023-12-02 20:35:28,729 INFO [SessionConnector.java:319] - SessionTimer started
-2023-12-02 20:35:28,794 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
-2023-12-02 20:35:28,794 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
-2023-12-02 20:35:28,794 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
-2023-12-02 20:35:28,801 INFO [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9881 for session(s) [FIX.4.2:ENGINE->ORDERENTRY1]
-2023-12-02 20:35:28,808 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
-2023-12-02 20:35:28,808 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
-2023-12-02 20:35:28,808 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
-2023-12-02 20:35:28,809 INFO [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9882 for session(s) [FIX.4.2:ENGINE->ORDERENTRY2]
-2023-12-02 20:35:28,810 INFO [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
-2023-12-02 20:35:38,435 INFO [AcceptorIoHandler.java:58] - MINA session created: local=/127.0.0.1:9881, class org.apache.mina.transport.socket.nio.NioSocketSession, remote=/127.0.0.1:55344
+2023-12-05 16:01:08,155 INFO [DefaultSessionSchedule.java:87] - [FIX.4.2:ENGINE->ORDERENTRY2] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-12-05 16:01:08,167 INFO [DefaultSessionSchedule.java:87] - [FIX.4.2:ENGINE->ORDERENTRY1] daily, 00:00:00-UTC - 00:00:00-UTC
+2023-12-05 16:01:08,169 INFO [SessionConnector.java:319] - SessionTimer started
+2023-12-05 16:01:08,223 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-12-05 16:01:08,223 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-12-05 16:01:08,223 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-12-05 16:01:08,229 INFO [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9881 for session(s) [FIX.4.2:ENGINE->ORDERENTRY1]
+2023-12-05 16:01:08,245 INFO [NetworkingOptions.java:117] - Socket option: SocketTcpNoDelay=true
+2023-12-05 16:01:08,246 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWrites=false
+2023-12-05 16:01:08,246 INFO [NetworkingOptions.java:117] - Socket option: SocketSynchronousWriteTimeout=30000
+2023-12-05 16:01:08,246 INFO [AbstractSocketAcceptor.java:118] - Listening for connections at 0.0.0.0/0.0.0.0:9882 for session(s) [FIX.4.2:ENGINE->ORDERENTRY2]
+2023-12-05 16:01:08,247 INFO [SingleThreadedEventHandlingStrategy.java:144] - Started QFJ Message Processor
+2023-12-05 16:01:11,301 INFO [AcceptorIoHandler.java:58] - MINA session created: local=/127.0.0.1:9882, class org.apache.mina.transport.socket.nio.NioSocketSession, remote=/127.0.0.1:60477
