@@ -192,7 +192,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
 
         try {
-            Session.sendToTarget(executionReport, order.getSenderCompID(), order.getTargetCompID());
+            Session.sendToTarget(executionReport, order.getTargetCompID(), order.getSenderCompID());
         } catch (SessionNotFound e) {
             //TODO implement better logging
         }
