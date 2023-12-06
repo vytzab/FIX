@@ -63,7 +63,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             price = 0;
             //TODO implement last market price
         }
-        long quantity = (long)message.getDouble(OrderQty.FIELD);
+        long quantity = (long) message.getDouble(OrderQty.FIELD);
 
 //        char timeInForce = TimeInForce.DAY;
 //        if (message.isSetField(TimeInForce.FIELD)) {
@@ -95,8 +95,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             marketController.erase(order);
             cancelOrder(order);
         } else {
-            OrderCancelReject orderCancelReject = new OrderCancelReject(new OrderID(generator.genOrderID()), new ClOrdID(message.getString(ClOrdID.FIELD)),
-                    new OrigClOrdID(message.getString(OrigClOrdID.FIELD)), new OrdStatus(OrdStatus.REJECTED), new CxlRejResponseTo(CxlRejResponseTo.ORDER_CANCEL_REQUEST));
+            OrderCancelReject orderCancelReject = new OrderCancelReject(new OrderID(generator.genOrderID()), new ClOrdID(message.getString(ClOrdID.FIELD)), new OrigClOrdID(message.getString(OrigClOrdID.FIELD)), new OrdStatus(OrdStatus.REJECTED), new CxlRejResponseTo(CxlRejResponseTo.ORDER_CANCEL_REQUEST));
             try {
                 Session.sendToTarget(orderCancelReject, message.getHeader().getString(TargetCompID.FIELD), message.getHeader().getString(SenderCompID.FIELD));
             } catch (SessionNotFound e) {
@@ -155,9 +154,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     private void rejectNewOrderSingle(String senderCompId, String targetCompId, String clOrdID, String symbol, char side, String message) {
-        ExecutionReport rejectExecutionReport = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW),
-                new ExecType(ExecType.REJECTED), new OrdStatus(ExecType.REJECTED), new Symbol(symbol),
-                new Side(side), new LeavesQty(0), new CumQty(0), new AvgPx(0));
+        ExecutionReport rejectExecutionReport = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(ExecType.REJECTED), new OrdStatus(ExecType.REJECTED), new Symbol(symbol), new Side(side), new LeavesQty(0), new CumQty(0), new AvgPx(0));
 
         rejectExecutionReport.setString(ClOrdID.FIELD, clOrdID);
         rejectExecutionReport.setString(Text.FIELD, message);
@@ -184,11 +181,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     private void sendExecutionReport(MarketOrder order, char status) {
-        ExecutionReport executionReport = new ExecutionReport(new OrderID(generator.genOrderID()),
-                new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW),
-                new ExecType(status), new OrdStatus(status), new Symbol(order.getSymbol()),
-                new Side(order.getSide()), new LeavesQty(order.getOpenQuantity()), new CumQty(order
-                .getExecutedQuantity()), new AvgPx(order.getAvgExecutedPrice()));
+        ExecutionReport executionReport = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(status), new OrdStatus(status), new Symbol(order.getSymbol()), new Side(order.getSide()), new LeavesQty(order.getOpenQuantity()), new CumQty(order.getExecutedQuantity()), new AvgPx(order.getAvgExecutedPrice()));
 
         executionReport.setString(ClOrdID.FIELD, order.getClOrdID());
         executionReport.setDouble(OrderQty.FIELD, order.getQuantity());

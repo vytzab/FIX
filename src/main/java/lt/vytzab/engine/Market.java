@@ -18,13 +18,12 @@ public class Market {
 
     public boolean match(String symbol, List<MarketOrder> orders) {
         while (true) {
-            if (bidOrders.size() == 0 || askOrders.size() == 0) {
-                return orders.size() != 0;
+            if (bidOrders.isEmpty() || askOrders.isEmpty()) {
+                return !orders.isEmpty();
             }
             MarketOrder bidOrder = bidOrders.get(0);
             MarketOrder askOrder = askOrders.get(0);
-            if (bidOrder.getOrdType() == OrdType.MARKET || askOrder.getOrdType() == OrdType.MARKET
-                    || (bidOrder.getPrice() >= askOrder.getPrice())) {
+            if (bidOrder.getOrdType() == OrdType.MARKET || askOrder.getOrdType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
                 match(bidOrder, askOrder);
                 if (!orders.contains(bidOrder)) {
                     orders.add(0, bidOrder);
@@ -39,8 +38,7 @@ public class Market {
                 if (askOrder.isClosed()) {
                     askOrders.remove(askOrder);
                 }
-            } else
-                return orders.size() != 0;
+            } else return !orders.isEmpty();
         }
     }
 
@@ -112,8 +110,7 @@ public class Market {
         DecimalFormat qtyFormat = new DecimalFormat("######");
         System.out.println(title + ":\n----");
         for (MarketOrder order : orders) {
-            System.out.println(qtyFormat.format(order.getOpenQuantity()) + " x " + priceFormat.format(order.getPrice()) + "$  |"
-                    +  " - entered by " + order.getSenderCompID() + " at " + new Date(order.getEntryTime()));
+            System.out.println(qtyFormat.format(order.getOpenQuantity()) + " x " + priceFormat.format(order.getPrice()) + "$  |" + " - entered by " + order.getSenderCompID() + " at " + new Date(order.getEntryTime()));
         }
     }
 

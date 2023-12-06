@@ -18,8 +18,7 @@ public class MarketOrder {
     private double lastExecutedPrice;
     private long lastExecutedQuantity;
 
-    public MarketOrder(String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType,
-                       double price, long quantity) {
+    public MarketOrder(String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity) {
         super();
         this.clOrdID = clOrdID;
         this.symbol = symbol;

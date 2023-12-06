@@ -11,7 +11,7 @@ public class OrderTIF {
     static public final OrderTIF GTC = new OrderTIF("GTC");
     static public final OrderTIF GTX = new OrderTIF("GTX");
 
-    static private final OrderTIF[] array = { DAY, IOC, OPG, GTC, GTX };
+    static private final OrderTIF[] array = {DAY, IOC, OPG, GTC, GTX};
 
     private final String name;
 
@@ -37,8 +37,7 @@ public class OrderTIF {
     public static OrderTIF parse(String type) throws IllegalArgumentException {
         OrderTIF result = known.get(type);
         if (result == null) {
-            throw new IllegalArgumentException
-                    ("OrderTIF: " + type + " is unknown.");
+            throw new IllegalArgumentException("OrderTIF: " + type + " is unknown.");
         }
         return result;
     }

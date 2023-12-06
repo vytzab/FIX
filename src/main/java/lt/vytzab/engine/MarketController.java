@@ -28,7 +28,7 @@ public class MarketController {
 
     public void display() {
         for (String symbol : markets.keySet()) {
-                getMarket(symbol).display(symbol);
+            getMarket(symbol).display(symbol);
         }
     }
 

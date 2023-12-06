@@ -13,10 +13,7 @@ public class OrderSide {
     static public final OrderSide CROSS_SHORT = new OrderSide("Cross Short");
     static public final OrderSide CROSS_SHORT_EXEMPT = new OrderSide("Cross Short Exempt");
 
-    static private final OrderSide[] array = {
-            BUY, SELL, SHORT_SELL, SHORT_SELL_EXEMPT,
-            CROSS, CROSS_SHORT, CROSS_SHORT_EXEMPT
-    };
+    static private final OrderSide[] array = {BUY, SELL, SHORT_SELL, SHORT_SELL_EXEMPT, CROSS, CROSS_SHORT, CROSS_SHORT_EXEMPT};
 
     private final String name;
 
@@ -42,8 +39,7 @@ public class OrderSide {
     public static OrderSide parse(String type) throws IllegalArgumentException {
         OrderSide result = known.get(type);
         if (result == null) {
-            throw new IllegalArgumentException
-                    ("OrderSide: " + type + " is unknown.");
+            throw new IllegalArgumentException("OrderSide: " + type + " is unknown.");
         }
         return result;
     }

@@ -31,8 +31,7 @@ public class OrderTableModel extends AbstractTableModel {
         idToRow = new HashMap<>();
         idToOrder = new HashMap<>();
 
-        headers = new String[] {"Symbol", "Quantity", "Open", "Executed", "Side",
-                "Type", "Limit", "Stop", "AvgPx", "Target"};
+        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Target"};
     }
 
     public void addOrder(MarketOrder order) {
@@ -56,16 +55,14 @@ public class OrderTableModel extends AbstractTableModel {
         }
 
         Integer row = idToRow.get(order.getClOrdID());
-        if (row == null)
-            return;
+        if (row == null) return;
         fireTableRowsUpdated(row, row);
     }
 
     public void replaceOrder(MarketOrder order, String originalID) {
 
         Integer row = idToRow.get(originalID);
-        if (row == null)
-            return;
+        if (row == null) return;
 
         rowToOrder.put(row, order);
         idToRow.put(order.getClOrdID(), row);
@@ -104,7 +101,8 @@ public class OrderTableModel extends AbstractTableModel {
         return rowToOrder.get(row);
     }
 
-    public void setValueAt(Object value, int rowIndex, int columnIndex) { }
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+    }
 
     public Class<String> getColumnClass(int columnIndex) {
         return String.class;
