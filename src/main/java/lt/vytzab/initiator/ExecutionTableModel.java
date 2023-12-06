@@ -23,7 +23,7 @@ public class ExecutionTableModel extends AbstractTableModel {
         idToExecution = new HashMap<>();
         exchangeIdToExecution = new HashMap<>();
 
-        headers = new String[] {"Symbol", "Quantity", "Side", "Price"};
+        headers = new String[]{"Symbol", "Quantity", "Side", "Price"};
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -33,8 +33,7 @@ public class ExecutionTableModel extends AbstractTableModel {
     public void addExecution(Execution execution) {
         int row = rowToExecution.size();
 
-        if (exchangeIdToExecution.get(execution.getExchangeID()) != null)
-            return;
+        if (exchangeIdToExecution.get(execution.getExchangeID()) != null) return;
 
         rowToExecution.put(row, execution);
         idToRow.put(execution.getID(), row);
@@ -52,7 +51,8 @@ public class ExecutionTableModel extends AbstractTableModel {
         return rowToExecution.get(row);
     }
 
-    public void setValueAt(Object value, int rowIndex, int columnIndex) { }
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+    }
 
     public Class<String> getColumnClass(int columnIndex) {
         return String.class;

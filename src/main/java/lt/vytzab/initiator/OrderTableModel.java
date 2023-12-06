@@ -27,10 +27,7 @@ public class OrderTableModel extends AbstractTableModel {
         idToRow = new HashMap<>();
         idToOrder = new HashMap<>();
 
-        headers = new String[]
-                {"Symbol", "Quantity", "Open", "Executed",
-                        "Side", "Type", "Limit", "Stop", "AvgPx",
-                        "Target"};
+        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Target"};
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -57,16 +54,13 @@ public class OrderTableModel extends AbstractTableModel {
         }
 
         Integer row = idToRow.get(order.getID());
-        if (row == null)
-            return;
+        if (row == null) return;
         fireTableRowsUpdated(row, row);
     }
 
     public void replaceOrder(Order order, String originalID) {
-
         Integer row = idToRow.get(originalID);
-        if (row == null)
-            return;
+        if (row == null) return;
 
         rowToOrder.put(row, order);
         idToRow.put(order.getID(), row);
@@ -87,7 +81,8 @@ public class OrderTableModel extends AbstractTableModel {
         return rowToOrder.get(row);
     }
 
-    public void setValueAt(Object value, int rowIndex, int columnIndex) { }
+    public void setValueAt(Object value, int rowIndex, int columnIndex) {
+    }
 
     public Class<String> getColumnClass(int columnIndex) {
         return String.class;

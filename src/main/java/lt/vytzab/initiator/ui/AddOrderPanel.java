@@ -32,6 +32,7 @@ import lt.vytzab.initiator.OrderSide;
 import lt.vytzab.initiator.OrderTIF;
 import lt.vytzab.initiator.OrderTableModel;
 import lt.vytzab.initiator.OrderType;
+import quickfix.SessionNotFound;
 
 public class AddOrderPanel extends JPanel implements Observer {
     private boolean symbolEntered = false;
@@ -63,8 +64,7 @@ public class AddOrderPanel extends JPanel implements Observer {
 
     private final GridBagConstraints constraints = new GridBagConstraints();
 
-    public AddOrderPanel(final OrderTableModel orderTableModel,
-                         final OrderEntryApplication application) {
+    public AddOrderPanel(final OrderTableModel orderTableModel, final OrderEntryApplication application) {
         setName("OrderEntryPanel");
         this.orderTableModel = orderTableModel;
         this.application = application;
@@ -89,8 +89,7 @@ public class AddOrderPanel extends JPanel implements Observer {
 
     public void setMessage(String message) {
         messageLabel.setText(message);
-        if (message == null || message.equals(""))
-            messageLabel.setText(" ");
+        if (message == null || message.equals("")) messageLabel.setText(" ");
     }
 
     public void clearMessage() {
@@ -165,14 +164,10 @@ public class AddOrderPanel extends JPanel implements Observer {
         OrderType type = (OrderType) typeComboBox.getSelectedItem();
         boolean activate = symbolEntered && quantityEntered && sessionEntered;
 
-        if (type == OrderType.MARKET)
-            submitButton.setEnabled(activate);
-        else if (type == OrderType.LIMIT)
-            submitButton.setEnabled(activate && limitEntered);
-        else if (type == OrderType.STOP)
-            submitButton.setEnabled(activate && stopEntered);
-        else if (type == OrderType.STOP_LIMIT)
-            submitButton.setEnabled(activate && limitEntered && stopEntered);
+        if (type == OrderType.MARKET) submitButton.setEnabled(activate);
+        else if (type == OrderType.LIMIT) submitButton.setEnabled(activate && limitEntered);
+        else if (type == OrderType.STOP) submitButton.setEnabled(activate && stopEntered);
+        else if (type == OrderType.STOP_LIMIT) submitButton.setEnabled(activate && limitEntered && stopEntered);
     }
 
     private class PriceListener implements ItemListener {
@@ -213,10 +208,8 @@ public class AddOrderPanel extends JPanel implements Observer {
 
     public void update(Observable o, Object arg) {
         LogonEvent logonEvent = (LogonEvent) arg;
-        if (logonEvent.isLoggedOn())
-            sessionComboBox.addItem(logonEvent.getSessionID());
-        else
-            sessionComboBox.removeItem(logonEvent.getSessionID());
+        if (logonEvent.isLoggedOn()) sessionComboBox.addItem(logonEvent.getSessionID());
+        else sessionComboBox.removeItem(logonEvent.getSessionID());
     }
 
     private class SubmitListener implements ActionListener {
@@ -231,14 +224,16 @@ public class AddOrderPanel extends JPanel implements Observer {
             order.setOpen(order.getQuantity());
 
             OrderType type = order.getType();
-            if (type == OrderType.LIMIT || type == OrderType.STOP_LIMIT)
-                order.setLimit(limitPriceTextField.getText());
-            if (type == OrderType.STOP || type == OrderType.STOP_LIMIT)
-                order.setStop(stopPriceTextField.getText());
+            if (type == OrderType.LIMIT || type == OrderType.STOP_LIMIT) order.setLimit(limitPriceTextField.getText());
+            if (type == OrderType.STOP || type == OrderType.STOP_LIMIT) order.setStop(stopPriceTextField.getText());
             order.setSessionID((SessionID) sessionComboBox.getSelectedItem());
 
             orderTableModel.addOrder(order);
-            application.send(order);
+            try {
+                application.sendNewOrderSingle(order);
+            } catch (SessionNotFound ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -268,8 +263,10 @@ public class AddOrderPanel extends JPanel implements Observer {
             return value.length() > 0;
         }
 
-        public void keyTyped(KeyEvent e) {}
+        public void keyTyped(KeyEvent e) {
+        }
 
-        public void keyPressed(KeyEvent e) {}
+        public void keyPressed(KeyEvent e) {
+        }
     }
 }

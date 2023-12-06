@@ -8,7 +8,6 @@ import quickfix.Application;
 import quickfix.DefaultMessageFactory;
 import quickfix.DoNotSend;
 import quickfix.FieldNotFound;
-import quickfix.FixVersions;
 import quickfix.IncorrectDataFormat;
 import quickfix.IncorrectTagValue;
 import quickfix.Message;
@@ -22,13 +21,10 @@ import quickfix.field.BeginString;
 import quickfix.field.BusinessRejectReason;
 import quickfix.field.ClOrdID;
 import quickfix.field.CumQty;
-import quickfix.field.CxlType;
-import quickfix.field.DeliverToCompID;
 import quickfix.field.ExecID;
 import quickfix.field.HandlInst;
 import quickfix.field.LastPx;
 import quickfix.field.LastShares;
-import quickfix.field.LeavesQty;
 import quickfix.field.LocateReqd;
 import quickfix.field.MsgSeqNum;
 import quickfix.field.MsgType;
@@ -48,9 +44,9 @@ import quickfix.field.TargetCompID;
 import quickfix.field.Text;
 import quickfix.field.TimeInForce;
 import quickfix.field.TransactTime;
+import quickfix.fix42.*;
 
 import javax.swing.*;
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -65,12 +61,16 @@ public class OrderEntryApplication implements Application {
     private final LogPanel logPanel;
     private boolean isAvailable = true;
     private boolean isMissingField;
-
+    //Pirkimo / pardavimo puses konvertavimui is FIX i object
     static private final TwoWayMap sideMap = new TwoWayMap();
+    //Tipo konvertavimui is FIX i object
     static private final TwoWayMap typeMap = new TwoWayMap();
+    //TIF konvertavimui is FIX i object
     static private final TwoWayMap tifMap = new TwoWayMap();
+    //Tikrinimui ar zinute su tokiu ExecutionID jau processed.
     static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(OrderEntryApplication.class);
+
     public OrderEntryApplication(OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, LogPanel logPanel) {
         this.orderTableModel = orderTableModel;
         this.executionTableModel = executionTableModel;
@@ -90,25 +90,21 @@ public class OrderEntryApplication implements Application {
 
     public void toAdmin(quickfix.Message message, SessionID sessionID) {
         displayFixMessageInLogs("toAdmin:" + message.toString());
-        System.out.println("toADMIN!");
         logger.info("toAdmin:" + message);
     }
 
     public void toApp(quickfix.Message message, SessionID sessionID) throws DoNotSend {
         displayFixMessageInLogs("toApp:" + message.toString());
-        System.out.println("toAPP!");
         logger.info("toApp:" + message);
     }
 
     public void fromAdmin(quickfix.Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, RejectLogon {
         displayFixMessageInLogs("fromAdmin:" + message.toString());
-        System.out.println("fromADMIN!");
         logger.info("fromAdmin:" + message);
     }
 
     public void fromApp(quickfix.Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
         displayFixMessageInLogs("fromApp:" + message.toString());
-        System.out.println("fromAPP!");
         logger.info("fromApp:" + message);
         try {
             SwingUtilities.invokeLater(new MessageProcessor(message, sessionID));
@@ -116,6 +112,7 @@ public class OrderEntryApplication implements Application {
         }
     }
 
+    //Zinuciu gautu is variklio apdirbimui
     public class MessageProcessor implements Runnable {
         private final quickfix.Message message;
         private final SessionID sessionID;
@@ -129,24 +126,17 @@ public class OrderEntryApplication implements Application {
             try {
                 MsgType msgType = new MsgType();
                 if (isAvailable) {
-                    if (isMissingField) {
-                        // For OpenFIX certification testing
-                        sendBusinessReject(message, BusinessRejectReason.CONDITIONALLY_REQUIRED_FIELD_MISSING, "Conditionally required field missing");
-                    }
-                    else if (message.getHeader().isSetField(DeliverToCompID.FIELD)) {
-                        // This is here to support OpenFIX certification
-                        sendSessionReject(message, SessionRejectReason.COMPID_PROBLEM);
-                    } else if (message.getHeader().getField(msgType).valueEquals("8")) {
+                    //Jeigu gautas execution report msgType = 8
+                    if (message.getHeader().getField(msgType).valueEquals("8")) {
                         executionReport(message, sessionID);
+                        //Jeigu gautas cancel reject report msgType = 8
                     } else if (message.getHeader().getField(msgType).valueEquals("9")) {
                         cancelReject(message, sessionID);
                     } else {
-                        sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE,
-                                "Unsupported Message Type");
+                        sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE, "Unsupported Message Type");
                     }
                 } else {
-                    sendBusinessReject(message, BusinessRejectReason.APPLICATION_NOT_AVAILABLE,
-                            "Application not available");
+                    sendBusinessReject(message, BusinessRejectReason.APPLICATION_NOT_AVAILABLE, "Application not available");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -154,10 +144,10 @@ public class OrderEntryApplication implements Application {
         }
     }
 
-    private void sendSessionReject(Message message, int rejectReason) throws FieldNotFound,
-            SessionNotFound {
-        Message reply = createMessage(message, MsgType.REJECT);
-        reverseRoute(message, reply);
+    private void sendSessionReject(Message message, int rejectReason) throws FieldNotFound, SessionNotFound {
+        Message reply = (messageFactory.create(message.getHeader().getString(BeginString.FIELD), MsgType.REJECT));
+        reply.getHeader().setString(SenderCompID.FIELD, message.getHeader().getString(TargetCompID.FIELD));
+        reply.getHeader().setString(TargetCompID.FIELD, message.getHeader().getString(SenderCompID.FIELD));
         String refSeqNum = message.getHeader().getString(MsgSeqNum.FIELD);
         reply.setString(RefSeqNum.FIELD, refSeqNum);
         reply.setString(RefMsgType.FIELD, message.getHeader().getString(MsgType.FIELD));
@@ -165,10 +155,10 @@ public class OrderEntryApplication implements Application {
         Session.sendToTarget(reply);
     }
 
-    private void sendBusinessReject(Message message, int rejectReason, String rejectText)
-            throws FieldNotFound, SessionNotFound {
-        Message reply = createMessage(message, MsgType.BUSINESS_MESSAGE_REJECT);
-        reverseRoute(message, reply);
+    private void sendBusinessReject(Message message, int rejectReason, String rejectText) throws FieldNotFound, SessionNotFound {
+        Message reply = (messageFactory.create(message.getHeader().getString(BeginString.FIELD), MsgType.BUSINESS_MESSAGE_REJECT));
+        reply.getHeader().setString(SenderCompID.FIELD, message.getHeader().getString(TargetCompID.FIELD));
+        reply.getHeader().setString(TargetCompID.FIELD, message.getHeader().getString(SenderCompID.FIELD));
         String refSeqNum = message.getHeader().getString(MsgSeqNum.FIELD);
         reply.setString(RefSeqNum.FIELD, refSeqNum);
         reply.setString(RefMsgType.FIELD, message.getHeader().getString(MsgType.FIELD));
@@ -177,44 +167,24 @@ public class OrderEntryApplication implements Application {
         Session.sendToTarget(reply);
     }
 
-    private Message createMessage(Message message, String msgType) throws FieldNotFound {
-        return messageFactory.create(message.getHeader().getString(BeginString.FIELD), msgType);
-    }
-
-    private void reverseRoute(Message message, Message reply) throws FieldNotFound {
-        reply.getHeader().setString(SenderCompID.FIELD,
-                message.getHeader().getString(TargetCompID.FIELD));
-        reply.getHeader().setString(TargetCompID.FIELD,
-                message.getHeader().getString(SenderCompID.FIELD));
-    }
-
     private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
-
+        //Patikrinti ar jau apdirbta
         ExecID execID = (ExecID) message.getField(new ExecID());
-        if (alreadyProcessed(execID, sessionID))
-            return;
-
-        Order order = orderTableModel.getOrder(message.getField(new ClOrdID()).getValue());
+        if (alreadyProcessed(execID, sessionID)) return;
+        //Jeigu toks uzsakymas neegzistuoja sistemoje > ignore
+        Order order = orderTableModel.getOrder(message.getString(ClOrdID.FIELD));
         if (order == null) {
             return;
         }
 
-        BigDecimal fillSize;
+        LastShares lastShares = new LastShares();
+        message.getField(lastShares);
+        double fillSize = lastShares.getValue();
 
-        if (message.isSetField(LastShares.FIELD)) {
-            LastShares lastShares = new LastShares();
-            message.getField(lastShares);
-            fillSize = new BigDecimal("" + lastShares.getValue());
-        } else {
-            // > FIX 4.1
-            LeavesQty leavesQty = new LeavesQty();
-            message.getField(leavesQty);
-            fillSize = new BigDecimal(order.getQuantity()).subtract(new BigDecimal("" + leavesQty.getValue()));
-        }
-
-        if (fillSize.compareTo(BigDecimal.ZERO) > 0) {
-            order.setOpen(order.getOpen() - (int) Double.parseDouble(fillSize.toPlainString()));
-            order.setExecuted(Double.parseDouble(message.getString(CumQty.FIELD)));
+        //Jeigu ivyko matchinimas, update order table
+        if (fillSize > 0) {
+            order.setOpen(order.getOpen() - (int) fillSize);
+            order.setExecuted(Integer.parseInt(message.getString(CumQty.FIELD)));
             order.setAvgPx(Double.parseDouble(message.getString(AvgPx.FIELD)));
         }
 
@@ -223,8 +193,7 @@ public class OrderEntryApplication implements Application {
         if (ordStatus.valueEquals(OrdStatus.REJECTED)) {
             order.setRejected(true);
             order.setOpen(0);
-        } else if (ordStatus.valueEquals(OrdStatus.CANCELED)
-                || ordStatus.valueEquals(OrdStatus.DONE_FOR_DAY)) {
+        } else if (ordStatus.valueEquals(OrdStatus.CANCELED) || ordStatus.valueEquals(OrdStatus.DONE_FOR_DAY)) {
             order.setCanceled(true);
             order.setOpen(0);
         } else if (ordStatus.valueEquals(OrdStatus.NEW)) {
@@ -236,17 +205,19 @@ public class OrderEntryApplication implements Application {
         try {
             order.setMessage(message.getField(new Text()).getValue());
         } catch (FieldNotFound e) {
+            throw new RuntimeException(e);
+            //TODO implement better logging
         }
 
-        orderTableModel.updateOrder(order, message.getField(new ClOrdID()).getValue());
+        orderTableModel.updateOrder(order, message.getString(ClOrdID.FIELD));
         observableOrder.update(order);
 
-        if (fillSize.compareTo(BigDecimal.ZERO) > 0) {
+        //Jeigu ivyko matchinimas, update execution table
+        if (fillSize > 0) {
             Execution execution = new Execution();
-            execution.setExchangeID(sessionID + message.getField(new ExecID()).getValue());
-
-            execution.setSymbol(message.getField(new Symbol()).getValue());
-            execution.setQuantity(fillSize.intValue());
+            execution.setExchangeID(sessionID + message.getString(ExecID.FIELD));
+            execution.setSymbol(message.getString(Symbol.FIELD));
+            execution.setQuantity((int) (fillSize));
             if (message.isSetField(LastPx.FIELD)) {
                 execution.setPrice(Double.parseDouble(message.getString(LastPx.FIELD)));
             }
@@ -257,17 +228,15 @@ public class OrderEntryApplication implements Application {
     }
 
     private void cancelReject(Message message, SessionID sessionID) throws FieldNotFound {
-
-        String id = message.getField(new ClOrdID()).getValue();
+        String id = message.getString(ClOrdID.FIELD);
         Order order = orderTableModel.getOrder(id);
-        if (order == null)
-            return;
-        if (order.getOriginalID() != null)
-            order = orderTableModel.getOrder(order.getOriginalID());
+        if (order == null) return;
+        if (order.getOriginalID() != null) order = orderTableModel.getOrder(order.getOriginalID());
 
         try {
             order.setMessage(message.getField(new Text()).getValue());
         } catch (FieldNotFound e) {
+            throw new RuntimeException(e);
         }
         orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
     }
@@ -280,223 +249,49 @@ public class OrderEntryApplication implements Application {
             execIDs.put(sessionID, set);
             return false;
         } else {
-            if (set.contains(execID))
-                return true;
+            if (set.contains(execID)) return true;
             set.add(execID);
             return false;
         }
     }
 
-    private void send(quickfix.Message message, SessionID sessionID) {
-        try {
-            Session.sendToTarget(message, sessionID);
-        } catch (SessionNotFound e) {
-            System.out.println(e);
-        }
-    }
-
-    public void send(Order order) {
-        String beginString = order.getSessionID().getBeginString();
-        switch (beginString) {
-            case FixVersions.BEGINSTRING_FIX40:
-                send40(order);
-                break;
-            case FixVersions.BEGINSTRING_FIX41:
-                send41(order);
-                break;
-            case FixVersions.BEGINSTRING_FIX42:
-                send42(order);
-                break;
-            case FixVersions.BEGINSTRING_FIX43:
-                send43(order);
-                break;
-            case FixVersions.BEGINSTRING_FIX44:
-                send44(order);
-                break;
-            case FixVersions.BEGINSTRING_FIXT11:
-                send50(order);
-                break;
-        }
-    }
-
-    public void send40(Order order) {
-        quickfix.fix40.NewOrderSingle newOrderSingle = new quickfix.fix40.NewOrderSingle(
-                new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()),
-                sideToFIXSide(order.getSide()), new OrderQty(order.getQuantity()),
-                typeToFIXType(order.getType()));
-
-        send(populateOrder(order, newOrderSingle), order.getSessionID());
-    }
-
-    public void send41(Order order) {
-        quickfix.fix41.NewOrderSingle newOrderSingle = new quickfix.fix41.NewOrderSingle(
-                new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()),
-                sideToFIXSide(order.getSide()), typeToFIXType(order.getType()));
+    public void sendNewOrderSingle(Order order) throws SessionNotFound {
+        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
         newOrderSingle.set(new OrderQty(order.getQuantity()));
 
-        send(populateOrder(order, newOrderSingle), order.getSessionID());
-    }
-
-    public void send42(Order order) {
-        quickfix.fix42.NewOrderSingle newOrderSingle = new quickfix.fix42.NewOrderSingle(
-                new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()),
-                sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
-        newOrderSingle.set(new OrderQty(order.getQuantity()));
-
-        send(populateOrder(order, newOrderSingle), order.getSessionID());
-    }
-
-    public void send43(Order order) {
-        quickfix.fix43.NewOrderSingle newOrderSingle = new quickfix.fix43.NewOrderSingle(
-                new ClOrdID(order.getID()), new HandlInst('1'), sideToFIXSide(order.getSide()),
-                new TransactTime(), typeToFIXType(order.getType()));
-        newOrderSingle.set(new OrderQty(order.getQuantity()));
-        newOrderSingle.set(new Symbol(order.getSymbol()));
-        send(populateOrder(order, newOrderSingle), order.getSessionID());
-    }
-
-    public void send44(Order order) {
-        quickfix.fix44.NewOrderSingle newOrderSingle = new quickfix.fix44.NewOrderSingle(
-                new ClOrdID(order.getID()), sideToFIXSide(order.getSide()),
-                new TransactTime(), typeToFIXType(order.getType()));
-        newOrderSingle.set(new OrderQty(order.getQuantity()));
-        newOrderSingle.set(new Symbol(order.getSymbol()));
-        newOrderSingle.set(new HandlInst('1'));
-        send(populateOrder(order, newOrderSingle), order.getSessionID());
-    }
-
-    public void send50(Order order) {
-        quickfix.fix50.NewOrderSingle newOrderSingle = new quickfix.fix50.NewOrderSingle(
-                new ClOrdID(order.getID()), sideToFIXSide(order.getSide()),
-                new TransactTime(), typeToFIXType(order.getType()));
-        newOrderSingle.set(new OrderQty(order.getQuantity()));
-        newOrderSingle.set(new Symbol(order.getSymbol()));
-        newOrderSingle.set(new HandlInst('1'));
-        send(populateOrder(order, newOrderSingle), order.getSessionID());
-    }
-
-    public quickfix.Message populateOrder(Order order, quickfix.Message newOrderSingle) {
-
-        OrderType type = order.getType();
-
-        if (type == OrderType.LIMIT)
-            newOrderSingle.setField(new Price(order.getLimit()));
-        else if (type == OrderType.STOP) {
+        if (order.getType() == OrderType.LIMIT) newOrderSingle.setField(new Price(order.getLimit()));
+        else if (order.getType() == OrderType.STOP) {
             newOrderSingle.setField(new StopPx(order.getStop()));
-        } else if (type == OrderType.STOP_LIMIT) {
+        } else if (order.getType() == OrderType.STOP_LIMIT) {
             newOrderSingle.setField(new Price(order.getLimit()));
             newOrderSingle.setField(new StopPx(order.getStop()));
         }
 
-        if (order.getSide() == OrderSide.SHORT_SELL
-                || order.getSide() == OrderSide.SHORT_SELL_EXEMPT) {
+        if (order.getSide() == OrderSide.SHORT_SELL || order.getSide() == OrderSide.SHORT_SELL_EXEMPT) {
             newOrderSingle.setField(new LocateReqd(false));
         }
 
-        newOrderSingle.setField(tifToFIXTif(order.getTIF()));
-        return newOrderSingle;
+        Session.sendToTarget(newOrderSingle, order.getSessionID());
     }
 
-    public void cancel(Order order) {
-        String beginString = order.getSessionID().getBeginString();
-        switch (beginString) {
-            case "FIX.4.0":
-                cancel40(order);
-                break;
-            case "FIX.4.1":
-                cancel41(order);
-                break;
-            case "FIX.4.2":
-                cancel42(order);
-                break;
-        }
-    }
-
-    public void cancel40(Order order) {
+    public void sendOrderCancelRequest(Order order) throws SessionNotFound {
         String id = order.generateID();
-        quickfix.fix40.OrderCancelRequest message = new quickfix.fix40.OrderCancelRequest(
-                new OrigClOrdID(order.getID()), new ClOrdID(id), new CxlType(CxlType.FULL_REMAINING_QUANTITY), new Symbol(order
-                .getSymbol()), sideToFIXSide(order.getSide()), new OrderQty(order
-                .getQuantity()));
+        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(new OrigClOrdID(order.getID()), new ClOrdID(id), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime());
+        orderCancelRequest.setField(new OrderQty(order.getQuantity()));
 
         orderTableModel.addID(order, id);
-        send(message, order.getSessionID());
+        Session.sendToTarget(orderCancelRequest, order.getSessionID());
     }
 
-    public void cancel41(Order order) {
-        String id = order.generateID();
-        quickfix.fix41.OrderCancelRequest message = new quickfix.fix41.OrderCancelRequest(
-                new OrigClOrdID(order.getID()), new ClOrdID(id), new Symbol(order.getSymbol()),
-                sideToFIXSide(order.getSide()));
-        message.setField(new OrderQty(order.getQuantity()));
-
-        orderTableModel.addID(order, id);
-        send(message, order.getSessionID());
-    }
-
-    public void cancel42(Order order) {
-        String id = order.generateID();
-        quickfix.fix42.OrderCancelRequest message = new quickfix.fix42.OrderCancelRequest(
-                new OrigClOrdID(order.getID()), new ClOrdID(id), new Symbol(order.getSymbol()),
-                sideToFIXSide(order.getSide()), new TransactTime());
-        message.setField(new OrderQty(order.getQuantity()));
-
-        orderTableModel.addID(order, id);
-        send(message, order.getSessionID());
-    }
-
-    public void replace(Order order, Order newOrder) {
-        String beginString = order.getSessionID().getBeginString();
-        switch (beginString) {
-            case "FIX.4.0":
-                replace40(order, newOrder);
-                break;
-            case "FIX.4.1":
-                replace41(order, newOrder);
-                break;
-            case "FIX.4.2":
-                replace42(order, newOrder);
-                break;
-        }
-    }
-
-    public void replace40(Order order, Order newOrder) {
-        quickfix.fix40.OrderCancelReplaceRequest message = new quickfix.fix40.OrderCancelReplaceRequest(
-                new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'),
-                new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new OrderQty(
-                newOrder.getQuantity()), typeToFIXType(order.getType()));
+    public void sendOrderCancelReplaceRequest(Order order, Order newOrder) throws SessionNotFound {
+        OrderCancelReplaceRequest orderCancelReplaceRequest = new OrderCancelReplaceRequest(new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
 
         orderTableModel.addID(order, newOrder.getID());
-        send(populateCancelReplace(order, newOrder, message), order.getSessionID());
-    }
-
-    public void replace41(Order order, Order newOrder) {
-        quickfix.fix41.OrderCancelReplaceRequest message = new quickfix.fix41.OrderCancelReplaceRequest(
-                new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'),
-                new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), typeToFIXType(order
-                .getType()));
-
-        orderTableModel.addID(order, newOrder.getID());
-        send(populateCancelReplace(order, newOrder, message), order.getSessionID());
-    }
-
-    public void replace42(Order order, Order newOrder) {
-        quickfix.fix42.OrderCancelReplaceRequest message = new quickfix.fix42.OrderCancelReplaceRequest(
-                new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'),
-                new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(),
-                typeToFIXType(order.getType()));
-
-        orderTableModel.addID(order, newOrder.getID());
-        send(populateCancelReplace(order, newOrder, message), order.getSessionID());
-    }
-
-    Message populateCancelReplace(Order order, Order newOrder, quickfix.Message message) {
-
         if (order.getQuantity() != newOrder.getQuantity())
-            message.setField(new OrderQty(newOrder.getQuantity()));
+            orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
         if (!order.getLimit().equals(newOrder.getLimit()))
-            message.setField(new Price(newOrder.getLimit()));
-        return message;
+            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
+        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
     }
 
     public Side sideToFIXSide(OrderSide side) {

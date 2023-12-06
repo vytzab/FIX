@@ -17,14 +17,13 @@ public class OrderEntryFrame extends JFrame {
 
     public OrderEntryFrame(OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, LogPanel logPanel, final OrderEntryApplication application) {
         super();
-        setTitle("Banzai!");
+        setTitle("Order Entry");
         setSize(600, 400);
 
 //        if (System.getProperties().containsKey("openfix")) {
 //            createMenuBar(application);
 //        }
-        getContentPane().add(new OrderEntryPanel(orderTableModel, executionTableModel, logPanel, application),
-                BorderLayout.CENTER);
+        getContentPane().add(new OrderEntryPanel(orderTableModel, executionTableModel, logPanel, application), BorderLayout.CENTER);
         setVisible(true);
     }
 //

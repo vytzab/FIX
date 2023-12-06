@@ -21,7 +21,7 @@ public class LogPanel extends JPanel {
         add(logsScrollPane, BorderLayout.CENTER);
     }
 
-    public DefaultListModel<String> getLogModel () {
+    public DefaultListModel<String> getLogModel() {
         return model;
     }
 }

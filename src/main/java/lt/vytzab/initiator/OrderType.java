@@ -11,7 +11,7 @@ public class OrderType {
     static public final OrderType STOP_LIMIT = new OrderType("Stop Limit");
     private final String name;
 
-    static private final OrderType[] array = { MARKET, LIMIT, STOP, STOP_LIMIT };
+    static private final OrderType[] array = {MARKET, LIMIT, STOP, STOP_LIMIT};
 
     private OrderType(String name) {
         this.name = name;
@@ -35,8 +35,7 @@ public class OrderType {
     public static OrderType parse(String type) throws IllegalArgumentException {
         OrderType result = known.get(type);
         if (result == null) {
-            throw new IllegalArgumentException
-                    ("OrderType: " + type + " is unknown.");
+            throw new IllegalArgumentException("OrderType: " + type + " is unknown.");
         }
         return result;
     }

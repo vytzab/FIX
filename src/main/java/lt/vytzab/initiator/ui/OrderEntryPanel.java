@@ -98,8 +98,7 @@ public class OrderEntryPanel extends JPanel implements Observer, ActionListener 
                 }
             }
 
-            if (numSelected > 1)
-                orderEntryPanel.clearMessage();
+            if (numSelected > 1) orderEntryPanel.clearMessage();
             else {
                 Order order = orderTableModel.getOrder(selectedRow);
                 if (order != null) {

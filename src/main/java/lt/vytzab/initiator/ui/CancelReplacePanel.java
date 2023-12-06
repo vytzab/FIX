@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import lt.vytzab.initiator.*;
+import quickfix.SessionNotFound;
 
 public class CancelReplacePanel extends JPanel {
     private final JLabel quantityLabel = new JLabel("Quantity");
@@ -72,15 +73,12 @@ public class CancelReplacePanel extends JPanel {
     }
 
     public void setOrder(Order order) {
-        if (order == null)
-            return;
+        if (order == null) return;
         this.order = order;
-        quantityTextField.setText
-                (Integer.toString(order.getOpen()));
+        quantityTextField.setText(Integer.toString(order.getOpen()));
 
         Double limit = order.getLimit();
-        if (limit != null)
-            limitPriceTextField.setText(order.getLimit().toString());
+        if (limit != null) limitPriceTextField.setText(order.getLimit().toString());
         setEnabled(order.getOpen() > 0);
     }
 
@@ -93,22 +91,29 @@ public class CancelReplacePanel extends JPanel {
 
     private class CancelListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            application.cancel(order);
+            try {
+                application.sendOrderCancelRequest(order);
+            } catch (SessionNotFound ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
     private class ReplaceListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             Order newOrder = (Order) order.clone();
-            newOrder.setQuantity
-                    (Integer.parseInt(quantityTextField.getText()));
+            newOrder.setQuantity(Integer.parseInt(quantityTextField.getText()));
             newOrder.setLimit(Double.parseDouble(limitPriceTextField.getText()));
             newOrder.setRejected(false);
             newOrder.setCanceled(false);
             newOrder.setOpen(0);
             newOrder.setExecuted(0);
 
-            application.replace(order, newOrder);
+            try {
+                application.sendOrderCancelReplaceRequest(order, newOrder);
+            } catch (SessionNotFound ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 }
