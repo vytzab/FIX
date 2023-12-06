@@ -187,7 +187,7 @@ public class OrderEntryApplication implements Application {
         try {
             order.setMessage(message.getField(new Text()).getValue());
         } catch (FieldNotFound e) {
-            throw new RuntimeException(e);
+            System.out.println("Text field not found.");
             //TODO implement better logging
         }
 
