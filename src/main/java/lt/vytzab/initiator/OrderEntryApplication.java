@@ -16,34 +16,7 @@ import quickfix.Session;
 import quickfix.SessionID;
 import quickfix.SessionNotFound;
 import quickfix.UnsupportedMessageType;
-import quickfix.field.AvgPx;
-import quickfix.field.BeginString;
-import quickfix.field.BusinessRejectReason;
-import quickfix.field.ClOrdID;
-import quickfix.field.CumQty;
-import quickfix.field.ExecID;
-import quickfix.field.HandlInst;
-import quickfix.field.LastPx;
-import quickfix.field.LastShares;
-import quickfix.field.LocateReqd;
-import quickfix.field.MsgSeqNum;
-import quickfix.field.MsgType;
-import quickfix.field.OrdStatus;
-import quickfix.field.OrdType;
-import quickfix.field.OrderQty;
-import quickfix.field.OrigClOrdID;
-import quickfix.field.Price;
-import quickfix.field.RefMsgType;
-import quickfix.field.RefSeqNum;
-import quickfix.field.SenderCompID;
-import quickfix.field.SessionRejectReason;
-import quickfix.field.Side;
-import quickfix.field.StopPx;
-import quickfix.field.Symbol;
-import quickfix.field.TargetCompID;
-import quickfix.field.Text;
-import quickfix.field.TimeInForce;
-import quickfix.field.TransactTime;
+import quickfix.field.*;
 import quickfix.fix42.*;
 
 import javax.swing.*;
@@ -177,9 +150,18 @@ public class OrderEntryApplication implements Application {
             return;
         }
 
-        LastShares lastShares = new LastShares();
-        message.getField(lastShares);
-        double fillSize = lastShares.getValue();
+        double fillSize;
+
+        if (message.isSetField(LastShares.FIELD)) {
+            LastShares lastShares = new LastShares();
+            message.getField(lastShares);
+            fillSize = lastShares.getValue();
+        } else {
+            // > FIX 4.1
+            LeavesQty leavesQty = new LeavesQty();
+            message.getField(leavesQty);
+            fillSize = order.getQuantity() - leavesQty.getValue();
+        }
 
         //Jeigu ivyko matchinimas, update order table
         if (fillSize > 0) {
