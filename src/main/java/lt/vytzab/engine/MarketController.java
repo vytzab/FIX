@@ -1,10 +1,12 @@
 package lt.vytzab.engine;
 
+import lt.vytzab.engine.db.MarketDataDAO;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MarketController {
-    private final HashMap<String, Market> markets = MarketCreator.createMarkets();
+    private final HashMap<String, Market> markets = MarketDataDAO.readAllMarkets();
 
     private Market getMarket(String symbol) {
         return markets.get(symbol);

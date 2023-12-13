@@ -11,10 +11,22 @@ import java.util.List;
 public class Market {
     private final List<MarketOrder> bidOrders = new ArrayList<>();
     private final List<MarketOrder> askOrders = new ArrayList<>();
+    private String symbol;
     private Double lastPrice;
     private Double dayHigh;
     private Double dayLow;
     private int volume = 0;
+
+    public Market(String symbol, Double lastPrice, Double dayHigh, Double dayLow, int volume) {
+        this.symbol = symbol;
+        this.lastPrice = lastPrice;
+        this.dayHigh = dayHigh;
+        this.dayLow = dayLow;
+        this.volume = volume;
+    }
+
+    public Market() {
+    }
 
     public boolean match(String symbol, List<MarketOrder> orders) {
         while (true) {
@@ -114,6 +126,14 @@ public class Market {
         }
     }
 
+    public String getSymbol() {
+        return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
+    }
+
     public Double getLastPrice() {
         return lastPrice;
     }
@@ -144,5 +164,18 @@ public class Market {
 
     public void setVolume(int volume) {
         this.volume = volume;
+    }
+
+    @Override
+    public String toString() {
+        return "Market{" +
+                "bidOrders=" + bidOrders +
+                ", askOrders=" + askOrders +
+                ", symbol='" + symbol + '\'' +
+                ", lastPrice=" + lastPrice +
+                ", dayHigh=" + dayHigh +
+                ", dayLow=" + dayLow +
+                ", volume=" + volume +
+                '}';
     }
 }

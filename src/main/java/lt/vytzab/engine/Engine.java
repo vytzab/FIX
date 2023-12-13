@@ -1,5 +1,6 @@
 package lt.vytzab.engine;
 
+import lt.vytzab.engine.db.MarketDataDAO;
 import lt.vytzab.engine.ui.EngineFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,25 +30,34 @@ public class Engine {
     private JFrame frame = null;
 
     public static void main(String[] args) throws Exception {
-        try {
-            // bitu stream arba is failo arba default
-            InputStream inputStream = getSettingsInputStream(args);
-            // settings is bitu streamo
-            SessionSettings settings = new SessionSettings(inputStream);
-            inputStream.close();
+        Market market = new Market();
+        market.setSymbol("MSFT");
+        market.setLastPrice(1.75);
+        market.setDayHigh(3.0);
+        market.setDayLow(2.0);
+        market.setVolume(10);
+        MarketDataDAO.createMarket(market);
 
-            // sukuriamas Engine objektas
-            Engine engine = new Engine(settings);
-
-            engine.start();
-
-            System.out.println("press <enter> to quit");
-            System.in.read();
-
-            engine.stop();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
+        System.out.println(MarketDataDAO.readAllMarkets());
+//        try {
+//            // bitu stream arba is failo arba default
+//            InputStream inputStream = getSettingsInputStream(args);
+//            // settings is bitu streamo
+//            SessionSettings settings = new SessionSettings(inputStream);
+//            inputStream.close();
+//
+//            // sukuriamas Engine objektas
+//            Engine engine = new Engine(settings);
+//
+//            engine.start();
+//
+//            System.out.println("press <enter> to quit");
+//            System.in.read();
+//
+//            engine.stop();
+//        } catch (Exception e) {
+//            log.error(e.getMessage(), e);
+//        }
     }
 
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
