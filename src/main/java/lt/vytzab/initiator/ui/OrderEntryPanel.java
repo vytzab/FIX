@@ -32,7 +32,7 @@ public class OrderEntryPanel extends JPanel implements Observer, ActionListener 
     private final LogPanel logPanel;
 
     public OrderEntryPanel(OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, LogPanel logPanel, OrderEntryApplication application) {
-        setName("BanzaiPanel");
+        setName("Order Entry Panel");
         this.orderTableModel = orderTableModel;
         this.logPanel = logPanel;
 

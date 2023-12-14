@@ -37,3 +37,5 @@ build/
 ### Mac OS ###
 .DS_Store
 /logs/
+/out/
+/src/main/java/lt/vytzab/engine/Variables.java
