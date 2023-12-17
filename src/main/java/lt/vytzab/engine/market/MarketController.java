@@ -5,6 +5,7 @@ import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.order.Order;
 import quickfix.field.OrdType;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class MarketController {
@@ -33,24 +34,30 @@ public class MarketController {
 //        getMarket(symbol).match(symbol, orders);
 //    }
 
-    public boolean match(Market market) {
+    public boolean match(Market market, ArrayList<Order> orders) {
         getBidAskOrders(market);
         while (true) {
             if (market.getBidOrders().isEmpty() || market.getAskOrders().isEmpty()) {
-                return false;
+                return !orders.isEmpty();
             }
             Order bidOrder = market.getBidOrders().get(0);
             Order askOrder = market.getAskOrders().get(0);
             if (bidOrder.getOrdType() == OrdType.MARKET || askOrder.getOrdType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
                 matchOrders(bidOrder, askOrder);
                 market.setLastPrice(bidOrder.getAvgExecutedPrice());
+                if (!orders.contains(bidOrder)) {
+                    orders.add(0, bidOrder);
+                }
+                if (!orders.contains(askOrder)) {
+                    orders.add(0, askOrder);
+                }
                 if (bidOrder.isClosed()) {
                     market.getBidOrders().remove(bidOrder);
                 }
                 if (askOrder.isClosed()) {
                     market.getAskOrders().remove(askOrder);
                 }
-            } else return false;
+            } else return !orders.isEmpty();
         }
     }
     public void getBidAskOrders(Market market) {

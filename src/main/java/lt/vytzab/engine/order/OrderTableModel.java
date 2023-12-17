@@ -44,7 +44,6 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     public void updateOrder(Order order, String id) {
-
         if (!id.equals(order.getClOrdID())) {
             String originalID = order.getClOrdID();
             order.setClOrdID(id);
