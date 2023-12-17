@@ -1,5 +1,6 @@
 package lt.vytzab.initiator;
 
+import lt.vytzab.initiator.messages.NewOrderSingle;
 import lt.vytzab.initiator.ui.LogPanel;
 import lt.vytzab.utils.CustomFixMessageParser;
 import org.slf4j.Logger;
@@ -17,9 +18,9 @@ import quickfix.SessionID;
 import quickfix.SessionNotFound;
 import quickfix.UnsupportedMessageType;
 import quickfix.field.*;
-import quickfix.fix42.*;
 
 import javax.swing.*;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -238,11 +239,17 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendNewOrderSingle(Order order) throws SessionNotFound {
-        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
-        newOrderSingle.set(new OrderQty(order.getQuantity()));
+        char side = '1';
+        char type = '1';
+        if (order.getSide() == OrderSide.SELL) {
+            side = '2';
+        }
+        NewOrderSingle newOrderSingle = new NewOrderSingle(order.getID(), '1', order.getSymbol(), side, LocalDateTime.now(), type);
+        newOrderSingle.setOrderQty(order.getQuantity());
 
-        if (order.getType() == OrderType.LIMIT) newOrderSingle.setField(new Price(order.getLimit()));
-        else if (order.getType() == OrderType.STOP) {
+        if (order.getType() == OrderType.LIMIT) {
+            newOrderSingle.setField(new Price(order.getLimit()));
+        } else if (order.getType() == OrderType.STOP) {
             newOrderSingle.setField(new StopPx(order.getStop()));
         } else if (order.getType() == OrderType.STOP_LIMIT) {
             newOrderSingle.setField(new Price(order.getLimit()));
@@ -257,23 +264,23 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendOrderCancelRequest(Order order) throws SessionNotFound {
-        String id = order.generateID();
-        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(new OrigClOrdID(order.getID()), new ClOrdID(id), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime());
-        orderCancelRequest.setField(new OrderQty(order.getQuantity()));
-
-        orderTableModel.addID(order, id);
-        Session.sendToTarget(orderCancelRequest, order.getSessionID());
+//        String id = order.generateID();
+//        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(new OrigClOrdID(order.getID()), new ClOrdID(id), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime());
+//        orderCancelRequest.setField(new OrderQty(order.getQuantity()));
+//
+//        orderTableModel.addID(order, id);
+//        Session.sendToTarget(orderCancelRequest, order.getSessionID());
     }
 
     public void sendOrderCancelReplaceRequest(Order order, Order newOrder) throws SessionNotFound {
-        OrderCancelReplaceRequest orderCancelReplaceRequest = new OrderCancelReplaceRequest(new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
-
-        orderTableModel.addID(order, newOrder.getID());
-        if (order.getQuantity() != newOrder.getQuantity())
-            orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
-        if (!order.getLimit().equals(newOrder.getLimit()))
-            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
-        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
+//        OrderCancelReplaceRequest orderCancelReplaceRequest = new OrderCancelReplaceRequest(new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
+//
+//        orderTableModel.addID(order, newOrder.getID());
+//        if (order.getQuantity() != newOrder.getQuantity())
+//            orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
+//        if (!order.getLimit().equals(newOrder.getLimit()))
+//            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
+//        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
     }
 
     public Side sideToFIXSide(OrderSide side) {
