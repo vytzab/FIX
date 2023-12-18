@@ -92,21 +92,6 @@ public class OrderEntry {
     }
 
     public static void main(String[] args) throws Exception {
-//        Order order = new Order();
-//        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol("AAPL"), new Side('1'), new TransactTime(), new OrdType('1'));
-//        newOrderSingle.setOrderQty(100);
-//
-//        if (order.getType() == OrderType.LIMIT) {
-//            newOrderSingle.setField(new Price(order.getLimit()));
-//        }
-//        System.out.println(newOrderSingle);
-//
-//        newOrderSingle.setField(new OrigClOrdID(order.generateID()));
-//        System.out.println(new OrigClOrdID(order.generateID()));
-
-//        System.out.println(order.getID());
-//        System.out.println(new ClOrdID(order.getID()));
-//        System.out.println(newOrderSingle);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
