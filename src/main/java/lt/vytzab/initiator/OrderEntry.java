@@ -99,9 +99,11 @@ public class OrderEntry {
 //        if (order.getType() == OrderType.LIMIT) {
 //            newOrderSingle.setField(new Price(order.getLimit()));
 //        }
+//        System.out.println(newOrderSingle);
+//
 //        newOrderSingle.setField(new OrigClOrdID(order.generateID()));
 //        System.out.println(new OrigClOrdID(order.generateID()));
-//
+
 //        System.out.println(order.getID());
 //        System.out.println(new ClOrdID(order.getID()));
 //        System.out.println(newOrderSingle);
