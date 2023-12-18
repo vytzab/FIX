@@ -88,6 +88,7 @@
       <field name="TimeInForce" required="N"/>
       <field name="Text" required="N"/>
       <field name="LocateReqd" required="N"/>
+      <field name="OrigClOrdID" required="N"/>
     </message>
     <message name="ExecutionReport" msgtype="8" msgcat="app">
       <field name="OrderID" required="Y"/>
