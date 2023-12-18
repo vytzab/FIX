@@ -244,7 +244,7 @@ public class OrderEntryApplication implements Application {
         if (order.getSide() == OrderSide.SELL) {
             side = '2';
         }
-        NewOrderSingle newOrderSingle = new NewOrderSingle(order.getID(), '1', order.getSymbol(), side, LocalDateTime.now(), type);
+        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
 
         if (order.getType() == OrderType.LIMIT) {

@@ -8,18 +8,6 @@ import java.time.LocalDateTime;
 
 public class NewOrderSingle extends Message {
     public static final String MSGTYPE = "D";
-    private ClOrdID clOrdID;
-    private HandlInst handlInst;
-    private Symbol symbol;
-    private Side side;
-    private TransactTime transactTime;
-    private OrdType ordType;
-    private OrderQty orderQty;
-    private Price price;
-    private StopPx stopPx;
-    private TimeInForce timeInForce;
-    private Text text;
-    private LocateReqd locateReqd;
 
     // Constructor without parameters
     public NewOrderSingle() {
@@ -27,22 +15,14 @@ public class NewOrderSingle extends Message {
     }
 
     // Constructor with mandatory field parameters
-    public NewOrderSingle(String clOrdID, char handlInst, String symbol, char side, LocalDateTime transactTime, char ordType) {
+    public NewOrderSingle(ClOrdID clOrdID, HandlInst handlInst, Symbol symbol, Side side, TransactTime transactTime, OrdType ordType) {
         this();
-        this.setField(new ClOrdID(clOrdID));
-        this.setField(new HandlInst(handlInst));
-        this.setField(new Symbol(symbol));
-        this.setField(new Side(side));
-        this.setField(new TransactTime(transactTime));
-        this.setField(new OrdType(ordType));
-
-//        getHeader().setField(new MsgType("D"));
-//        this.clOrdID = new ClOrdID(clOrdID);
-//        this.handlInst = new HandlInst(handlInst);
-//        this.symbol = new Symbol(symbol);
-//        this.side = new Side(side);
-//        this.transactTime = new TransactTime(transactTime);
-//        this.ordType = new OrdType(ordType);
+        this.setField(clOrdID);
+        this.setField(handlInst);
+        this.setField(symbol);
+        this.setField(side);
+        this.setField(transactTime);
+        this.setField(ordType);
     }
     public void setClOrdID(String clOrdID) {
         setField(new ClOrdID(clOrdID));
