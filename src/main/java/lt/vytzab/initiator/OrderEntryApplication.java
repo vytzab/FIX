@@ -241,6 +241,7 @@ public class OrderEntryApplication implements Application {
     public void sendNewOrderSingle(Order order) throws SessionNotFound {
         NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
+        newOrderSingle.setField(new OrigClOrdID(order.generateID()));
 
         if (order.getType() == OrderType.LIMIT) {
             newOrderSingle.setField(new Price(order.getLimit()));
