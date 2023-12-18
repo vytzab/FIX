@@ -7,6 +7,7 @@ import java.util.concurrent.CountDownLatch;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
+import lt.vytzab.initiator.messages.NewOrderSingle;
 import lt.vytzab.initiator.ui.LogPanel;
 import org.quickfixj.jmx.JmxExporter;
 import org.slf4j.Logger;
@@ -14,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import quickfix.*;
 import lt.vytzab.initiator.ui.OrderEntryFrame;
+import quickfix.field.*;
 
 public class OrderEntry {
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
@@ -90,18 +92,28 @@ public class OrderEntry {
     }
 
     public static void main(String[] args) throws Exception {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            log.info(e.getMessage(), e);
+        Order order = new Order();
+        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol("AAPL"), new Side('1'), new TransactTime(), new OrdType('1'));
+        newOrderSingle.setOrderQty(100);
+
+        if (order.getType() == OrderType.LIMIT) {
+            newOrderSingle.setField(new Price(order.getLimit()));
         }
-        log.info("initiating Banzai!");
-        banzai = new OrderEntry(args);
-        log.info("Banzai initiated.");
-        if (!System.getProperties().containsKey("openfix")) {
-            banzai.logon();
-        }
-        shutdownLatch.await();
+        System.out.println(order.getID());
+        System.out.println(new ClOrdID(order.getID()));
+        System.out.println(newOrderSingle);
+//        try {
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        } catch (Exception e) {
+//            log.info(e.getMessage(), e);
+//        }
+//        log.info("initiating Banzai!");
+//        banzai = new OrderEntry(args);
+//        log.info("Banzai initiated.");
+//        if (!System.getProperties().containsKey("openfix")) {
+//            banzai.logon();
+//        }
+//        shutdownLatch.await();
     }
 
 }

@@ -239,27 +239,12 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendNewOrderSingle(Order order) throws SessionNotFound {
-        char side = '1';
-        char type = '1';
-        if (order.getSide() == OrderSide.SELL) {
-            side = '2';
-        }
         NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
 
         if (order.getType() == OrderType.LIMIT) {
             newOrderSingle.setField(new Price(order.getLimit()));
-        } else if (order.getType() == OrderType.STOP) {
-            newOrderSingle.setField(new StopPx(order.getStop()));
-        } else if (order.getType() == OrderType.STOP_LIMIT) {
-            newOrderSingle.setField(new Price(order.getLimit()));
-            newOrderSingle.setField(new StopPx(order.getStop()));
         }
-
-        if (order.getSide() == OrderSide.SHORT_SELL || order.getSide() == OrderSide.SHORT_SELL_EXEMPT) {
-            newOrderSingle.setField(new LocateReqd(false));
-        }
-
         Session.sendToTarget(newOrderSingle, order.getSessionID());
     }
 
