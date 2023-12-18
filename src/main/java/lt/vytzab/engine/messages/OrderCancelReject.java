@@ -1,11 +1,12 @@
 package lt.vytzab.engine.messages;
 
-import quickfix.Message;
+import quickfix.fix42.Message;
 import quickfix.field.*;
 
 import java.time.LocalDateTime;
 
 public class OrderCancelReject extends Message {
+    public static final String MSGTYPE = "9";
     private OrderID orderID;
     private ClOrdID clOrdID;
     private OrigClOrdID origClOrdID;
@@ -19,13 +20,13 @@ public class OrderCancelReject extends Message {
     // Constructor without parameters
     public OrderCancelReject() {
         super();
-        getHeader().setField(new MsgType(MsgType.ORDER_CANCEL_REJECT));
+        getHeader().setField(new MsgType("9"));
     }
 
     // Constructor with mandatory field parameters
     public OrderCancelReject(String orderID, String clOrdID, String origClOrdID, char ordStatus, char cxlRejResponseTo) {
         super();
-        getHeader().setField(new MsgType(MsgType.ORDER_CANCEL_REJECT));
+        getHeader().setField(new MsgType("9"));
         this.orderID = new OrderID(orderID);
         this.clOrdID = new ClOrdID(clOrdID);
         this.origClOrdID = new OrigClOrdID(origClOrdID);

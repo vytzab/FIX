@@ -1,11 +1,12 @@
 package lt.vytzab.engine.messages;
 
-import quickfix.Message;
+import quickfix.fix42.Message;
 import quickfix.field.*;
 
 import java.time.LocalDateTime;
 
 public class ExecutionReport extends Message {
+    public static final String MSGTYPE = "8";
     private OrderID orderID;
     private ExecID execID;
     private ExecTransType execTransType;
@@ -34,13 +35,13 @@ public class ExecutionReport extends Message {
     // Constructor without parameters
     public ExecutionReport() {
         super();
-        getHeader().setField(new MsgType(MsgType.EXECUTION_REPORT));
+        getHeader().setField(new MsgType("8"));
     }
 
     // Constructor with mandatory field parameters
     public ExecutionReport(String orderID, String execID, char execTransType, char execType, char ordStatus, String symbol, char side, double leavesQty, double cumQty, double avgPx) {
         super();
-        getHeader().setField(new MsgType(MsgType.EXECUTION_REPORT));
+        getHeader().setField(new MsgType("8"));
         this.orderID = new OrderID(orderID);
         this.execID = new ExecID(execID);
         this.execTransType = new ExecTransType(execTransType);

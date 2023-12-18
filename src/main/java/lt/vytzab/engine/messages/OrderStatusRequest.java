@@ -1,9 +1,10 @@
 package lt.vytzab.engine.messages;
 
-import quickfix.Message;
+import quickfix.fix42.Message;
 import quickfix.field.*;
 
 public class OrderStatusRequest extends Message {
+    public static final String MSGTYPE = "H";
     private ClOrdID clOrdID;
     private Symbol symbol;
     private Side side;
@@ -15,13 +16,13 @@ public class OrderStatusRequest extends Message {
     // Constructor without parameters
     public OrderStatusRequest() {
         super();
-        getHeader().setField(new MsgType(MsgType.ORDER_STATUS_REQUEST));
+        getHeader().setField(new MsgType("H"));
     }
 
     // Constructor with mandatory field parameters
     public OrderStatusRequest(String clOrdID, String symbol, char side) {
         super();
-        getHeader().setField(new MsgType(MsgType.ORDER_STATUS_REQUEST));
+        getHeader().setField(new MsgType("H"));
         this.clOrdID = new ClOrdID(clOrdID);
         this.symbol = new Symbol(symbol);
         this.side = new Side(side);

@@ -1,21 +1,29 @@
 package lt.vytzab.engine;
 
 import lt.vytzab.engine.dao.MarketOrderDAO;
-import lt.vytzab.engine.messages.*;
+import lt.vytzab.engine.messages.ExecutionReport;
+import lt.vytzab.engine.messages.NewOrderSingle;
+import lt.vytzab.engine.messages.OrderCancelReject;
+import lt.vytzab.engine.messages.OrderCancelReplaceRequest;
+import lt.vytzab.engine.messages.OrderCancelRequest;
 import lt.vytzab.engine.order.OrderIdGenerator;
 import lt.vytzab.engine.market.MarketController;
 import lt.vytzab.engine.order.Order;
 import lt.vytzab.engine.order.OrderTableModel;
 import lt.vytzab.engine.ui.panels.LogPanel;
-import quickfix.*;
-import quickfix.MessageCracker;
-import quickfix.field.*;
 
 import javax.swing.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 
 import lt.vytzab.engine.helpers.CustomFixMessageParser;
+import quickfix.*;
+import quickfix.field.*;
+import quickfix.fix42.*;
+import quickfix.fix42.BusinessMessageReject;
+import quickfix.fix42.Message;
+import quickfix.fix42.MessageCracker;
+import quickfix.fix42.OrderStatusRequest;
 
 public class EngineApplication extends MessageCracker implements quickfix.Application {
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
@@ -54,7 +62,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void fromApp(quickfix.Message message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
         displayFixMessageInLogs("fromApp:" + message.toString());
-//        crack(message, sessionID);
+        crack(message, sessionID);
     }
 
     // System messages  /\
@@ -281,5 +289,32 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         char timeInForce = TimeInForce.DAY;
         //TODO implement TIF
         return order;
+    }
+
+    @Override
+    public void onMessage(quickfix.fix42.NewOrderSingle message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+        Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
+        if (order != null) {
+            order.cancel();
+            marketController.deleteOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
+//            cancelOrder(order);
+        } else {
+            OrderCancelReject orderCancelReject = new OrderCancelReject(generator.genOrderID(), message.getString(ClOrdID.FIELD), message.getString(OrigClOrdID.FIELD), OrdStatus.REJECTED, CxlRejResponseTo.ORDER_CANCEL_REQUEST);
+            try {
+                Session.sendToTarget(orderCancelReject, message.getHeader().getString(TargetCompID.FIELD), message.getHeader().getString(SenderCompID.FIELD));
+            } catch (SessionNotFound e) {
+                //TODO implement better logging
+            }
+        }
+    }
+
+    public void crack(Message message, SessionID sessionID) throws UnsupportedMessageType, FieldNotFound, IncorrectTagValue {
+        String type = message.getHeader().getString(35);
+        switch (type) {
+            case "D" -> this.onMessage((NewOrderSingle) message, sessionID);
+            case "8" -> this.onMessage(message, sessionID);
+            case "F" -> this.onMessage(message, sessionID);
+            default -> this.onMessage(message, sessionID);
+        }
     }
 }

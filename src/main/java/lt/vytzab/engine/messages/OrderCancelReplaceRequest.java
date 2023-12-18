@@ -1,11 +1,12 @@
 package lt.vytzab.engine.messages;
 
-import quickfix.Message;
+import quickfix.fix42.Message;
 import quickfix.field.*;
 
 import java.time.LocalDateTime;
 
 public class OrderCancelReplaceRequest extends Message {
+    public static final String MSGTYPE = "G";
     private OrigClOrdID origClOrdID;
     private ClOrdID clOrdID;
     private HandlInst handlInst;
@@ -17,13 +18,13 @@ public class OrderCancelReplaceRequest extends Message {
     // Constructor without parameters
     public OrderCancelReplaceRequest() {
         super();
-        getHeader().setField(new MsgType(MsgType.ORDER_CANCEL_REPLACE_REQUEST));
+        getHeader().setField(new MsgType("G"));
     }
 
     // Constructor with mandatory field parameters
     public OrderCancelReplaceRequest(String origClOrdID, String clOrdID, char handlInst, String symbol, char side, LocalDateTime transactTime, char ordType) {
         super();
-        getHeader().setField(new MsgType(MsgType.ORDER_CANCEL_REPLACE_REQUEST));
+        getHeader().setField(new MsgType("G"));
         this.origClOrdID = new OrigClOrdID(origClOrdID);
         this.clOrdID = new ClOrdID(clOrdID);
         this.handlInst = new HandlInst(handlInst);

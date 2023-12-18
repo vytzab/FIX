@@ -1,9 +1,10 @@
 package lt.vytzab.engine.messages;
 
-import quickfix.Message;
+import quickfix.fix42.Message;
 import quickfix.field.*;
 
 public class BusinessMessageReject extends Message {
+    public static final String MSGTYPE = "j";
     private RefMsgType refMsgType;
     private BusinessRejectReason businessRejectReason;
     private Text text;
@@ -13,13 +14,13 @@ public class BusinessMessageReject extends Message {
     // Constructor without parameters
     public BusinessMessageReject() {
         super();
-        getHeader().setField(new MsgType(MsgType.BUSINESS_MESSAGE_REJECT));
+        getHeader().setField(new MsgType("j"));
     }
 
     // Constructor with mandatory field parameters
     public BusinessMessageReject(String refMsgType, int businessRejectReason) {
         super();
-        getHeader().setField(new MsgType(MsgType.BUSINESS_MESSAGE_REJECT));
+        getHeader().setField(new MsgType("j"));
         this.refMsgType = new RefMsgType(refMsgType);
         this.businessRejectReason = new BusinessRejectReason(businessRejectReason);
     }
