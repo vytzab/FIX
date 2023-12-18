@@ -22,7 +22,7 @@ import quickfix.field.*;
 import quickfix.fix42.*;
 import quickfix.fix42.BusinessMessageReject;
 import quickfix.fix42.Message;
-import quickfix.fix42.MessageCracker;
+import quickfix.MessageCracker;
 import quickfix.fix42.OrderStatusRequest;
 
 public class EngineApplication extends MessageCracker implements quickfix.Application {
@@ -83,7 +83,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 //        }
 //    }
 
-    public void onMessage(NewOrderSingle newOrderSingle, SessionID sessionID) throws FieldNotFound{
+    public void onMessage(NewOrderSingle newOrderSingle, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         if (marketController.checkIfMarketExists(newOrderSingle.getString(Symbol.FIELD))) {
             try {
                 processNewOrder(newOrderSingle);
@@ -93,6 +93,21 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         } else {
             messageExecutionReport(newOrderSingle, '8');
         }
+    }
+
+    public void onMessage(quickfix.fix42.NewOrderSingle executionReport, SessionID sessionID)
+            throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("onMessage quickfix.fix42.NewOrderSingle");
+    }
+
+    public void onMessage(quickfix.Message executionReport, SessionID sessionID)
+            throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("onMessage quickfix.Message");
+    }
+
+    public void onMessage(quickfix.fix42.Message executionReport, SessionID sessionID)
+            throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("onMessage quickfix.fix42.Message");
     }
 
     private void processNewOrder(NewOrderSingle newOrderSingle) throws FieldNotFound {
@@ -289,32 +304,5 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         char timeInForce = TimeInForce.DAY;
         //TODO implement TIF
         return order;
-    }
-
-    @Override
-    public void onMessage(quickfix.fix42.NewOrderSingle message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-        Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
-        if (order != null) {
-            order.cancel();
-            marketController.deleteOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
-//            cancelOrder(order);
-        } else {
-            OrderCancelReject orderCancelReject = new OrderCancelReject(generator.genOrderID(), message.getString(ClOrdID.FIELD), message.getString(OrigClOrdID.FIELD), OrdStatus.REJECTED, CxlRejResponseTo.ORDER_CANCEL_REQUEST);
-            try {
-                Session.sendToTarget(orderCancelReject, message.getHeader().getString(TargetCompID.FIELD), message.getHeader().getString(SenderCompID.FIELD));
-            } catch (SessionNotFound e) {
-                //TODO implement better logging
-            }
-        }
-    }
-
-    public void crack(Message message, SessionID sessionID) throws UnsupportedMessageType, FieldNotFound, IncorrectTagValue {
-        String type = message.getHeader().getString(35);
-        switch (type) {
-            case "D" -> this.onMessage((NewOrderSingle) message, sessionID);
-            case "8" -> this.onMessage(message, sessionID);
-            case "F" -> this.onMessage(message, sessionID);
-            default -> this.onMessage(message, sessionID);
-        }
     }
 }

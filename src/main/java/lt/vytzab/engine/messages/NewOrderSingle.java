@@ -6,7 +6,7 @@ import quickfix.field.*;
 
 import java.time.LocalDateTime;
 
-public class NewOrderSingle extends Message {
+public class NewOrderSingle extends quickfix.fix42.NewOrderSingle {
     public static final String MSGTYPE = "D";
 
     // Constructor without parameters
