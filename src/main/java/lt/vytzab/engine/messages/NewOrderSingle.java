@@ -8,18 +8,6 @@ import java.time.LocalDateTime;
 
 public class NewOrderSingle extends Message {
     public static final String MSGTYPE = "D";
-    private ClOrdID clOrdID;
-    private HandlInst handlInst;
-    private Symbol symbol;
-    private Side side;
-    private TransactTime transactTime;
-    private OrdType ordType;
-    private OrderQty orderQty;
-    private Price price;
-    private StopPx stopPx;
-    private TimeInForce timeInForce;
-    private Text text;
-    private LocateReqd locateReqd;
 
     // Constructor without parameters
     public NewOrderSingle() {
