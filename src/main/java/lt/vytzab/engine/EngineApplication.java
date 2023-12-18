@@ -1,11 +1,6 @@
 package lt.vytzab.engine;
 
 import lt.vytzab.engine.dao.MarketOrderDAO;
-import lt.vytzab.engine.messages.ExecutionReport;
-import lt.vytzab.engine.messages.NewOrderSingle;
-import lt.vytzab.engine.messages.OrderCancelReject;
-import lt.vytzab.engine.messages.OrderCancelReplaceRequest;
-import lt.vytzab.engine.messages.OrderCancelRequest;
 import lt.vytzab.engine.order.OrderIdGenerator;
 import lt.vytzab.engine.market.MarketController;
 import lt.vytzab.engine.order.Order;
@@ -83,7 +78,19 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 //        }
 //    }
 
-    public void onMessage(NewOrderSingle newOrderSingle, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+//    public void onMessage(NewOrderSingle newOrderSingle, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+//        if (marketController.checkIfMarketExists(newOrderSingle.getString(Symbol.FIELD))) {
+//            try {
+//                processNewOrder(newOrderSingle);
+//            } catch (Exception e) {
+//                messageExecutionReport(newOrderSingle, '8');
+//            }
+//        } else {
+//            messageExecutionReport(newOrderSingle, '8');
+//        }
+//    }
+
+    public void onMessage(quickfix.fix42.NewOrderSingle newOrderSingle, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
         if (marketController.checkIfMarketExists(newOrderSingle.getString(Symbol.FIELD))) {
             try {
                 processNewOrder(newOrderSingle);
@@ -95,22 +102,11 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    public void onMessage(quickfix.fix42.NewOrderSingle executionReport, SessionID sessionID)
-            throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
-        System.out.println("onMessage quickfix.fix42.NewOrderSingle");
+    public void onMessage(quickfix.fix42.BusinessMessageReject businessMessageReject, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
+        System.out.println("Received BMR!");
     }
 
-    public void onMessage(quickfix.Message executionReport, SessionID sessionID)
-            throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
-        System.out.println("onMessage quickfix.Message");
-    }
-
-    public void onMessage(quickfix.fix42.Message executionReport, SessionID sessionID)
-            throws FieldNotFound, IncorrectTagValue, UnsupportedMessageType {
-        System.out.println("onMessage quickfix.fix42.Message");
-    }
-
-    private void processNewOrder(NewOrderSingle newOrderSingle) throws FieldNotFound {
+    private void processNewOrder(quickfix.fix42.NewOrderSingle newOrderSingle) throws FieldNotFound {
         Order order = orderFromNewOrderSingle(newOrderSingle);
         //If order is added
         if (marketController.insert(order)) {
@@ -142,7 +138,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             marketController.deleteOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
 //            cancelOrder(order);
         } else {
-            OrderCancelReject orderCancelReject = new OrderCancelReject(generator.genOrderID(), message.getString(ClOrdID.FIELD), message.getString(OrigClOrdID.FIELD), OrdStatus.REJECTED, CxlRejResponseTo.ORDER_CANCEL_REQUEST);
+            OrderCancelReject orderCancelReject = new OrderCancelReject(new OrderID(generator.genOrderID()), new ClOrdID(message.getString(ClOrdID.FIELD)), new OrigClOrdID(message.getString(OrigClOrdID.FIELD)),
+                    new OrdStatus(OrdStatus.REJECTED), new CxlRejResponseTo(CxlRejResponseTo.ORDER_CANCEL_REQUEST));
             try {
                 Session.sendToTarget(orderCancelReject, message.getHeader().getString(TargetCompID.FIELD), message.getHeader().getString(SenderCompID.FIELD));
             } catch (SessionNotFound e) {
@@ -227,15 +224,15 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 break;
         }
         try {
-            Session.sendToTarget(executionReport, message.getString(TargetCompID.FIELD), message.getString(SenderCompID.FIELD));
+            Session.sendToTarget(executionReport, message.getHeader().getString(quickfix.field.TargetCompID.FIELD), message.getHeader().getString(quickfix.field.SenderCompID.FIELD));
         } catch (SessionNotFound e) {
             //TODO implement better logging
         }
     }
 
     private void orderExecutionReport(Order order, char ordStatus) throws FieldNotFound {
-        ExecutionReport executionReport = new ExecutionReport(generator.genOrderID(), generator.genExecutionID(), ExecTransType.NEW, ordStatus,
-                ordStatus, order.getSymbol(), order.getSide(), order.getOpenQuantity(), order.getExecutedQuantity(), order.getAvgExecutedPrice());
+        ExecutionReport executionReport = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(ordStatus), new OrdStatus(ordStatus),
+                new Symbol(order.getSymbol()), new Side(order.getSide()), new LeavesQty(order.getOpenQuantity()), new CumQty(order.getExecutedQuantity()), new AvgPx(order.getAvgExecutedPrice()));
         executionReport.setString(ClOrdID.FIELD, order.getClOrdID());
         executionReport.setDouble(OrderQty.FIELD, order.getQuantity());
         order.setEntryDate(LocalDate.now());
@@ -256,17 +253,20 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     private ExecutionReport NewOrderSingleER(NewOrderSingle message, char ordStatus) throws FieldNotFound {
-        ExecutionReport executionReport = new ExecutionReport();
+        ExecutionReport executionReport = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(ExecType.REJECTED),
+                new OrdStatus(OrdStatus.REJECTED), new Symbol(message.getString(Symbol.FIELD)), new Side(message.getChar(Side.FIELD)), new LeavesQty(0), new CumQty(0), new AvgPx(0));
         switch (ordStatus) {
             case '8':
-                executionReport = new ExecutionReport(generator.genOrderID(), generator.genExecutionID(), ExecTransType.NEW, ExecType.REJECTED,
-                        OrdStatus.REJECTED, message.getString(Symbol.FIELD), message.getChar(Side.FIELD), 0, 0, 0);
-//                executionReport.setClOrdID(message.getString(ClOrdID.FIELD));
                 // TODO maybe implement TargetCompID SenderCompID
                 break;
             case '0':
-                executionReport = new ExecutionReport(generator.genOrderID(), generator.genExecutionID(), ExecTransType.NEW, ExecType.NEW,
-                        OrdStatus.NEW, message.getString(Symbol.FIELD), message.getChar(Side.FIELD), message.getDouble(LeavesQty.FIELD), message.getDouble(CumQty.FIELD), message.getDouble(AvgPx.FIELD));
+                executionReport.set(new ExecType(ExecType.REJECTED));
+                executionReport.set(new OrdStatus(OrdStatus.REJECTED));
+                executionReport.set(new LeavesQty(message.getDouble(OrderQty.FIELD)));
+                executionReport.set(new CumQty(0));
+                executionReport.set(new AvgPx(0));
+//                = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(ExecType.REJECTED), new OrdStatus(OrdStatus.REJECTED),
+//                        new Symbol(message.getString(Symbol.FIELD)), new Side(message.getChar(Side.FIELD)), new LeavesQty(message.getDouble(LeavesQty.FIELD)), new CumQty(message.getDouble(CumQty.FIELD)), new AvgPx(message.getDouble(AvgPx.FIELD)));
                 // TODO in process newOrder, setField(LeavesQty.FIELD), setField(CumQty.FIELD), setField(AvgPx.FIELD)
                 break;
         }
@@ -287,7 +287,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         });
     }
 
-    public Order orderFromNewOrderSingle(NewOrderSingle newOrderSingle) throws FieldNotFound {
+    public Order orderFromNewOrderSingle(quickfix.fix42.NewOrderSingle newOrderSingle) throws FieldNotFound {
         double price = 0;
         if (newOrderSingle.getChar(OrdType.FIELD) == OrdType.LIMIT) {
             price = newOrderSingle.getDouble(Price.FIELD);
@@ -298,8 +298,10 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 price = 0;
             }
         }
-        Order order = new Order(newOrderSingle.getString(ClOrdID.FIELD), newOrderSingle.getString(Symbol.FIELD), newOrderSingle.getHeader().getString(SenderCompID.FIELD), newOrderSingle.getHeader().getString(TargetCompID.FIELD),
-                newOrderSingle.getChar(Side.FIELD), newOrderSingle.getChar(OrdType.FIELD), price, (long) newOrderSingle.getDouble(OrderQty.FIELD));
+        Order order = new Order(System.currentTimeMillis(), newOrderSingle.getString(ClOrdID.FIELD), newOrderSingle.getString(Symbol.FIELD), newOrderSingle.getHeader().getString(SenderCompID.FIELD), newOrderSingle.getHeader().getString(TargetCompID.FIELD),
+                newOrderSingle.getChar(Side.FIELD), newOrderSingle.getChar(OrdType.FIELD), price, (long) newOrderSingle.getDouble(OrderQty.FIELD),
+                (long) newOrderSingle.getDouble(OrderQty.FIELD), 0, 0, 0, 0,
+                false, false, LocalDate.now(), LocalDate.now().plusDays(7));
 
         char timeInForce = TimeInForce.DAY;
         //TODO implement TIF

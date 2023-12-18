@@ -24,36 +24,36 @@ public class Order {
     private LocalDate entryDate;
     private LocalDate GoodTillDate;
 
-    public Order(String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity) {
-        super();
-        this.clOrdID = clOrdID;
-        this.symbol = symbol;
-        this.senderCompID = senderCompID;
-        this.targetCompID = targetCompID;
-        this.side = side;
-        this.ordType = ordType;
-        this.price = price;
-        this.quantity = quantity;
-        openQuantity = quantity;
-        entryTime = System.currentTimeMillis();
-    }
+//    public Order(String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity) {
+//        super();
+//        this.clOrdID = clOrdID;
+//        this.symbol = symbol;
+//        this.senderCompID = senderCompID;
+//        this.targetCompID = targetCompID;
+//        this.side = side;
+//        this.ordType = ordType;
+//        this.price = price;
+//        this.quantity = quantity;
+//        openQuantity = quantity;
+//        entryTime = System.currentTimeMillis();
+//    }
 
-    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity) {
-        this.entryTime = entryTime;
-        this.clOrdID = clOrdID;
-        this.symbol = symbol;
-        this.senderCompID = senderCompID;
-        this.targetCompID = targetCompID;
-        this.side = side;
-        this.ordType = ordType;
-        this.price = price;
-        this.quantity = quantity;
-        this.openQuantity = openQuantity;
-        this.executedQuantity = executedQuantity;
-        this.avgExecutedPrice = avgExecutedPrice;
-        this.lastExecutedPrice = lastExecutedPrice;
-        this.lastExecutedQuantity = lastExecutedQuantity;
-    }
+//    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity) {
+//        this.entryTime = entryTime;
+//        this.clOrdID = clOrdID;
+//        this.symbol = symbol;
+//        this.senderCompID = senderCompID;
+//        this.targetCompID = targetCompID;
+//        this.side = side;
+//        this.ordType = ordType;
+//        this.price = price;
+//        this.quantity = quantity;
+//        this.openQuantity = openQuantity;
+//        this.executedQuantity = executedQuantity;
+//        this.avgExecutedPrice = avgExecutedPrice;
+//        this.lastExecutedPrice = lastExecutedPrice;
+//        this.lastExecutedQuantity = lastExecutedQuantity;
+//    }
 
     public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate) {
         this.entryTime = entryTime;
