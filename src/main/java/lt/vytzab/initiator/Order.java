@@ -42,7 +42,7 @@ public class Order implements Cloneable {
     }
 
     public String generateID() {
-        return Long.toString(System.currentTimeMillis()%10000 + (nextID++));
+        return Long.toString(100000 + (nextID++));
     }
 
     public SessionID getSessionID() {
