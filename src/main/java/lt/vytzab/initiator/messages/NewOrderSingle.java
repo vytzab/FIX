@@ -1,7 +1,7 @@
 package lt.vytzab.initiator.messages;
 
 import quickfix.FieldNotFound;
-import quickfix.fix42.Message;
+import quickfix.Message;
 import quickfix.field.*;
 
 import java.time.LocalDateTime;
