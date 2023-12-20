@@ -9,13 +9,14 @@ import java.util.List;
 public class OrderTableModel extends AbstractTableModel {
     private final List<Order> orders = new ArrayList<>();
 
-    private final static int SYMBOL = 0;
-    private final static int QUANTITY = 1;
-    private final static int OPEN = 2;
-    private final static int EXECUTED = 3;
-    private final static int SIDE = 4;
-    private final static int TYPE = 5;
-    private final static int LIMITPRICE = 6;
+    private final static int SENDERCOMPID = 0;
+    private final static int SYMBOL = 1;
+    private final static int QUANTITY = 2;
+    private final static int OPEN = 3;
+    private final static int EXECUTED = 4;
+    private final static int SIDE = 5;
+    private final static int TYPE = 6;
+    private final static int PRICE = 7;
     private final static int AVGPX = 8;
 
     private final HashMap<Integer, Order> rowToOrder;
@@ -29,7 +30,7 @@ public class OrderTableModel extends AbstractTableModel {
         idToRow = new HashMap<>();
         idToOrder = new HashMap<>();
 
-        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "AvgPx"};
+        headers = new String[]{"Sender", "Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Price", "AvgPx"};
     }
 
     public void addOrder(Order order) {
@@ -52,7 +53,11 @@ public class OrderTableModel extends AbstractTableModel {
         }
 
         Integer row = idToRow.get(order.getClOrdID());
-        if (row == null) return;
+        if (row == null) {
+            return;
+        } else {
+            orders.set(row, order);
+        }
         fireTableRowsUpdated(row, row);
     }
 
@@ -90,8 +95,8 @@ public class OrderTableModel extends AbstractTableModel {
         idToOrder.put(newID, order);
     }
 
-    public Order getOrder(String id) {
-        return idToOrder.get(id);
+    public Order getOrder(String ClOrdIDid) {
+        return idToOrder.get(ClOrdIDid);
     }
 
     public Order getOrder(int row) {
@@ -122,6 +127,8 @@ public class OrderTableModel extends AbstractTableModel {
 
         if (order != null) {
             switch (columnIndex) {
+                case SENDERCOMPID:
+                    return order.getSenderCompID();
                 case SYMBOL:
                     return order.getSymbol();
                 case QUANTITY:
@@ -134,7 +141,7 @@ public class OrderTableModel extends AbstractTableModel {
                     return order.getSide();
                 case TYPE:
                     return order.getOrdType();
-                case LIMITPRICE:
+                case PRICE:
                     return order.getPrice();
                 case AVGPX:
                     return order.getAvgExecutedPrice();
