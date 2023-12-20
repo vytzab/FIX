@@ -17,6 +17,7 @@ import quickfix.*;
 import quickfix.field.*;
 import quickfix.fix42.MarketDataRequest;
 import quickfix.fix42.MarketDataSnapshotFullRefresh;
+import quickfix.fix42.SecurityStatusRequest;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -57,8 +58,8 @@ public class OrderEntryApplication implements Application {
     public void onLogon(SessionID sessionID) {
         observableLogon.logon(sessionID);
         try {
-            sendMarketDataRequest(sessionID);
-            System.out.println("SENT MARKET REQUEST");
+            sendSecurityStatusRequest(sessionID);
+            System.out.println("SENT SSR");
         } catch (SessionNotFound e) {
             throw new RuntimeException(e);
         }
@@ -196,6 +197,12 @@ public class OrderEntryApplication implements Application {
         marketDataRequest.addGroup(noRelatedSym);
 
         Session.sendToTarget(marketDataRequest, sessionID);
+    }
+
+    public void sendSecurityStatusRequest(SessionID sessionID) throws SessionNotFound {
+        SecurityStatusRequest securityStatusRequest = new SecurityStatusRequest(new SecurityStatusReqID(IDGenerator.genOrderID()), new Symbol("AAPL"), new SubscriptionRequestType('1'));
+
+        Session.sendToTarget(securityStatusRequest, sessionID);
     }
 
     private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {

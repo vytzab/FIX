@@ -200,6 +200,11 @@
       <field name="MDReqRejReason" required="N"/>
       <field name="Text" required="N"/>
     </message>
+    <message name="SecurityStatusRequest" msgtype="e" msgcat="app">
+      <field name="SecurityStatusReqID" required="Y"/>
+      <field name="Symbol" required="Y"/>
+      <field name="SubscriptionRequestType" required="Y"/>
+    </message>
     <message name="SecurityStatus" msgtype="f" msgcat="app">
       <field name="SecurityStatusReqID" required="N"/>
       <field name="Symbol" required="Y"/>
