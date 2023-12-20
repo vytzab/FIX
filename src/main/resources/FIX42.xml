@@ -164,6 +164,47 @@
       <field name="EncodedTextLen" required="N"/>
       <field name="EncodedText" required="N"/>
     </message>
+    <message name="MarketDataRequest" msgtype="V" msgcat="app">
+      <field name="MDReqID" required="Y"/>
+      <field name="SubscriptionRequestType" required="Y"/>
+      <field name="AggregatedBook" required="N"/>
+      <group name="NoMDEntryTypes" required="Y">
+        <field name="MDEntryType" required="Y"/>
+      </group>
+      <group name="NoRelatedSym" required="Y">
+        <field name="Symbol" required="Y"/>
+        <field name="PutOrCall" required="N"/>
+        <field name="OptAttribute" required="N"/>
+        <field name="TradingSessionID" required="N"/>
+      </group>
+    </message>
+    <message name="MarketDataSnapshotFullRefresh" msgtype="W" msgcat="app">
+      <field name="MDReqID" required="N"/>
+      <field name="Symbol" required="Y"/>
+      <field name="PutOrCall" required="N"/>
+      <field name="OptAttribute" required="N"/>
+      <field name="TotalVolumeTraded" required="N"/>
+      <group name="NoMDEntries" required="Y">
+        <field name="MDEntryType" required="Y"/>
+        <field name="MDEntryPx" required="Y"/>
+        <field name="OrdType" required="Y"/>
+        <field name="MDEntrySize" required="N"/>
+        <field name="LeavesQty" required="Y"/>
+        <field name="CumQty" required="Y"/>
+        <field name="MDEntryDate" required="N"/>
+        <field name="MDEntryTime" required="N"/>
+        <field name="ExpireDate" required="N"/>
+        <field name="ExecInst" required="N"/>
+        <field name="OrderID" required="N"/>
+        <field name="NumberOfOrders" required="N"/>
+        <field name="Text" required="N"/>
+      </group>
+    </message>
+    <message name="MarketDataRequestReject" msgtype="Y" msgcat="app">
+      <field name="MDReqID" required="Y"/>
+      <field name="MDReqRejReason" required="N"/>
+      <field name="Text" required="N"/>
+    </message>
   </messages>
 
   <fields>
@@ -346,6 +387,7 @@
     <field number="143" name="TargetLocationID" type="STRING"/>
     <field number="144" name="OnBehalfOfLocationID" type="STRING"/>
     <field number="145" name="DeliverToLocationID" type="STRING"/>
+    <field number="146" name="NoRelatedSym" type="INT"/>
     <field number="150" name="ExecType" type="CHAR">
       <value enum="0" description="NEW"/>
       <value enum="1" description="PARTIAL_FILL"/>
@@ -366,6 +408,29 @@
     <field number="151" name="LeavesQty" type="QTY"/>
     <field number="212" name="XmlDataLen" type="INT"/>
     <field number="213" name="XmlData" type="DATA"/>
+    <field number="262" name="MDReqID" type="STRING"/>
+    <field number="263" name="SubscriptionRequestType" type="CHAR">
+      <value enum="0" description="SNAPSHOT"/>
+      <value enum="1" description="SNAPSHOT_PLUS_UPDATES"/>
+      <value enum="2" description="DISABLE_PREVIOUS"/>
+    </field>
+    <field number="266" name="AggregatedBook" type="BOOLEAN">
+      <value enum="Y" description="ONE_BOOK_ENTRY_PER_SIDE_PER_PRICE"/>
+      <value enum="N" description="MULTIPLE_ENTRIES_PER_SIDE_PER_PRICE_ALLOWED"/>
+    </field>
+    <field number="267" name="NoMDEntryTypes" type="INT"/>
+    <field number="268" name="NoMDEntries" type="INT"/>
+    <field number="281" name="MDReqRejReason" type="CHAR">
+      <value enum="0" description="UNKNOWN_SYMBOL"/>
+      <value enum="1" description="DUPLICATE_MDREQID"/>
+      <value enum="2" description="INSUFFICIENT_BANDWIDTH"/>
+      <value enum="3" description="INSUFFICIENT_PERMISSIONS"/>
+      <value enum="4" description="UNSUPPORTED_SUBSCRIPTIONREQUESTTYPE"/>
+      <value enum="5" description="UNSUPPORTED_MARKETDEPTH"/>
+      <value enum="6" description="UNSUPPORTED_MDUPDATETYPE"/>
+      <value enum="7" description="UNSUPPORTED_AGGREGATEDBOOK"/>
+      <value enum="8" description="UNSUPPORTED_MDENTRYTYPE"/>
+    </field>
     <field number="283" name="LocationID" type="STRING"/>
     <field number="336" name="TradingSessionID" type="STRING"/>
     <field number="347" name="MessageEncoding" type="STRING"/>
@@ -404,6 +469,7 @@
       <value enum="S" description="SEND"/>
       <value enum="R" description="RECEIVE"/>
     </field>
+    <field number="387" name="TotalVolumeTraded" type="QTY"/>
     <field number="421" name="Country" type="STRING"/>
     <field number="432" name="ExpireDate" type="LOCALMKTDATE"/>
     <field number="434" name="CxlRejResponseTo" type="CHAR"/>

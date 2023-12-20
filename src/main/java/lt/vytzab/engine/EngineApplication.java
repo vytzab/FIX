@@ -143,36 +143,36 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-//    public void onMessage(MarketDataRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-//        MarketDataRequest.NoRelatedSym noRelatedSyms = new MarketDataRequest.NoRelatedSym();
-//        char subscriptionRequestType = message.getChar(SubscriptionRequestType.FIELD);
-//
-//        if (subscriptionRequestType != SubscriptionRequestType.SNAPSHOT)
-//            throw new IncorrectTagValue(SubscriptionRequestType.FIELD);
-//        int relatedSymbolCount = message.getInt(NoRelatedSym.FIELD);
-//
-//        MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
-//        fixMD.setString(MDReqID.FIELD, message.getString(MDReqID.FIELD));
-//
-//        for (int i = 1; i <= relatedSymbolCount; ++i) {
-//            message.getGroup(i, noRelatedSyms);
-//            String symbol = noRelatedSyms.getString(Symbol.FIELD);
-//            fixMD.setString(Symbol.FIELD, symbol);
-//        }
-//
-//        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
-//        noMDEntries.setChar(MDEntryType.FIELD, '0');
-//        noMDEntries.setDouble(MDEntryPx.FIELD, 123.45);
-//        fixMD.addGroup(noMDEntries);
-//        String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
-//        String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
-//        fixMD.getHeader().setString(SenderCompID.FIELD, targetCompId);
-//        fixMD.getHeader().setString(TargetCompID.FIELD, senderCompId);
-//        try {
-//            Session.sendToTarget(fixMD, targetCompId, senderCompId);
-//        } catch (SessionNotFound e) {
-//        }
-//    }
+    public void onMessage(MarketDataRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+        MarketDataRequest.NoRelatedSym noRelatedSyms = new MarketDataRequest.NoRelatedSym();
+        char subscriptionRequestType = message.getChar(SubscriptionRequestType.FIELD);
+
+        if (subscriptionRequestType != SubscriptionRequestType.SNAPSHOT)
+            throw new IncorrectTagValue(SubscriptionRequestType.FIELD);
+        int relatedSymbolCount = message.getInt(NoRelatedSym.FIELD);
+
+        MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
+        fixMD.setString(MDReqID.FIELD, message.getString(MDReqID.FIELD));
+
+        for (int i = 1; i <= relatedSymbolCount; ++i) {
+            message.getGroup(i, noRelatedSyms);
+            String symbol = noRelatedSyms.getString(Symbol.FIELD);
+            fixMD.setString(Symbol.FIELD, symbol);
+        }
+
+        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
+        noMDEntries.setChar(MDEntryType.FIELD, '0');
+        noMDEntries.setDouble(MDEntryPx.FIELD, 123.45);
+        fixMD.addGroup(noMDEntries);
+        String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
+        String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
+        fixMD.getHeader().setString(SenderCompID.FIELD, targetCompId);
+        fixMD.getHeader().setString(TargetCompID.FIELD, senderCompId);
+        try {
+            Session.sendToTarget(fixMD, targetCompId, senderCompId);
+        } catch (SessionNotFound e) {
+        }
+    }
 
 //    private void rejectNewOrderSingle(NewOrderSingle newOrderSingle, String message) throws FieldNotFound {
 //        ExecutionReport rejectExecutionReport = new ExecutionReport(generator.genOrderID(), generator.genExecutionID(), ExecTransType.NEW, ExecType.REJECTED, OrdStatus.REJECTED,
@@ -253,11 +253,10 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         executionReport.set(message.getClOrdID());
         switch (ordStatus) {
             case '8':
-                // TODO maybe implement TargetCompID SenderCompID
                 break;
             case '0':
-                executionReport.set(new ExecType(ExecType.REJECTED));
-                executionReport.set(new OrdStatus(OrdStatus.REJECTED));
+                executionReport.set(new ExecType(ExecType.NEW));
+                executionReport.set(new OrdStatus(OrdStatus.NEW));
                 executionReport.set(new LeavesQty(message.getDouble(OrderQty.FIELD)));
                 executionReport.set(new CumQty(0));
                 executionReport.set(new AvgPx(0));
