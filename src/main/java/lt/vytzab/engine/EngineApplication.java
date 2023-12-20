@@ -250,6 +250,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     private ExecutionReport NewOrderSingleER(NewOrderSingle message, char ordStatus) throws FieldNotFound {
         ExecutionReport executionReport = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(ExecType.REJECTED),
                 new OrdStatus(OrdStatus.REJECTED), new Symbol(message.getString(Symbol.FIELD)), new Side(message.getChar(Side.FIELD)), new LeavesQty(0), new CumQty(0), new AvgPx(0));
+        executionReport.set(message.getClOrdID());
         switch (ordStatus) {
             case '8':
                 // TODO maybe implement TargetCompID SenderCompID
