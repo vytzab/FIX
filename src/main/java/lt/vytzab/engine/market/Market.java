@@ -10,8 +10,8 @@ import java.util.Date;
 import java.util.List;
 
 public class Market {
-    private final List<Order> bidOrders = new ArrayList<>();
-    private final List<Order> askOrders = new ArrayList<>();
+    private List<Order> bidOrders = new ArrayList<>();
+    private List<Order> askOrders = new ArrayList<>();
     private String symbol;
     private Double lastPrice;
     private Double dayHigh;
@@ -174,6 +174,14 @@ public class Market {
 
     public List<Order> getAskOrders() {
         return askOrders;
+    }
+
+    public void setBidOrders(List<Order> bidOrders) {
+        this.bidOrders = bidOrders;
+    }
+
+    public void setAskOrders(List<Order> askOrders) {
+        this.askOrders = askOrders;
     }
 
     @Override

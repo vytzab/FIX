@@ -5,8 +5,10 @@ import lt.vytzab.engine.dao.MarketOrderDAO;
 import java.util.ArrayList;
 import java.util.List;
 
+import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
+
 public class OrderIdGenerator {
-    private int orderIdCounter = 0;
+    private Long orderIdCounter = 0L;
     private int executionIdCounter = 0;
     List<Order> orders = new ArrayList<>();
 
@@ -15,12 +17,12 @@ public class OrderIdGenerator {
     }
 
     public String genOrderID() {
-        orders = MarketOrderDAO.readAllMarketOrders();
+        orders = MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB);
         for (Order order : orders) {
-            if (Integer.parseInt(order.getClOrdID()) > orderIdCounter) {
-                orderIdCounter = Integer.parseInt(order.getClOrdID());
+            if (Long.parseLong(order.getClOrdID()) > orderIdCounter) {
+                orderIdCounter = Long.parseLong(order.getClOrdID());
             }
         }
-        return Integer.toString(orderIdCounter+1);
+        return Long.toString(orderIdCounter+1);
     }
 }

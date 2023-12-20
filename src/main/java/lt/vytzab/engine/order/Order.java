@@ -24,37 +24,29 @@ public class Order {
     private LocalDate entryDate;
     private LocalDate GoodTillDate;
 
-//    public Order(String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity) {
-//        super();
-//        this.clOrdID = clOrdID;
-//        this.symbol = symbol;
-//        this.senderCompID = senderCompID;
-//        this.targetCompID = targetCompID;
-//        this.side = side;
-//        this.ordType = ordType;
-//        this.price = price;
-//        this.quantity = quantity;
-//        openQuantity = quantity;
-//        entryTime = System.currentTimeMillis();
-//    }
 
-//    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity) {
-//        this.entryTime = entryTime;
-//        this.clOrdID = clOrdID;
-//        this.symbol = symbol;
-//        this.senderCompID = senderCompID;
-//        this.targetCompID = targetCompID;
-//        this.side = side;
-//        this.ordType = ordType;
-//        this.price = price;
-//        this.quantity = quantity;
-//        this.openQuantity = openQuantity;
-//        this.executedQuantity = executedQuantity;
-//        this.avgExecutedPrice = avgExecutedPrice;
-//        this.lastExecutedPrice = lastExecutedPrice;
-//        this.lastExecutedQuantity = lastExecutedQuantity;
-//    }
-
+    // Constructor without openQuantity parameters
+    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate) {
+        this.entryTime = entryTime;
+        this.clOrdID = clOrdID;
+        this.symbol = symbol;
+        this.senderCompID = senderCompID;
+        this.targetCompID = targetCompID;
+        this.side = side;
+        this.ordType = ordType;
+        this.price = price;
+        this.quantity = quantity;
+        this.openQuantity = quantity;
+        this.executedQuantity = executedQuantity;
+        this.avgExecutedPrice = avgExecutedPrice;
+        this.lastExecutedPrice = lastExecutedPrice;
+        this.lastExecutedQuantity = lastExecutedQuantity;
+        this.rejected = rejected;
+        this.canceled = canceled;
+        this.entryDate = entryDate;
+        GoodTillDate = goodTillDate;
+    }
+    // Constructor with all parameters
     public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate) {
         this.entryTime = entryTime;
         this.clOrdID = clOrdID;
@@ -75,7 +67,6 @@ public class Order {
         this.entryDate = entryDate;
         GoodTillDate = goodTillDate;
     }
-    //Getters
 
     public LocalDate getEntryDate() {
         return entryDate;
@@ -157,8 +148,6 @@ public class Order {
         return ordType;
     }
 
-    //Setters
-
     public void setClOrdID(String clOrdID) {
         this.clOrdID = clOrdID;
     }
@@ -176,11 +165,13 @@ public class Order {
         return openQuantity == 0;
     }
 
+
+    // Execute the order with a given price and quantity, update fields based on execution
     public void execute(double price, long quantity) {
         avgExecutedPrice = ((quantity * price) + (avgExecutedPrice * executedQuantity)) / (quantity + executedQuantity);
 
-        openQuantity -= quantity;
-        executedQuantity += quantity;
+        openQuantity = openQuantity - quantity;
+        executedQuantity = executedQuantity + quantity;
         lastExecutedPrice = price;
         lastExecutedQuantity = quantity;
     }

@@ -1,6 +1,5 @@
 package lt.vytzab.engine;
 
-import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.order.OrderIdGenerator;
 import lt.vytzab.engine.market.MarketController;
 import lt.vytzab.engine.order.Order;
@@ -15,10 +14,10 @@ import lt.vytzab.engine.helpers.CustomFixMessageParser;
 import quickfix.*;
 import quickfix.field.*;
 import quickfix.fix42.*;
-import quickfix.fix42.BusinessMessageReject;
 import quickfix.fix42.Message;
 import quickfix.MessageCracker;
-import quickfix.fix42.OrderStatusRequest;
+
+import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
 
 public class EngineApplication extends MessageCracker implements quickfix.Application {
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
@@ -102,26 +101,22 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    public void onMessage(quickfix.fix42.BusinessMessageReject businessMessageReject, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
-        System.out.println("Received BMR!");
-    }
-
     private void processNewOrder(quickfix.fix42.NewOrderSingle newOrderSingle) throws FieldNotFound {
         Order order = orderFromNewOrderSingle(newOrderSingle);
         //If order is added
-        if (marketController.insert(order)) {
+        if (marketController.insertOrder(order)) {
             //send accepted execution report
             messageExecutionReport(newOrderSingle, '0');
 
             openOrderTableModel.addOrder(order);
             allOrderTableModel.addOrder(order);
-            MarketOrderDAO.createMarketOrder(order);
 
             ArrayList<Order> orders = new ArrayList<>();
             //try to match
-            marketController.match(marketController.getMarket(order.getSymbol()), orders);
+            marketController.matchMarketOrders(marketController.getMarket(order.getSymbol()), orders);
             while (!orders.isEmpty()) {
                 order = orders.remove(0);
+                openOrderTableModel.updateOrder(order, order.getClOrdID());
                 orderExecutionReport(order, order.isFilled() ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED);
             }
             // Remove fully executed orders from the OrderTableModel
@@ -132,10 +127,10 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     public void onMessage(OrderCancelRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-        Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
+        Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD), MARKET_ORDERS_DB);
         if (order != null) {
             order.cancel();
-            marketController.deleteOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
+            marketController.deleteOrderByClOrdID(message.getString(OrigClOrdID.FIELD), MARKET_ORDERS_DB);
 //            cancelOrder(order);
         } else {
             OrderCancelReject orderCancelReject = new OrderCancelReject(new OrderID(generator.genOrderID()), new ClOrdID(message.getString(ClOrdID.FIELD)), new OrigClOrdID(message.getString(OrigClOrdID.FIELD)),
