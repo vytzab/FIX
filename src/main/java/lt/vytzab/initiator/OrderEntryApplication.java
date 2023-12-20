@@ -144,68 +144,58 @@ public class OrderEntryApplication implements Application {
     private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
         //Patikrinti ar jau apdirbta
         ExecID execID = (ExecID) message.getField(new ExecID());
-        if (alreadyProcessed(execID, sessionID)) return;
+        if (alreadyProcessed(execID, sessionID)) {
+            return;
+        }
         //Jeigu toks uzsakymas neegzistuoja sistemoje > ignore
         Order order = orderTableModel.getOrder(message.getString(ClOrdID.FIELD));
         if (order == null) {
             return;
-        }
-
-        double fillSize;
-
-        if (message.isSetField(LastShares.FIELD)) {
-            LastShares lastShares = new LastShares();
-            message.getField(lastShares);
-            fillSize = lastShares.getValue();
         } else {
+            double fillSize;
+
+            // Ar buvo matchinta?
             LeavesQty leavesQty = new LeavesQty();
             message.getField(leavesQty);
             fillSize = order.getQuantity() - leavesQty.getValue();
-        }
 
-        //Jeigu ivyko matchinimas, update order table
-        if (fillSize > 0) {
-            order.setOpen(order.getOpen() - (int) fillSize);
-            order.setExecuted(Integer.parseInt(message.getString(CumQty.FIELD)));
-            order.setAvgPx(Double.parseDouble(message.getString(AvgPx.FIELD)));
-        }
-
-        OrdStatus ordStatus = (OrdStatus) message.getField(new OrdStatus());
-
-        if (ordStatus.valueEquals(OrdStatus.REJECTED)) {
-            order.setRejected(true);
-            order.setOpen(0);
-        } else if (ordStatus.valueEquals(OrdStatus.CANCELED) || ordStatus.valueEquals(OrdStatus.DONE_FOR_DAY)) {
-            order.setCanceled(true);
-            order.setOpen(0);
-        } else if (ordStatus.valueEquals(OrdStatus.NEW)) {
-            if (order.isNew()) {
-                order.setNew(false);
+            //Jeigu ivyko matchinimas, update order table
+            if (fillSize > 0) {
+                order.setOpen(order.getOpen() - (int) fillSize);
+                order.setExecuted(Integer.parseInt(message.getString(CumQty.FIELD)));
+                order.setAvgPx(Double.parseDouble(message.getString(AvgPx.FIELD)));
             }
-        }
 
-        try {
-            order.setMessage(message.getField(new Text()).getValue());
-        } catch (FieldNotFound e) {
-            System.out.println("Text field not found.");
-            //TODO implement better logging
-        }
+            OrdStatus ordStatus = (OrdStatus) message.getField(new OrdStatus());
 
-        orderTableModel.updateOrder(order, message.getString(ClOrdID.FIELD));
-        observableOrder.update(order);
-
-        //Jeigu ivyko matchinimas, update execution table
-        if (fillSize > 0) {
-            Execution execution = new Execution();
-            execution.setExchangeID(sessionID + message.getString(ExecID.FIELD));
-            execution.setSymbol(message.getString(Symbol.FIELD));
-            execution.setQuantity((int) (fillSize));
-            if (message.isSetField(LastPx.FIELD)) {
-                execution.setPrice(Double.parseDouble(message.getString(LastPx.FIELD)));
+            if (ordStatus.valueEquals(OrdStatus.REJECTED)) {
+                order.setRejected(true);
+                order.setOpen(0);
+            } else if (ordStatus.valueEquals(OrdStatus.CANCELED) || ordStatus.valueEquals(OrdStatus.DONE_FOR_DAY)) {
+                order.setCanceled(true);
+                order.setOpen(0);
+            } else if (ordStatus.valueEquals(OrdStatus.NEW)) {
+                if (order.isNew()) {
+                    order.setNew(false);
+                }
             }
-            Side side = (Side) message.getField(new Side());
-            execution.setSide(FIXSideToSide(side));
-            executionTableModel.addExecution(execution);
+
+            orderTableModel.updateOrder(order, message.getString(ClOrdID.FIELD));
+            observableOrder.update(order);
+
+            //Jeigu ivyko matchinimas, update execution table
+            if (fillSize > 0) {
+                Execution execution = new Execution();
+                execution.setExchangeID(sessionID + message.getString(ExecID.FIELD));
+                execution.setSymbol(message.getString(Symbol.FIELD));
+                execution.setQuantity((int) (fillSize));
+                if (message.isSetField(LastPx.FIELD)) {
+                    execution.setPrice(Double.parseDouble(message.getString(LastPx.FIELD)));
+                }
+                Side side = (Side) message.getField(new Side());
+                execution.setSide(FIXSideToSide(side));
+                executionTableModel.addExecution(execution);
+            }
         }
     }
 
@@ -231,9 +221,12 @@ public class OrderEntryApplication implements Application {
             execIDs.put(sessionID, set);
             return false;
         } else {
-            if (set.contains(execID)) return true;
-            set.add(execID);
-            return false;
+            if (set.contains(execID)) {
+                return true;
+            } else {
+                set.add(execID);
+                return false;
+            }
         }
     }
 
