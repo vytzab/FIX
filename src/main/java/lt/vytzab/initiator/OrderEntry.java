@@ -20,6 +20,8 @@ import lt.vytzab.initiator.ui.OrderEntryFrame;
 import quickfix.field.*;
 import quickfix.fix42.MarketDataRequest;
 
+import static lt.vytzab.initiator.ui.OrderEntryFrame.centerFrameOnScreen;
+
 public class OrderEntry {
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
     private static final Logger log = LoggerFactory.getLogger(OrderEntry.class);
@@ -59,6 +61,7 @@ public class OrderEntry {
 
         frame = new OrderEntryFrame(orderTableModel, executionTableModel, logPanel, application);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        centerFrameOnScreen(frame);
     }
 
     public synchronized void logon() {

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import quickfix.*;
 import quickfix.field.*;
 import quickfix.fix42.MarketDataRequest;
+import quickfix.fix42.MarketDataSnapshotFullRefresh;
 
 import javax.swing.*;
 import java.util.HashMap;
@@ -108,6 +109,7 @@ public class OrderEntryApplication implements Application {
                     } else if (message.getHeader().getField(msgType).valueEquals("9")) {
                         cancelReject(message, sessionID);
                     } else if (message.getHeader().getField(msgType).valueEquals("W")) {
+                        marketSnapshot(message, sessionID);
                         System.out.println("Market Snapshot received!");
                         System.out.println(message);
                     }  else {
@@ -215,6 +217,22 @@ public class OrderEntryApplication implements Application {
             throw new RuntimeException(e);
         }
         orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
+    }
+
+    private void marketSnapshot(Message message, SessionID sessionID) throws FieldNotFound {
+        String Symbol = message.getField(new Symbol()).getValue();
+
+        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
+        MDEntryType mdEntryType = new MDEntryType();
+        MDEntryPx mdEntryPx = new MDEntryPx();
+        MDEntrySize mdEntrySize = new MDEntrySize();
+
+        System.out.println("noMDEntries: ");
+        System.out.println(noMDEntries);
+        System.out.println("message.getGroup(1, noMDEntries): ");
+        System.out.println(message.getGroup(1, noMDEntries));
+        System.out.println("noMDEntries.get(mdEntryType): ");
+        System.out.println(noMDEntries.get(mdEntryType));
     }
 
     private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {
