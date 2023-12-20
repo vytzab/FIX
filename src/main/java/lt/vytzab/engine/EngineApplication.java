@@ -145,10 +145,10 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void onMessage(MarketDataRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         MarketDataRequest.NoRelatedSym noRelatedSyms = new MarketDataRequest.NoRelatedSym();
-        char subscriptionRequestType = message.getChar(SubscriptionRequestType.FIELD);
-
-        if (subscriptionRequestType != SubscriptionRequestType.SNAPSHOT)
-            throw new IncorrectTagValue(SubscriptionRequestType.FIELD);
+//        char subscriptionRequestType = message.getChar(SubscriptionRequestType.FIELD);
+//          TODO fix subscriptionrequesttype
+//        if (subscriptionRequestType != SubscriptionRequestType.SNAPSHOT_UPDATES)
+//            throw new IncorrectTagValue(SubscriptionRequestType.FIELD);
         int relatedSymbolCount = message.getInt(NoRelatedSym.FIELD);
 
         MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
