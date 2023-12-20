@@ -163,6 +163,9 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
         noMDEntries.setChar(MDEntryType.FIELD, '0');
         noMDEntries.setDouble(MDEntryPx.FIELD, 123.45);
+        noMDEntries.setChar(OrdType.FIELD, '1');
+        noMDEntries.setDouble(LeavesQty.FIELD, 15);
+        noMDEntries.setDouble(CumQty.FIELD, 10);
         fixMD.addGroup(noMDEntries);
         String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
         String targetCompId = message.getHeader().getString(TargetCompID.FIELD);

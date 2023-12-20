@@ -168,6 +168,7 @@
       <field name="MDReqID" required="Y"/>
       <field name="SubscriptionRequestType" required="Y"/>
       <field name="AggregatedBook" required="N"/>
+      <field name="MarketDepth" required="N"/>
       <group name="NoMDEntryTypes" required="Y">
         <field name="MDEntryType" required="Y"/>
       </group>
