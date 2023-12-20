@@ -17,10 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import quickfix.*;
 import lt.vytzab.initiator.ui.OrderEntryFrame;
-import quickfix.field.MDEntryType;
-import quickfix.field.MDReqID;
-import quickfix.field.MarketDepth;
-import quickfix.field.SubscriptionRequestType;
+import quickfix.field.*;
 import quickfix.fix42.MarketDataRequest;
 
 public class OrderEntry {
@@ -98,15 +95,6 @@ public class OrderEntry {
     }
 
     public static void main(String[] args) throws Exception {
-//        MarketDataRequest marketDataRequest = new MarketDataRequest(new MDReqID(IDGenerator.genMarketRequestID()), new SubscriptionRequestType('1'), new MarketDepth(1));
-//        OrderEntryApplication.NoMDEntryTypes noMDEntryTypes = new OrderEntryApplication.NoMDEntryTypes();
-//        noMDEntryTypes.set(new MDEntryType('0'));
-//        marketDataRequest.addGroup(noMDEntryTypes);
-//
-//        System.out.println(marketDataRequest);
-//        noMDEntryTypes.set(new MDEntryType('1'));
-//        marketDataRequest.addGroup(noMDEntryTypes);
-//        System.out.println(marketDataRequest);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {

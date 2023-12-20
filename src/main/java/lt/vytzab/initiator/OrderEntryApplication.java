@@ -47,17 +47,14 @@ public class OrderEntryApplication implements Application {
     }
 
     public void onCreate(SessionID sessionID) {
-        System.out.println("ON CREATE");
     }
 
     public void onLogon(SessionID sessionID) {
-        System.out.println("ON LOGON");
         observableLogon.logon(sessionID);
         try {
             sendMarketDataRequest(sessionID);
             System.out.println("SENT MARKET REQUEST");
         } catch (SessionNotFound e) {
-            System.out.println("SESSION NOT FOUND");
             throw new RuntimeException(e);
         }
     }
@@ -276,6 +273,7 @@ public class OrderEntryApplication implements Application {
         marketDataRequest.addGroup(noMDEntryTypes);
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
         noRelatedSym.set(new Symbol("AAPL"));
+        marketDataRequest.addGroup(noRelatedSym);
 
         Session.sendToTarget(marketDataRequest, sessionID);
     }
