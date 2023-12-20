@@ -1,5 +1,6 @@
 package lt.vytzab.initiator.order;
 
+import lt.vytzab.initiator.market.Market;
 import quickfix.field.TimeInForce;
 
 import javax.swing.table.AbstractTableModel;
@@ -37,18 +38,32 @@ public class OrderTableModel extends AbstractTableModel {
         return false;
     }
 
+//    public void addOrder(Order order) {
+//        Integer row = rowToOrder.size();
+//        if (idToRow.get(order.getOrderID())==null){
+//            rowToOrder.put(row, order);
+//            idToRow.put(order.getOrderID(), row);
+//            idToOrder.put(order.getOrderID(), order);
+//        } else {
+//            replaceOrder(order);
+//        }
+//        fireTableRowsInserted(row, row);
+//    }
+
     public void addOrder(Order order) {
-        int row = rowToOrder.size();
+        if (getOrder(order.getOrderID()) == null) {
+            int row = rowToOrder.size();
 
-        rowToOrder.put(row, order);
-        idToRow.put(order.getOrderID(), row);
-        idToOrder.put(order.getOrderID(), order);
+            rowToOrder.put(row, order);
+            idToRow.put(order.getOrderID(), row);
 
-        fireTableRowsInserted(row, row);
+            fireTableRowsInserted(row, row);
+        } else {
+            replaceOrder(order, order.getOrderID());
+        }
     }
 
     public void updateOrder(Order order, String id) {
-
         if (!id.equals(order.getOrderID())) {
             String originalID = order.getOrderID();
             order.setOrderID(id);
@@ -61,14 +76,25 @@ public class OrderTableModel extends AbstractTableModel {
         fireTableRowsUpdated(row, row);
     }
 
-    public void replaceOrder(Order order, String originalID) {
-        Integer row = idToRow.get(originalID);
-        if (row == null) return;
+//    public void replaceOrder(Order order, String originalID) {
+//        Integer row = idToRow.get(originalID);
+//        if (row == null) return;
+//
+//        rowToOrder.put(row, order);
+//        idToRow.put(order.getOrderID(), row);
+//        idToOrder.put(order.getOrderID(), order);
+//
+//        fireTableRowsUpdated(row, row);
+//    }
 
-        rowToOrder.put(row, order);
-        idToRow.put(order.getOrderID(), row);
-        idToOrder.put(order.getOrderID(), order);
-
+    public void replaceOrder(Order order, String clOrdID) {
+        Integer row = idToRow.get(clOrdID);
+        if (row == null) {
+            return;
+        } else {
+            rowToOrder.put(row, order);
+            idToRow.put(order.getOrderID(), row);
+        }
         fireTableRowsUpdated(row, row);
     }
 
@@ -76,8 +102,13 @@ public class OrderTableModel extends AbstractTableModel {
         idToOrder.put(newID, order);
     }
 
-    public Order getOrder(String id) {
-        return idToOrder.get(id);
+//    public Order getOrder(String id) {
+//        return idToOrder.get(id);
+//    }
+
+    public Order getOrder(String clOrdID) {
+        Integer row = idToRow.get(clOrdID);
+        return (row != null) ? rowToOrder.get(row) : null;
     }
 
     public Order getOrder(int row) {

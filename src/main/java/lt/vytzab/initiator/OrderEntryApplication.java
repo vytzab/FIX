@@ -154,6 +154,50 @@ public class OrderEntryApplication implements Application {
         Session.sendToTarget(reply);
     }
 
+    public void sendNewOrderSingle(Order order) throws SessionNotFound {
+        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getOrderID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
+        newOrderSingle.setOrderQty(order.getQuantity());
+
+        if (order.getType() == OrderType.LIMIT) {
+            newOrderSingle.setField(new Price(order.getLimit()));
+        }
+        Session.sendToTarget(newOrderSingle, order.getSessionID());
+    }
+
+    public void sendOrderCancelRequest(Order order) throws SessionNotFound {
+//        String id = order.generateID();
+//        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(new OrigClOrdID(order.getID()), new ClOrdID(id), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime());
+//        orderCancelRequest.setField(new OrderQty(order.getQuantity()));
+//
+//        orderTableModel.addID(order, id);
+//        Session.sendToTarget(orderCancelRequest, order.getSessionID());
+    }
+
+    public void sendOrderCancelReplaceRequest(Order order, Order newOrder) throws SessionNotFound {
+//        OrderCancelReplaceRequest orderCancelReplaceRequest = new OrderCancelReplaceRequest(new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
+//
+//        orderTableModel.addID(order, newOrder.getID());
+//        if (order.getQuantity() != newOrder.getQuantity())
+//            orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
+//        if (!order.getLimit().equals(newOrder.getLimit()))
+//            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
+//        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
+    }
+
+    public void sendMarketDataRequest(SessionID sessionID) throws SessionNotFound {
+        MarketDataRequest marketDataRequest = new MarketDataRequest(new MDReqID(IDGenerator.genMarketRequestID()), new SubscriptionRequestType('1'), new MarketDepth(1));
+        MarketDataRequest.NoMDEntryTypes noMDEntryTypes = new MarketDataRequest.NoMDEntryTypes();
+        noMDEntryTypes.set(new MDEntryType('0'));
+        marketDataRequest.addGroup(noMDEntryTypes);
+        noMDEntryTypes.set(new MDEntryType('1'));
+        marketDataRequest.addGroup(noMDEntryTypes);
+        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
+        noRelatedSym.set(new Symbol("AAPL"));
+        marketDataRequest.addGroup(noRelatedSym);
+
+        Session.sendToTarget(marketDataRequest, sessionID);
+    }
+
     private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
         //Patikrinti ar jau apdirbta
         ExecID execID = (ExecID) message.getField(new ExecID());
@@ -227,28 +271,10 @@ public class OrderEntryApplication implements Application {
     }
 
     private void marketSnapshot(Message message, SessionID sessionID) throws FieldNotFound {
-        String Symbol = message.getField(new Symbol()).getValue();
-
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
-        MDEntryType mdEntryType = new MDEntryType();
-        MDEntryPx mdEntryPx = new MDEntryPx();
-        MDEntrySize mdEntrySize = new MDEntrySize();
-
-        System.out.println("symbol: ");
-        System.out.println(Symbol);
-        System.out.println("noMDEntries: ");
-        System.out.println(noMDEntries);
-        System.out.println("message.getGroup(1, noMDEntries): ");
-        System.out.println(message.getGroup(1, noMDEntries));
-        System.out.println("noMDEntries.get(mdEntryType): ");
-        System.out.println(noMDEntries.get(mdEntryType));
-        System.out.println("message.getGroup(2, noMDEntries): ");
-        System.out.println(message.getGroup(2, noMDEntries));
-        System.out.println("noMDEntries.get(mdEntryType): ");
-        System.out.println(noMDEntries.get(mdEntryType));
-
-        Order order = new Order();
-        order.setOrderID(IDGenerator.genOrderID());
+        Order order = orderFromNoMDEntries(message.getGroup(1, noMDEntries));
+        order.setSymbol(message.getString(Symbol.FIELD));
+        orderTableModel.addOrder(order);
     }
 
     private void securityStatus(Message message, SessionID sessionID) throws FieldNotFound {
@@ -271,50 +297,6 @@ public class OrderEntryApplication implements Application {
                 return false;
             }
         }
-    }
-
-    public void sendNewOrderSingle(Order order) throws SessionNotFound {
-        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getOrderID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
-        newOrderSingle.setOrderQty(order.getQuantity());
-
-        if (order.getType() == OrderType.LIMIT) {
-            newOrderSingle.setField(new Price(order.getLimit()));
-        }
-        Session.sendToTarget(newOrderSingle, order.getSessionID());
-    }
-
-    public void sendOrderCancelRequest(Order order) throws SessionNotFound {
-//        String id = order.generateID();
-//        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(new OrigClOrdID(order.getID()), new ClOrdID(id), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime());
-//        orderCancelRequest.setField(new OrderQty(order.getQuantity()));
-//
-//        orderTableModel.addID(order, id);
-//        Session.sendToTarget(orderCancelRequest, order.getSessionID());
-    }
-
-    public void sendOrderCancelReplaceRequest(Order order, Order newOrder) throws SessionNotFound {
-//        OrderCancelReplaceRequest orderCancelReplaceRequest = new OrderCancelReplaceRequest(new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
-//
-//        orderTableModel.addID(order, newOrder.getID());
-//        if (order.getQuantity() != newOrder.getQuantity())
-//            orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
-//        if (!order.getLimit().equals(newOrder.getLimit()))
-//            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
-//        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
-    }
-
-    public void sendMarketDataRequest(SessionID sessionID) throws SessionNotFound {
-        MarketDataRequest marketDataRequest = new MarketDataRequest(new MDReqID(IDGenerator.genMarketRequestID()), new SubscriptionRequestType('1'), new MarketDepth(1));
-        MarketDataRequest.NoMDEntryTypes noMDEntryTypes = new MarketDataRequest.NoMDEntryTypes();
-        noMDEntryTypes.set(new MDEntryType('0'));
-        marketDataRequest.addGroup(noMDEntryTypes);
-        noMDEntryTypes.set(new MDEntryType('1'));
-        marketDataRequest.addGroup(noMDEntryTypes);
-        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol("AAPL"));
-        marketDataRequest.addGroup(noRelatedSym);
-
-        Session.sendToTarget(marketDataRequest, sessionID);
     }
 
     public Side sideToFIXSide(OrderSide side) {
@@ -423,7 +405,7 @@ public class OrderEntryApplication implements Application {
         });
 
     }
-    public Order orderFromNoMDEntries(MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries) throws FieldNotFound {
+    public Order orderFromNoMDEntries(Group noMDEntries) throws FieldNotFound {
         Order order = new Order();
         order.setQuantity(noMDEntries.getDouble(MDEntrySize.FIELD));
         order.setOpenQuantity(noMDEntries.getDouble(LeavesQty.FIELD));
@@ -435,13 +417,8 @@ public class OrderEntryApplication implements Application {
         order.setAvgPx(noMDEntries.getDouble(AvgPx.FIELD));
         order.setEntryDate(noMDEntries.getUtcDateOnly(MDEntryDate.FIELD));
         order.setGoodTillDate(noMDEntries.getUtcDateOnly(ExpireDate.FIELD));
-
+        order.setOrderID(noMDEntries.getString(OrderID.FIELD));
+//TODO implement stop and limit
         return order;
-    }
-
-    public Market marketFromSecurityStatus(MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries) throws FieldNotFound {
-        Market market = new Market();
-
-        return market;
     }
 }
