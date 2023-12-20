@@ -130,6 +130,10 @@ public class MarketController {
         deleteOrderByClOrdID(order.getClOrdID(), MARKET_ORDERS_DB);
     }
 
+    public List<Market> getMarkets() {
+        return markets;
+    }
+
     // Placeholder method for displaying market information
     public void display() {
         // TODO: Implement logic for displaying market information

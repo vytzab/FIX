@@ -200,6 +200,15 @@
       <field name="MDReqRejReason" required="N"/>
       <field name="Text" required="N"/>
     </message>
+    <message name="SecurityStatus" msgtype="f" msgcat="app">
+      <field name="SecurityStatusReqID" required="N"/>
+      <field name="Symbol" required="Y"/>
+      <field name="HighPx" required="N"/>
+      <field name="LowPx" required="N"/>
+      <field name="LastPx" required="N"/>
+      <field name="BuyVolume" required="N"/>
+      <field name="SellVolume" required="N"/>
+    </message>
   </messages>
 
   <fields>

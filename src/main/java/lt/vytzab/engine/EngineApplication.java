@@ -1,6 +1,7 @@
 package lt.vytzab.engine;
 
 import lt.vytzab.engine.dao.MarketOrderDAO;
+import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.order.OrderIdGenerator;
 import lt.vytzab.engine.market.MarketController;
 import lt.vytzab.engine.order.Order;
@@ -19,6 +20,7 @@ import quickfix.field.*;
 import quickfix.fix42.*;
 import quickfix.fix42.Message;
 import quickfix.MessageCracker;
+import quickfix.fix42.SecurityStatus;
 
 import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
 
@@ -66,31 +68,6 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     //                  ||
     // Messages from OrderEntry ||
     //                          \/
-
-//    public void onMessage(NewOrderSingle newOrderSingle, SessionID sessionID) throws FieldNotFound{
-//        if (marketController.checkIfMarketExists(newOrderSingle.getString(Symbol.FIELD))) {
-//            Order order = orderFromNewOrderSingle(newOrderSingle);
-//            try {
-//                processOrder(order);
-//            } catch (Exception e) {
-//                rejectNewOrderSingle(newOrderSingle, e.getMessage());
-//            }
-//        } else {
-//            rejectNewOrderSingle(newOrderSingle, "Market does not exist.");
-//        }
-//    }
-
-//    public void onMessage(NewOrderSingle newOrderSingle, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-//        if (marketController.checkIfMarketExists(newOrderSingle.getString(Symbol.FIELD))) {
-//            try {
-//                processNewOrder(newOrderSingle);
-//            } catch (Exception e) {
-//                messageExecutionReport(newOrderSingle, '8');
-//            }
-//        } else {
-//            messageExecutionReport(newOrderSingle, '8');
-//        }
-//    }
 
     public void onMessage(quickfix.fix42.NewOrderSingle newOrderSingle, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
         if (marketController.checkIfMarketExists(newOrderSingle.getString(Symbol.FIELD))) {
@@ -148,10 +125,6 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void onMessage(MarketDataRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         MarketDataRequest.NoRelatedSym noRelatedSyms = new MarketDataRequest.NoRelatedSym();
-//        char subscriptionRequestType = message.getChar(SubscriptionRequestType.FIELD);
-//          TODO fix subscriptionrequesttype
-//        if (subscriptionRequestType != SubscriptionRequestType.SNAPSHOT_UPDATES)
-//            throw new IncorrectTagValue(SubscriptionRequestType.FIELD);
         int relatedSymbolCount = message.getInt(NoRelatedSym.FIELD);
 
         MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
@@ -178,29 +151,16 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-//    private void rejectNewOrderSingle(NewOrderSingle newOrderSingle, String message) throws FieldNotFound {
-//        ExecutionReport rejectExecutionReport = new ExecutionReport(generator.genOrderID(), generator.genExecutionID(), ExecTransType.NEW, ExecType.REJECTED, OrdStatus.REJECTED,
-//                newOrderSingle.getString(Symbol.FIELD), newOrderSingle.getChar(Side.FIELD), 0, 0, 0);
-//
-//        rejectExecutionReport.setString(ClOrdID.FIELD, newOrderSingle.getString(ClOrdID.FIELD));
-//        rejectExecutionReport.setString(Text.FIELD, message);
-//        rejectExecutionReport.setInt(OrdRejReason.FIELD, OrdRejReason.BROKER_EXCHANGE_OPTION);
-//
-//        Order order = orderFromNewOrderSingle(newOrderSingle);
-//        order.setRejected(true);
-//        order.setEntryDate(LocalDate.now());
-//        allOrderTableModel.addOrder(order);
-//
-//        try {
-//            Session.sendToTarget(rejectExecutionReport, newOrderSingle.getString(SenderCompID.FIELD), newOrderSingle.getString(TargetCompID.FIELD));
-//        } catch (SessionNotFound e) {
-//            //TODO implement better logging
-//        }
-//    }
-
-//    private void cancelOrder(Order order) {
-//        sendExecutionReport(order, OrdStatus.CANCELED);
-//    }
+    public void onMessage(SecurityStatusRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+        for (Market market : marketController.getMarkets()) {
+            SecurityStatus securityStatus = securityStatusFromMarket(market);
+            try {
+                Session.sendToTarget(securityStatus, message.getHeader().getString(quickfix.field.TargetCompID.FIELD), message.getHeader().getString(quickfix.field.SenderCompID.FIELD));
+            } catch (SessionNotFound e) {
+                //TODO implement better logging
+            }
+        }
+    }
 
     private void messageExecutionReport(Message message, char ordStatus) throws FieldNotFound {
         ExecutionReport executionReport = new ExecutionReport();
@@ -276,6 +236,17 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     private void OrderCancelReplaceRequestER(OrderCancelReplaceRequest message, char ordStatus) {
+    }
+
+    private SecurityStatus securityStatusFromMarket (Market market) throws FieldNotFound {
+        SecurityStatus securityStatus = new SecurityStatus();
+        securityStatus.set(new Symbol(market.getSymbol()));
+        securityStatus.set(new HighPx(market.getDayHigh()));
+        securityStatus.set(new LowPx(market.getDayLow()));
+        securityStatus.set(new LastPx(market.getLastPrice()));
+        securityStatus.set(new BuyVolume(market.getBuyVolume()));
+        securityStatus.set(new SellVolume(market.getSellVolume()));
+        return securityStatus;
     }
 
     public void displayFixMessageInLogs(String fixMessage) {

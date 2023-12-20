@@ -12,16 +12,16 @@ import static lt.vytzab.engine.Variables.*;
 public class MarketDataDAO {
     public static void createMarket(Market market) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "INSERT INTO market_data (symbol, last_price, day_high, day_low, volume) " +
-                    "VALUES (?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO market_data (symbol, last_price, day_high, day_low, buy_volume, sell_volume) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, market.getSymbol());
                 statement.setDouble(2, market.getLastPrice());
                 statement.setDouble(3, market.getDayHigh());
                 statement.setDouble(4, market.getDayLow());
-                statement.setInt(5, market.getVolume());
-                // Set other parameters using market data
+                statement.setDouble(5, market.getBuyVolume());
+                statement.setDouble(5, market.getSellVolume());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -44,7 +44,8 @@ public class MarketDataDAO {
                                 resultSet.getDouble("last_price"),
                                 resultSet.getDouble("day_high"),
                                 resultSet.getDouble("day_low"),
-                                resultSet.getInt("volume")
+                                resultSet.getDouble("buy_volume"),
+                                resultSet.getDouble("sell_volume")
                         );
                     }
                 }
@@ -72,7 +73,8 @@ public class MarketDataDAO {
                                 resultSet.getDouble("last_price"),
                                 resultSet.getDouble("day_high"),
                                 resultSet.getDouble("day_low"),
-                                resultSet.getInt("volume")
+                                resultSet.getDouble("buy_volume"),
+                                resultSet.getDouble("sell_volume")
                         );
                         markets.add(market);
                     }
@@ -90,13 +92,14 @@ public class MarketDataDAO {
 
     public static void updateMarket(Market market) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "UPDATE market_data SET last_price = ?, day_high = ?, day_low = ?, volume = ? WHERE symbol = ?";
+            String sql = "UPDATE market_data SET last_price = ?, day_high = ?, day_low = ?, buy_volume = ?, sell_volume = ? WHERE symbol = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setDouble(1, market.getLastPrice());
                 statement.setDouble(2, market.getDayHigh());
                 statement.setDouble(3, market.getDayLow());
-                statement.setInt(4, market.getVolume());
+                statement.setDouble(4, market.getBuyVolume());
+                statement.setDouble(4, market.getSellVolume());
                 statement.setString(5, market.getSymbol());
 
                 int rowsAffected = statement.executeUpdate();

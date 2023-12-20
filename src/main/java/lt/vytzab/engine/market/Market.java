@@ -16,14 +16,16 @@ public class Market {
     private Double lastPrice;
     private Double dayHigh;
     private Double dayLow;
-    private int volume = 0;
+    private Double buyVolume = 0.0;
+    private Double sellVolume = 0.0;
 
-    public Market(String symbol, Double lastPrice, Double dayHigh, Double dayLow, int volume) {
+    public Market(String symbol, Double lastPrice, Double dayHigh, Double dayLow, Double buyVolume, Double sellVolume) {
         this.symbol = symbol;
         this.lastPrice = lastPrice;
         this.dayHigh = dayHigh;
         this.dayLow = dayLow;
-        this.volume = volume;
+        this.buyVolume = buyVolume;
+        this.sellVolume = sellVolume;
     }
 
     public Market() {
@@ -160,12 +162,19 @@ public class Market {
         this.dayLow = dayLow;
     }
 
-    public int getVolume() {
-        return volume;
+    public double getBuyVolume() {
+        return buyVolume;
     }
 
-    public void setVolume(int volume) {
-        this.volume = volume;
+    public void setBuyVolume(double buyVolume) {
+        this.buyVolume = buyVolume;
+    }
+    public double getSellVolume() {
+        return sellVolume;
+    }
+
+    public void setSellVolume(double sellVolume) {
+        this.sellVolume = sellVolume;
     }
 
     public List<Order> getBidOrders() {
@@ -193,7 +202,8 @@ public class Market {
                 ", lastPrice=" + lastPrice +
                 ", dayHigh=" + dayHigh +
                 ", dayLow=" + dayLow +
-                ", volume=" + volume +
+                ", buyVolume=" + buyVolume +
+                ", sellVolume=" + sellVolume +
                 '}';
     }
 }
