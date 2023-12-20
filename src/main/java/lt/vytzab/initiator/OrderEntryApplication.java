@@ -220,7 +220,7 @@ public class OrderEntryApplication implements Application {
         } catch (FieldNotFound e) {
             throw new RuntimeException(e);
         }
-        orderTableModel.updateOrder(order, id);
+        orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
     }
 
     private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {
