@@ -227,12 +227,20 @@ public class OrderEntryApplication implements Application {
         MDEntryPx mdEntryPx = new MDEntryPx();
         MDEntrySize mdEntrySize = new MDEntrySize();
 
+        System.out.println("symbol: ");
+        System.out.println(Symbol);
         System.out.println("noMDEntries: ");
         System.out.println(noMDEntries);
         System.out.println("message.getGroup(1, noMDEntries): ");
         System.out.println(message.getGroup(1, noMDEntries));
         System.out.println("noMDEntries.get(mdEntryType): ");
         System.out.println(noMDEntries.get(mdEntryType));
+        System.out.println("message.getGroup(2, noMDEntries): ");
+        System.out.println(message.getGroup(2, noMDEntries));
+        System.out.println("noMDEntries.get(mdEntryType): ");
+        System.out.println(noMDEntries.get(mdEntryType));
+
+        Order order = new Order();
     }
 
     private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {
