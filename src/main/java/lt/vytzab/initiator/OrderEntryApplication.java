@@ -158,7 +158,6 @@ public class OrderEntryApplication implements Application {
             message.getField(lastShares);
             fillSize = lastShares.getValue();
         } else {
-            // > FIX 4.1
             LeavesQty leavesQty = new LeavesQty();
             message.getField(leavesQty);
             fillSize = order.getQuantity() - leavesQty.getValue();
@@ -221,7 +220,7 @@ public class OrderEntryApplication implements Application {
         } catch (FieldNotFound e) {
             throw new RuntimeException(e);
         }
-        orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
+        orderTableModel.updateOrder(order, id);
     }
 
     private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {
