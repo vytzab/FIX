@@ -9,9 +9,9 @@ public class OrderTIF {
     static public final OrderTIF IOC = new OrderTIF("IOC");
     static public final OrderTIF OPG = new OrderTIF("OPG");
     static public final OrderTIF GTC = new OrderTIF("GTC");
-    static public final OrderTIF GTX = new OrderTIF("GTX");
+    static public final OrderTIF GTD = new OrderTIF("GTD");
 
-    static private final OrderTIF[] array = {DAY, IOC, OPG, GTC, GTX};
+    static private final OrderTIF[] array = {DAY, IOC, OPG, GTC, GTD};
 
     private final String name;
 

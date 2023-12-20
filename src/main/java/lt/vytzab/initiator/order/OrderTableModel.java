@@ -1,10 +1,12 @@
 package lt.vytzab.initiator.order;
 
+import quickfix.field.TimeInForce;
+
 import javax.swing.table.AbstractTableModel;
+import java.time.LocalDate;
 import java.util.HashMap;
 
 public class OrderTableModel extends AbstractTableModel {
-
     private final static int SYMBOL = 0;
     private final static int QUANTITY = 1;
     private final static int OPEN = 2;
@@ -14,7 +16,8 @@ public class OrderTableModel extends AbstractTableModel {
     private final static int LIMITPRICE = 6;
     private final static int STOPPRICE = 7;
     private final static int AVGPX = 8;
-    private final static int TARGET = 9;
+    private final static int ENTRYDATE = 9;
+    private final static int GOODTILLDATE = 10;
 
     private final HashMap<Integer, Order> rowToOrder;
     private final HashMap<String, Integer> idToRow;
@@ -27,7 +30,7 @@ public class OrderTableModel extends AbstractTableModel {
         idToRow = new HashMap<>();
         idToOrder = new HashMap<>();
 
-        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Target"};
+        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Entry Date", "Good Till Date"};
     }
 
     public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -38,22 +41,22 @@ public class OrderTableModel extends AbstractTableModel {
         int row = rowToOrder.size();
 
         rowToOrder.put(row, order);
-        idToRow.put(order.getID(), row);
-        idToOrder.put(order.getID(), order);
+        idToRow.put(order.getOrderID(), row);
+        idToOrder.put(order.getOrderID(), order);
 
         fireTableRowsInserted(row, row);
     }
 
     public void updateOrder(Order order, String id) {
 
-        if (!id.equals(order.getID())) {
-            String originalID = order.getID();
-            order.setID(id);
+        if (!id.equals(order.getOrderID())) {
+            String originalID = order.getOrderID();
+            order.setOrderID(id);
             replaceOrder(order, originalID);
             return;
         }
 
-        Integer row = idToRow.get(order.getID());
+        Integer row = idToRow.get(order.getOrderID());
         if (row == null) return;
         fireTableRowsUpdated(row, row);
     }
@@ -63,8 +66,8 @@ public class OrderTableModel extends AbstractTableModel {
         if (row == null) return;
 
         rowToOrder.put(row, order);
-        idToRow.put(order.getID(), row);
-        idToOrder.put(order.getID(), order);
+        idToRow.put(order.getOrderID(), row);
+        idToOrder.put(order.getOrderID(), order);
 
         fireTableRowsUpdated(row, row);
     }
@@ -108,21 +111,37 @@ public class OrderTableModel extends AbstractTableModel {
             case QUANTITY:
                 return order.getQuantity();
             case OPEN:
-                return order.getOpen();
+                return order.getOpenQuantity();
             case EXECUTED:
-                return order.getExecuted();
+                return order.getExecutedQuantity();
             case SIDE:
                 return order.getSide();
             case TYPE:
                 return order.getType();
             case LIMITPRICE:
-                return order.getLimit();
+                if(order.getType()==OrderType.LIMIT) {
+                   return null;
+                } else {
+                    return order.getLimit();
+                }
             case STOPPRICE:
-                return order.getStop();
+                if(order.getType()==OrderType.LIMIT) {
+                    return null;
+                } else {
+                    return order.getStop();
+                }
             case AVGPX:
                 return order.getAvgPx();
-            case TARGET:
-                return order.getSessionID().getTargetCompID();
+            case ENTRYDATE:
+                return order.getEntryDate();
+            case GOODTILLDATE:
+                if(order.getTIF()==OrderTIF.DAY) {
+                    LocalDate.now();
+                } else if (order.getTIF()==OrderTIF.GTD){
+                    return order.getGoodTillDate();
+                } else {
+                    return null;
+                }
         }
         return "";
     }

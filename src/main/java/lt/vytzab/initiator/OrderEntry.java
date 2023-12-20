@@ -9,6 +9,7 @@ import javax.swing.UIManager;
 
 import lt.vytzab.initiator.execution.ExecutionTableModel;
 import lt.vytzab.initiator.helpers.IDGenerator;
+import lt.vytzab.initiator.market.MarketTableModel;
 import lt.vytzab.initiator.ui.panels.LogPanel;
 import lt.vytzab.initiator.order.OrderTableModel;
 import org.quickfixj.jmx.JmxExporter;
@@ -48,8 +49,9 @@ public class OrderEntry {
 
         OrderTableModel orderTableModel = new OrderTableModel();
         ExecutionTableModel executionTableModel = new ExecutionTableModel();
+        MarketTableModel marketTableModel = new MarketTableModel();
         LogPanel logPanel = new LogPanel();
-        OrderEntryApplication application = new OrderEntryApplication(orderTableModel, executionTableModel, logPanel);
+        OrderEntryApplication application = new OrderEntryApplication(marketTableModel, orderTableModel, executionTableModel, logPanel);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true, logHeartbeats);
         MessageFactory messageFactory = new DefaultMessageFactory();
@@ -59,7 +61,7 @@ public class OrderEntry {
         JmxExporter exporter = new JmxExporter();
         exporter.register(initiator);
 
-        frame = new OrderEntryFrame(orderTableModel, executionTableModel, logPanel, application);
+        frame = new OrderEntryFrame(marketTableModel, orderTableModel, executionTableModel, logPanel, application);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         centerFrameOnScreen(frame);
     }

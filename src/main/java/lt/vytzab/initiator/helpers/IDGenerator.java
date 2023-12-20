@@ -6,7 +6,7 @@ public class IDGenerator {
     private Long marketRequestIdCounter = 0L;
 
 
-    public String genOrderID() {
+    public static String genOrderID() {
         String id = DateTimeString.getCurrentDateTimeAsString() + orderIdCounter.toString();
         orderIdCounter++;
         return id;

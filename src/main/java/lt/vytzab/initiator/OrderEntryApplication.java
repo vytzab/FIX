@@ -5,6 +5,8 @@ import lt.vytzab.initiator.execution.ExecutionTableModel;
 import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.helpers.LogonEvent;
 import lt.vytzab.initiator.helpers.TwoWayMap;
+import lt.vytzab.initiator.market.Market;
+import lt.vytzab.initiator.market.MarketTableModel;
 import lt.vytzab.initiator.messages.NewOrderSingle;
 import lt.vytzab.initiator.order.*;
 import lt.vytzab.initiator.ui.panels.LogPanel;
@@ -26,6 +28,7 @@ public class OrderEntryApplication implements Application {
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
     private OrderTableModel orderTableModel = null;
     private ExecutionTableModel executionTableModel = null;
+    private MarketTableModel marketTableModel = null;
     private final ObservableOrder observableOrder = new ObservableOrder();
     private final ObservableLogon observableLogon = new ObservableLogon();
     private final LogPanel logPanel;
@@ -41,7 +44,8 @@ public class OrderEntryApplication implements Application {
     static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(OrderEntryApplication.class);
 
-    public OrderEntryApplication(OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, LogPanel logPanel) {
+    public OrderEntryApplication(MarketTableModel marketTableModel, OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, LogPanel logPanel) {
+        this.marketTableModel = marketTableModel;
         this.orderTableModel = orderTableModel;
         this.executionTableModel = executionTableModel;
         this.logPanel = logPanel;
@@ -112,6 +116,9 @@ public class OrderEntryApplication implements Application {
                         marketSnapshot(message, sessionID);
                         System.out.println("Market Snapshot received!");
                         System.out.println(message);
+                    } else if (message.getHeader().getField(msgType).valueEquals("f")) {
+                        System.out.println("Security Status received!");
+                        System.out.println(message);
                     }  else {
                         sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE, "Unsupported Message Type");
                     }
@@ -167,8 +174,8 @@ public class OrderEntryApplication implements Application {
 
             //Jeigu ivyko matchinimas, update order table
             if (fillSize > 0) {
-                order.setOpen(order.getOpen() - (int) fillSize);
-                order.setExecuted(Integer.parseInt(message.getString(CumQty.FIELD)));
+                order.setOpenQuantity(order.getOpenQuantity() - (int) fillSize);
+                order.setExecutedQuantity(Integer.parseInt(message.getString(CumQty.FIELD)));
                 order.setAvgPx(Double.parseDouble(message.getString(AvgPx.FIELD)));
             }
 
@@ -176,10 +183,10 @@ public class OrderEntryApplication implements Application {
 
             if (ordStatus.valueEquals(OrdStatus.REJECTED)) {
                 order.setRejected(true);
-                order.setOpen(0);
+                order.setOpenQuantity(0);
             } else if (ordStatus.valueEquals(OrdStatus.CANCELED) || ordStatus.valueEquals(OrdStatus.DONE_FOR_DAY)) {
                 order.setCanceled(true);
-                order.setOpen(0);
+                order.setOpenQuantity(0);
             } else if (ordStatus.valueEquals(OrdStatus.NEW)) {
                 if (order.isNew()) {
                     order.setNew(false);
@@ -209,7 +216,7 @@ public class OrderEntryApplication implements Application {
         String id = message.getString(ClOrdID.FIELD);
         Order order = orderTableModel.getOrder(id);
         if (order == null) return;
-        if (order.getOriginalID() != null) order = orderTableModel.getOrder(order.getOriginalID());
+        if (order.getClOrdID() != null) order = orderTableModel.getOrder(order.getClOrdID());
 
         try {
             order.setMessage(message.getField(new Text()).getValue());
@@ -241,6 +248,12 @@ public class OrderEntryApplication implements Application {
         System.out.println(noMDEntries.get(mdEntryType));
 
         Order order = new Order();
+        order.setOrderID(IDGenerator.genOrderID());
+    }
+
+    private void securityStatus(Message message, SessionID sessionID) throws FieldNotFound {
+        Market market = new Market(message.getString(Symbol.FIELD), message.getDouble(LastPx.FIELD), message.getDouble(HighPx.FIELD), message.getDouble(LowPx.FIELD), message.getDouble(BuyVolume.FIELD), message.getDouble(SellVolume.FIELD));
+        marketTableModel.addMarket(market);
     }
 
     private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {
@@ -261,7 +274,7 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendNewOrderSingle(Order order) throws SessionNotFound {
-        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
+        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getOrderID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
 
         if (order.getType() == OrderType.LIMIT) {
@@ -383,7 +396,7 @@ public class OrderEntryApplication implements Application {
         tifMap.put(OrderTIF.IOC, new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL));
         tifMap.put(OrderTIF.OPG, new TimeInForce(TimeInForce.AT_THE_OPENING));
         tifMap.put(OrderTIF.GTC, new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
-        tifMap.put(OrderTIF.GTX, new TimeInForce(TimeInForce.GOOD_TILL_CROSSING));
+        tifMap.put(OrderTIF.GTD, new TimeInForce(TimeInForce.GOOD_TILL_DATE));
     }
 
     public boolean isMissingField() {
@@ -409,5 +422,26 @@ public class OrderEntryApplication implements Application {
             logPanel.repaint();
         });
 
+    }
+    public Order orderFromNoMDEntries(MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries) throws FieldNotFound {
+        Order order = new Order();
+        order.setQuantity(noMDEntries.getDouble(MDEntrySize.FIELD));
+        order.setOpenQuantity(noMDEntries.getDouble(LeavesQty.FIELD));
+        order.setExecutedQuantity(noMDEntries.getDouble(CumQty.FIELD));
+        order.setSide(FIXSideToSide(new Side(noMDEntries.getChar(MDEntryType.FIELD))));
+        order.setType(FIXTypeToType(new OrdType(noMDEntries.getChar(OrdType.FIELD))));
+        order.setLimit(noMDEntries.getDouble(MDEntryPx.FIELD));
+        order.setStop(noMDEntries.getDouble(MDEntryPx.FIELD));
+        order.setAvgPx(noMDEntries.getDouble(AvgPx.FIELD));
+        order.setEntryDate(noMDEntries.getUtcDateOnly(MDEntryDate.FIELD));
+        order.setGoodTillDate(noMDEntries.getUtcDateOnly(ExpireDate.FIELD));
+
+        return order;
+    }
+
+    public Market marketFromSecurityStatus(MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries) throws FieldNotFound {
+        Market market = new Market();
+
+        return market;
     }
 }

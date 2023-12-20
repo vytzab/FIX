@@ -78,11 +78,11 @@ public class CancelReplacePanel extends JPanel {
     public void setOrder(Order order) {
         if (order == null) return;
         this.order = order;
-        quantityTextField.setText(Integer.toString(order.getOpen()));
+        quantityTextField.setText(Double.toString(order.getOpenQuantity()));
 
         Double limit = order.getLimit();
         if (limit != null) limitPriceTextField.setText(order.getLimit().toString());
-        setEnabled(order.getOpen() > 0);
+        setEnabled(order.getOpenQuantity() > 0);
     }
 
     private JComponent add(JComponent component, int x, int y) {
@@ -109,8 +109,8 @@ public class CancelReplacePanel extends JPanel {
             newOrder.setLimit(Double.parseDouble(limitPriceTextField.getText()));
             newOrder.setRejected(false);
             newOrder.setCanceled(false);
-            newOrder.setOpen(0);
-            newOrder.setExecuted(0);
+            newOrder.setOpenQuantity(0);
+            newOrder.setExecutedQuantity(0);
 
             try {
                 application.sendOrderCancelReplaceRequest(order, newOrder);

@@ -1,13 +1,16 @@
 package lt.vytzab.initiator.order;
 
+import lt.vytzab.initiator.helpers.IDGenerator;
 import quickfix.SessionID;
+
+import java.time.LocalDate;
 
 public class Order implements Cloneable {
     private SessionID sessionID = null;
     private String symbol = null;
-    private int quantity = 0;
-    private int open = 0;
-    private int executed = 0;
+    private double quantity = 0;
+    private double openQuantity = 0;
+    private double executedQuantity = 0;
     private OrderSide side = OrderSide.BUY;
     private OrderType type = OrderType.MARKET;
     private OrderTIF tif = OrderTIF.DAY;
@@ -18,31 +21,24 @@ public class Order implements Cloneable {
     private boolean canceled = false;
     private boolean isNew = true;
     private String message = null;
-    private String ID = null;
-    private String originalID = null;
-    private static int nextID = 1;
+    private String OrderID = null;
+    private String ClOrdID = null;
+    private LocalDate entryDate = null;
+    private LocalDate goodTillDate = null;
 
     public Order() {
-        ID = generateID();
-    }
-
-    public Order(String ID) {
-        this.ID = ID;
+        OrderID = IDGenerator.genOrderID();
     }
 
     public Object clone() {
         try {
             Order order = (Order) super.clone();
-            order.setOriginalID(getID());
-            order.setID(order.generateID());
+            order.setClOrdID(getOrderID());
+            order.setOrderID(IDGenerator.genOrderID());
             return order;
         } catch (CloneNotSupportedException e) {
         }
         return null;
-    }
-
-    public String generateID() {
-        return Integer.toString(100000 + (nextID++));
     }
 
     public SessionID getSessionID() {
@@ -61,28 +57,28 @@ public class Order implements Cloneable {
         this.symbol = symbol;
     }
 
-    public int getQuantity() {
+    public double getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(double quantity) {
         this.quantity = quantity;
     }
 
-    public int getOpen() {
-        return open;
+    public double getOpenQuantity() {
+        return openQuantity;
     }
 
-    public void setOpen(int open) {
-        this.open = open;
+    public void setOpenQuantity(double openQuantity) {
+        this.openQuantity = openQuantity;
     }
 
-    public int getExecuted() {
-        return executed;
+    public double getExecutedQuantity() {
+        return executedQuantity;
     }
 
-    public void setExecuted(int executed) {
-        this.executed = executed;
+    public void setExecutedQuantity(double executedQuantity) {
+        this.executedQuantity = executedQuantity;
     }
 
     public OrderSide getSide() {
@@ -181,19 +177,43 @@ public class Order implements Cloneable {
         return message;
     }
 
-    public void setID(String ID) {
-        this.ID = ID;
+    public void setOrderID(String ID) {
+        this.OrderID = ID;
     }
 
-    public String getID() {
-        return ID;
+    public String getOrderID() {
+        return OrderID;
     }
 
-    public void setOriginalID(String originalID) {
-        this.originalID = originalID;
+    public void setClOrdID(String clOrdID) {
+        this.ClOrdID = clOrdID;
     }
 
-    public String getOriginalID() {
-        return originalID;
+    public String getClOrdID() {
+        return ClOrdID;
+    }
+
+    public boolean isRejected() {
+        return rejected;
+    }
+
+    public boolean isCanceled() {
+        return canceled;
+    }
+
+    public LocalDate getEntryDate() {
+        return entryDate;
+    }
+
+    public void setEntryDate(LocalDate entryDate) {
+        this.entryDate = entryDate;
+    }
+
+    public LocalDate getGoodTillDate() {
+        return goodTillDate;
+    }
+
+    public void setGoodTillDate(LocalDate goodTillDate) {
+        this.goodTillDate = goodTillDate;
     }
 }
