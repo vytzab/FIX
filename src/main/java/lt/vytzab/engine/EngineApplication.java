@@ -1,5 +1,6 @@
 package lt.vytzab.engine;
 
+import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.order.OrderIdGenerator;
 import lt.vytzab.engine.market.MarketController;
 import lt.vytzab.engine.order.Order;
@@ -8,7 +9,9 @@ import lt.vytzab.engine.ui.panels.LogPanel;
 
 import javax.swing.*;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 
 import lt.vytzab.engine.helpers.CustomFixMessageParser;
 import quickfix.*;
@@ -153,27 +156,25 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
         MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
         fixMD.setString(MDReqID.FIELD, message.getString(MDReqID.FIELD));
+        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries;
+        String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
+        String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
+        fixMD.getHeader().setString(SenderCompID.FIELD, targetCompId);
+        fixMD.getHeader().setString(TargetCompID.FIELD, senderCompId);
 
         for (int i = 1; i <= relatedSymbolCount; ++i) {
             message.getGroup(i, noRelatedSyms);
             String symbol = noRelatedSyms.getString(Symbol.FIELD);
             fixMD.setString(Symbol.FIELD, symbol);
-        }
-
-        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
-        noMDEntries.setChar(MDEntryType.FIELD, '0');
-        noMDEntries.setDouble(MDEntryPx.FIELD, 123.45);
-        noMDEntries.setChar(OrdType.FIELD, '1');
-        noMDEntries.setDouble(LeavesQty.FIELD, 15);
-        noMDEntries.setDouble(CumQty.FIELD, 10);
-        fixMD.addGroup(noMDEntries);
-        String senderCompId = message.getHeader().getString(SenderCompID.FIELD);
-        String targetCompId = message.getHeader().getString(TargetCompID.FIELD);
-        fixMD.getHeader().setString(SenderCompID.FIELD, targetCompId);
-        fixMD.getHeader().setString(TargetCompID.FIELD, senderCompId);
-        try {
-            Session.sendToTarget(fixMD, targetCompId, senderCompId);
-        } catch (SessionNotFound e) {
+            List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(symbol, MARKET_ORDERS_DB);
+            for (Order order : symbolOrders) {
+                noMDEntries = noMDEntriesFromOrder(order);
+                fixMD.addGroup(noMDEntries);
+            }
+            try {
+                Session.sendToTarget(fixMD, targetCompId, senderCompId);
+            } catch (SessionNotFound e) {
+            }
         }
     }
 
@@ -304,5 +305,23 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         char timeInForce = TimeInForce.DAY;
         //TODO implement TIF
         return order;
+    }
+
+    public MarketDataSnapshotFullRefresh.NoMDEntries noMDEntriesFromOrder(Order order) throws FieldNotFound {
+        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
+
+        noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
+        noMDEntries.setDouble(MDEntryPx.FIELD, order.getPrice());
+        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
+        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
+        noMDEntries.setDouble(MDEntrySize.FIELD, order.getQuantity());
+        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
+        noMDEntries.setUtcDateOnly(MDEntryDate.FIELD, order.getEntryDate());
+        noMDEntries.setUtcTimeOnly(MDEntryTime.FIELD, LocalTime.now());
+        noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
+        noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
+        noMDEntries.setString(Text.FIELD, "");
+
+        return noMDEntries;
     }
 }
