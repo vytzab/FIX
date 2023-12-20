@@ -18,12 +18,14 @@ public class AddMarketPanel extends JPanel implements Observer {
     private boolean lastPriceEntered = false;
     private boolean dayHighEntered = false;
     private boolean dayLowEntered = false;
-    private boolean volumeEntered = false;
+    private boolean buyVolumeEntered = false;
+    private boolean sellVolumeEntered = false;
     private final JTextField symbolTextField = new JTextField();
     private final DoubleNumberTextField lastPriceField = new DoubleNumberTextField();
     private final DoubleNumberTextField dayHighField = new DoubleNumberTextField();
     private final DoubleNumberTextField dayLowField = new DoubleNumberTextField();
-    private final IntegerNumberTextField volumeField = new IntegerNumberTextField();
+    private final DoubleNumberTextField buyVolumeField = new DoubleNumberTextField();
+    private final DoubleNumberTextField sellVolumeField = new DoubleNumberTextField();
 
     private final JLabel messageLabel = new JLabel(" ");
     private final JButton submitButton = new JButton("Submit");
@@ -43,7 +45,8 @@ public class AddMarketPanel extends JPanel implements Observer {
         lastPriceField.addKeyListener(activator);
         dayHighField.addKeyListener(activator);
         dayLowField.addKeyListener(activator);
-        volumeField.addKeyListener(activator);
+        buyVolumeField.addKeyListener(activator);
+        sellVolumeField.addKeyListener(activator);
 
         setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
         setLayout(new GridBagLayout());
@@ -91,8 +94,10 @@ public class AddMarketPanel extends JPanel implements Observer {
         add(dayHighField, ++x, y);
         dayLowField.setName("DayLowField");
         add(dayLowField, ++x, y);
-        volumeField.setName("VolumeField");
-        add(volumeField, ++x, y);
+        buyVolumeField.setName("VolumeField");
+        add(buyVolumeField, ++x, y);
+        sellVolumeField.setName("VolumeField");
+        add(sellVolumeField, ++x, y);
 
         constraints.insets = new Insets(3, 5, 3, 5);
         submitButton.setName("SubmitButton");
@@ -117,7 +122,7 @@ public class AddMarketPanel extends JPanel implements Observer {
     }
 
     private void activateSubmit() {
-        boolean activate = symbolEntered && lastPriceEntered && dayHighEntered && dayLowEntered && volumeEntered;
+        boolean activate = symbolEntered && lastPriceEntered && dayHighEntered && dayLowEntered && buyVolumeEntered && sellVolumeEntered;
         submitButton.setEnabled(activate); // Set the state of the submit button
     }
 
@@ -133,7 +138,8 @@ public class AddMarketPanel extends JPanel implements Observer {
             market.setLastPrice(Double.parseDouble(lastPriceField.getText()));
             market.setDayHigh(Double.parseDouble(dayHighField.getText()));
             market.setDayLow(Double.parseDouble(dayLowField.getText()));
-            market.setVolume(Integer.parseInt(volumeField.getText()));
+            market.setBuyVolume(Integer.parseInt(buyVolumeField.getText()));
+            market.setBuyVolume(Integer.parseInt(sellVolumeField.getText()));
 
             MarketDataDAO.createMarket(market);
             marketTableModel.addMarket(market);
@@ -151,8 +157,10 @@ public class AddMarketPanel extends JPanel implements Observer {
                 dayHighEntered = testField(obj);
             } else if (obj == dayLowField) {
                 dayLowEntered = testField(obj);
-            } else if (obj == volumeField) {
-                volumeEntered = testField(obj);
+            } else if (obj == buyVolumeField) {
+                buyVolumeEntered = testField(obj);
+            }else if (obj == sellVolumeField) {
+                sellVolumeEntered = testField(obj);
             }
             activateSubmit();
         }

@@ -27,7 +27,7 @@ public class MarketTableModel extends AbstractTableModel {
         rowToMarket = new HashMap<>();
         symbolToRow = new HashMap<>();
 
-        headers = new String[]{"Symbol", "Last Price", "Day High", "Day Low", "Volume"};
+        headers = new String[]{"Symbol", "Last Price", "Day High", "Day Low", "Buy Volume", "Sell Volume"};
     }
 
     public void addMarket(Market market) {
@@ -103,7 +103,9 @@ public class MarketTableModel extends AbstractTableModel {
             case 3:
                 return market.getDayLow();
             case 4:
-                return market.getVolume();
+                return market.getBuyVolume();
+            case 5:
+                return market.getSellVolume();
             default:
                 return "";
         }

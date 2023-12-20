@@ -200,6 +200,11 @@
       <field name="MDReqRejReason" required="N"/>
       <field name="Text" required="N"/>
     </message>
+    <message name="SecurityStatusRequest" msgtype="e" msgcat="app">
+      <field name="SecurityStatusReqID" required="Y"/>
+      <field name="Symbol" required="Y"/>
+      <field name="SubscriptionRequestType" required="Y"/>
+    </message>
     <message name="SecurityStatus" msgtype="f" msgcat="app">
       <field name="SecurityStatusReqID" required="N"/>
       <field name="Symbol" required="Y"/>
@@ -456,6 +461,11 @@
       <value enum="8" description="UNSUPPORTED_MDENTRYTYPE"/>
     </field>
     <field number="283" name="LocationID" type="STRING"/>
+    <field number="324" name="SecurityStatusReqID" type="STRING"/>
+    <field number="330" name="BuyVolume" type="QTY"/>
+    <field number="331" name="SellVolume" type="QTY"/>
+    <field number="332" name="HighPx" type="PRICE"/>
+    <field number="333" name="LowPx" type="PRICE"/>
     <field number="336" name="TradingSessionID" type="STRING"/>
     <field number="346" name="NumberOfOrders" type="INT"/>
     <field number="347" name="MessageEncoding" type="STRING"/>
