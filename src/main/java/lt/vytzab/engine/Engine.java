@@ -33,6 +33,7 @@ import java.io.InputStream;
 import java.time.LocalDate;
 
 import static lt.vytzab.engine.helpers.DateTimeString.getCurrentDateTimeAsString;
+import static lt.vytzab.engine.ui.EngineFrame.centerFrameOnScreen;
 
 public class Engine {
     private final static Logger log = LoggerFactory.getLogger(Engine.class);
@@ -114,6 +115,7 @@ public class Engine {
         JMenuBar menuBar = createMenu();
         JFrame frame = new EngineFrame(marketTableModel, openOrderTableModel, allOrderTableModel, logPanel, application, menuBar);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        centerFrameOnScreen(frame);
     }
 
     private static void start() throws RuntimeError, ConfigError {
