@@ -1,4 +1,4 @@
-package lt.vytzab.initiator;
+package lt.vytzab.initiator.helpers;
 
 import quickfix.SessionID;
 

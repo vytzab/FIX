@@ -1,4 +1,4 @@
-package lt.vytzab.initiator.ui;
+package lt.vytzab.initiator.ui.panels;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -24,14 +24,14 @@ import javax.swing.JTextField;
 
 import quickfix.SessionID;
 import lt.vytzab.initiator.OrderEntryApplication;
-import lt.vytzab.initiator.DoubleNumberTextField;
-import lt.vytzab.initiator.IntegerNumberTextField;
-import lt.vytzab.initiator.LogonEvent;
-import lt.vytzab.initiator.Order;
-import lt.vytzab.initiator.OrderSide;
-import lt.vytzab.initiator.OrderTIF;
-import lt.vytzab.initiator.OrderTableModel;
-import lt.vytzab.initiator.OrderType;
+import lt.vytzab.initiator.helpers.DoubleNumberTextField;
+import lt.vytzab.initiator.helpers.IntegerNumberTextField;
+import lt.vytzab.initiator.helpers.LogonEvent;
+import lt.vytzab.initiator.order.Order;
+import lt.vytzab.initiator.order.OrderSide;
+import lt.vytzab.initiator.order.OrderTIF;
+import lt.vytzab.initiator.order.OrderTableModel;
+import lt.vytzab.initiator.order.OrderType;
 import quickfix.SessionNotFound;
 
 public class AddOrderPanel extends JPanel implements Observer {

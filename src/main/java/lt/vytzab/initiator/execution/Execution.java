@@ -1,4 +1,6 @@
-package lt.vytzab.initiator;
+package lt.vytzab.initiator.execution;
+
+import lt.vytzab.initiator.order.OrderSide;
 
 public class Execution {
     private String symbol = null;

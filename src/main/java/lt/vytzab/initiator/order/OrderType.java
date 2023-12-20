@@ -1,4 +1,4 @@
-package lt.vytzab.initiator;
+package lt.vytzab.initiator.order;
 
 import java.util.HashMap;
 import java.util.Map;

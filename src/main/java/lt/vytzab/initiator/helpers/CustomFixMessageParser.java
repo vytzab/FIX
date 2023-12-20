@@ -1,4 +1,4 @@
-package lt.vytzab.utils;
+package lt.vytzab.initiator.helpers;
 
 public class CustomFixMessageParser {
     public static String parse(String fixMessage) {

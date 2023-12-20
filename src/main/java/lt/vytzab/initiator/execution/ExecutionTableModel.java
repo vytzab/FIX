@@ -1,4 +1,4 @@
-package lt.vytzab.initiator;
+package lt.vytzab.initiator.execution;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.HashMap;

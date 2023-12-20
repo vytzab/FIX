@@ -7,15 +7,21 @@ import java.util.concurrent.CountDownLatch;
 import javax.swing.JFrame;
 import javax.swing.UIManager;
 
-import lt.vytzab.initiator.messages.NewOrderSingle;
-import lt.vytzab.initiator.ui.LogPanel;
+import lt.vytzab.initiator.execution.ExecutionTableModel;
+import lt.vytzab.initiator.helpers.IDGenerator;
+import lt.vytzab.initiator.ui.panels.LogPanel;
+import lt.vytzab.initiator.order.OrderTableModel;
 import org.quickfixj.jmx.JmxExporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import quickfix.*;
 import lt.vytzab.initiator.ui.OrderEntryFrame;
-import quickfix.field.*;
+import quickfix.field.MDEntryType;
+import quickfix.field.MDReqID;
+import quickfix.field.MarketDepth;
+import quickfix.field.SubscriptionRequestType;
+import quickfix.fix42.MarketDataRequest;
 
 public class OrderEntry {
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
@@ -92,6 +98,15 @@ public class OrderEntry {
     }
 
     public static void main(String[] args) throws Exception {
+//        MarketDataRequest marketDataRequest = new MarketDataRequest(new MDReqID(IDGenerator.genMarketRequestID()), new SubscriptionRequestType('1'), new MarketDepth(1));
+//        OrderEntryApplication.NoMDEntryTypes noMDEntryTypes = new OrderEntryApplication.NoMDEntryTypes();
+//        noMDEntryTypes.set(new MDEntryType('0'));
+//        marketDataRequest.addGroup(noMDEntryTypes);
+//
+//        System.out.println(marketDataRequest);
+//        noMDEntryTypes.set(new MDEntryType('1'));
+//        marketDataRequest.addGroup(noMDEntryTypes);
+//        System.out.println(marketDataRequest);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {

@@ -2,16 +2,13 @@ package lt.vytzab.initiator.ui;
 
 import java.awt.BorderLayout;
 
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFrame;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 
-import lt.vytzab.initiator.OrderEntry;
 import lt.vytzab.initiator.OrderEntryApplication;
-import lt.vytzab.initiator.ExecutionTableModel;
-import lt.vytzab.initiator.OrderTableModel;
+import lt.vytzab.initiator.execution.ExecutionTableModel;
+import lt.vytzab.initiator.order.OrderTableModel;
+import lt.vytzab.initiator.ui.panels.LogPanel;
+import lt.vytzab.initiator.ui.panels.OrderEntryPanel;
 
 public class OrderEntryFrame extends JFrame {
 

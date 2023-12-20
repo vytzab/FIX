@@ -1,6 +1,4 @@
-package lt.vytzab.initiator.ui;
-
-import lt.vytzab.initiator.ExecutionTableModel;
+package lt.vytzab.initiator.ui.panels;
 
 import javax.swing.*;
 import java.awt.*;

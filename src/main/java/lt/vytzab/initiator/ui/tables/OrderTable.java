@@ -1,8 +1,8 @@
-package lt.vytzab.initiator.ui;
+package lt.vytzab.initiator.ui.tables;
 
 import lt.vytzab.initiator.OrderEntryApplication;
-import lt.vytzab.initiator.Order;
-import lt.vytzab.initiator.OrderTableModel;
+import lt.vytzab.initiator.order.Order;
+import lt.vytzab.initiator.order.OrderTableModel;
 import quickfix.SessionNotFound;
 
 import javax.swing.table.*;

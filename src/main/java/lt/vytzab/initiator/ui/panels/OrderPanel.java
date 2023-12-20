@@ -1,4 +1,4 @@
-package lt.vytzab.initiator.ui;
+package lt.vytzab.initiator.ui.panels;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -9,7 +9,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 import lt.vytzab.initiator.OrderEntryApplication;
-import lt.vytzab.initiator.OrderTableModel;
+import lt.vytzab.initiator.order.OrderTableModel;
+import lt.vytzab.initiator.ui.tables.OrderTable;
 
 /**
  * Contains the Order table.

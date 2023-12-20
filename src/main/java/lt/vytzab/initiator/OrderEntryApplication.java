@@ -1,26 +1,21 @@
 package lt.vytzab.initiator;
 
+import lt.vytzab.initiator.execution.Execution;
+import lt.vytzab.initiator.execution.ExecutionTableModel;
+import lt.vytzab.initiator.helpers.IDGenerator;
+import lt.vytzab.initiator.helpers.LogonEvent;
+import lt.vytzab.initiator.helpers.TwoWayMap;
 import lt.vytzab.initiator.messages.NewOrderSingle;
-import lt.vytzab.initiator.ui.LogPanel;
-import lt.vytzab.utils.CustomFixMessageParser;
+import lt.vytzab.initiator.order.*;
+import lt.vytzab.initiator.ui.panels.LogPanel;
+import lt.vytzab.initiator.helpers.CustomFixMessageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import quickfix.Application;
-import quickfix.DefaultMessageFactory;
-import quickfix.DoNotSend;
-import quickfix.FieldNotFound;
-import quickfix.IncorrectDataFormat;
-import quickfix.IncorrectTagValue;
-import quickfix.Message;
-import quickfix.RejectLogon;
-import quickfix.Session;
-import quickfix.SessionID;
-import quickfix.SessionNotFound;
-import quickfix.UnsupportedMessageType;
+import quickfix.*;
 import quickfix.field.*;
+import quickfix.fix42.MarketDataRequest;
 
 import javax.swing.*;
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -56,6 +51,11 @@ public class OrderEntryApplication implements Application {
 
     public void onLogon(SessionID sessionID) {
         observableLogon.logon(sessionID);
+        try {
+            sendMarketDataRequest(sessionID);
+        } catch (SessionNotFound e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public void onLogout(SessionID sessionID) {
@@ -106,7 +106,10 @@ public class OrderEntryApplication implements Application {
                         //Jeigu gautas cancel reject report msgType = 8
                     } else if (message.getHeader().getField(msgType).valueEquals("9")) {
                         cancelReject(message, sessionID);
-                    } else {
+                    } else if (message.getHeader().getField(msgType).valueEquals("W")) {
+                        System.out.println("Market Snapshot received!");
+                        System.out.println(message);
+                    }  else {
                         sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE, "Unsupported Message Type");
                     }
                 } else {
@@ -233,7 +236,6 @@ public class OrderEntryApplication implements Application {
     public void sendNewOrderSingle(Order order) throws SessionNotFound {
         NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
-//        newOrderSingle.setField(new OrigClOrdID(order.generateID()));
 
         if (order.getType() == OrderType.LIMIT) {
             newOrderSingle.setField(new Price(order.getLimit()));
@@ -259,6 +261,19 @@ public class OrderEntryApplication implements Application {
 //        if (!order.getLimit().equals(newOrder.getLimit()))
 //            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
 //        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
+    }
+
+    public void sendMarketDataRequest(SessionID sessionID) throws SessionNotFound {
+        MarketDataRequest marketDataRequest = new MarketDataRequest(new MDReqID(IDGenerator.genMarketRequestID()), new SubscriptionRequestType('1'), new MarketDepth(1));
+        MarketDataRequest.NoMDEntryTypes noMDEntryTypes = new MarketDataRequest.NoMDEntryTypes();
+        noMDEntryTypes.set(new MDEntryType('0'));
+        marketDataRequest.addGroup(noMDEntryTypes);
+        noMDEntryTypes.set(new MDEntryType('1'));
+        marketDataRequest.addGroup(noMDEntryTypes);
+        MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
+        noRelatedSym.set(new Symbol("AAPL"));
+
+        Session.sendToTarget(marketDataRequest, sessionID);
     }
 
     public Side sideToFIXSide(OrderSide side) {
@@ -365,5 +380,6 @@ public class OrderEntryApplication implements Application {
             logPanel.revalidate();
             logPanel.repaint();
         });
+
     }
 }
