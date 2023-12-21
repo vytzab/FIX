@@ -61,10 +61,10 @@ public class OrderTableModel extends AbstractTableModel {
         fireTableRowsUpdated(row, row);
     }
 
-    public void replaceOrder(Order order, String originalID) {
-
-        Integer row = idToRow.get(originalID);
+    public void replaceOrder(Order order, String ClOrdID) {
+        Integer row = idToRow.get(ClOrdID);
         if (row == null) return;
+        orders.set(row, order);
 
         rowToOrder.put(row, order);
         idToRow.put(order.getClOrdID(), row);

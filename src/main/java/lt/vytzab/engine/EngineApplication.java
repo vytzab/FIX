@@ -98,9 +98,9 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             //try to match
             marketController.matchMarketOrders(marketController.getMarket(order.getSymbol()), orders);
             while (!orders.isEmpty()) {
-                order = orders.remove(0);
-                openOrderTableModel.updateOrder(order, order.getClOrdID());
-                orderExecutionReport(order, order.isFilled() ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED);
+                openOrderTableModel.replaceOrder(orders.get(0), orders.get(0).getClOrdID());
+                orderExecutionReport(orders.get(0), orders.get(0).isFilled() ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED);
+                orders.remove(0);
             }
             // Remove fully executed orders from the OrderTableModel
             openOrderTableModel.removeFullyExecutedOrders();

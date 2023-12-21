@@ -23,7 +23,6 @@ public class MarketTableModel extends AbstractTableModel {
 
     public MarketTableModel() {
         markets = new ArrayList<>();
-        System.out.println("Markets = " + markets);
         rowToMarket = new HashMap<>();
         symbolToRow = new HashMap<>();
 
