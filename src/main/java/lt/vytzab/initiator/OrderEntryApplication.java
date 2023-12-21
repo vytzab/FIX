@@ -119,6 +119,7 @@ public class OrderEntryApplication implements Application {
                         System.out.println(message);
                     } else if (message.getHeader().getField(msgType).valueEquals("f")) {
                         System.out.println("Security Status received!");
+                        securityStatus(message, sessionID);
                         System.out.println(message);
                     }  else {
                         sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE, "Unsupported Message Type");
