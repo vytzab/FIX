@@ -8,6 +8,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class Market {
     private List<Order> bidOrders = new ArrayList<>();
@@ -205,5 +206,17 @@ public class Market {
                 ", buyVolume=" + buyVolume +
                 ", sellVolume=" + sellVolume +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Market market)) return false;
+        return Objects.equals(getBidOrders(), market.getBidOrders()) && Objects.equals(getAskOrders(), market.getAskOrders()) && Objects.equals(getSymbol(), market.getSymbol()) && Objects.equals(getLastPrice(), market.getLastPrice()) && Objects.equals(getDayHigh(), market.getDayHigh()) && Objects.equals(getDayLow(), market.getDayLow()) && Objects.equals(getBuyVolume(), market.getBuyVolume()) && Objects.equals(getSellVolume(), market.getSellVolume());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getBidOrders(), getAskOrders(), getSymbol(), getLastPrice(), getDayHigh(), getDayLow(), getBuyVolume(), getSellVolume());
     }
 }

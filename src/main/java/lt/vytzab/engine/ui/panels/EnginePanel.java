@@ -8,11 +8,12 @@ import java.awt.event.ActionListener;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JTabbedPane;
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import lt.vytzab.engine.EngineApplication;
+import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
 import lt.vytzab.engine.order.OrderTableModel;
 
@@ -25,6 +26,7 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
     private final OrderPanel openOrderPanel;
     private final OrderPanel allOrderPanel;
     private final LogPanel logPanel;
+    private final CancelReplacePanel cancelReplacePanel;
     private final OrderTableModel openOrderTableModel;
     private final OrderTableModel allOrderTableModel;
     private final MarketTableModel marketTableModel;
@@ -60,14 +62,55 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
         tabbedPane.add("Logs", logPanel);
         add(tabbedPane, constraints);
 
+        cancelReplacePanel = new CancelReplacePanel(marketTableModel, application);
         constraints.weighty = 0;
+        add(cancelReplacePanel, constraints);
+        cancelReplacePanel.setEnabled(false);
 
         addMarketPanel.addActionListener(this);
+        marketPanel.marketTable().getSelectionModel().addListSelectionListener(new MarketSelection());
+        cancelReplacePanel.addActionListener(this);
+        application.addMarketObserver(this);
+        application.deleteMarketObserver(this);
     }
 
     public void update(Observable o, Object arg) {
+        cancelReplacePanel.update();
     }
 
     public void actionPerformed(ActionEvent e) {
+        ListSelectionModel selection = marketPanel.marketTable().getSelectionModel();
+        selection.clearSelection();
+    }
+
+    private class MarketSelection implements ListSelectionListener {
+        public void valueChanged(ListSelectionEvent e) {
+            ListSelectionModel selection = marketPanel.marketTable().getSelectionModel();
+            if (selection.isSelectionEmpty()) {
+                addMarketPanel.clearMessage();
+                return;
+            }
+
+            int firstIndex = e.getFirstIndex();
+            int lastIndex = e.getLastIndex();
+            int selectedRow = 0;
+            int numSelected = 0;
+
+            for (int i = firstIndex; i <= lastIndex; ++i) {
+                if (selection.isSelectedIndex(i)) {
+                    selectedRow = i;
+                    numSelected++;
+                }
+            }
+
+            if (numSelected > 1) addMarketPanel.clearMessage();
+            else {
+                Market market = marketTableModel.getMarket(selectedRow);
+                if (market != null) {
+                    addMarketPanel.setMessage("Market selected");
+                    cancelReplacePanel.setMarket(market);
+                }
+            }
+        }
     }
 }

@@ -13,7 +13,7 @@ import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
 
 public class MarketController {
     // List of markets loaded from MarketDataDAO
-    private final List<Market> markets = MarketDataDAO.readAllMarkets();
+    private List<Market> markets = MarketDataDAO.readAllMarkets();
 
     // Get a specific market by symbol
     public Market getMarket(String symbol) {
@@ -137,5 +137,10 @@ public class MarketController {
     // Placeholder method for displaying market information
     public void display() {
         // TODO: Implement logic for displaying market information
+    }
+
+    // Placeholder method for displaying market information
+    public void refreshMarkets() {
+        markets = MarketDataDAO.readAllMarkets();
     }
 }

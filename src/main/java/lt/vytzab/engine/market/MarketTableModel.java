@@ -63,6 +63,10 @@ public class MarketTableModel extends AbstractTableModel {
         fireTableRowsUpdated(row, row);
     }
 
+    public Market getMarket(int row) {
+        return rowToMarket.get(row);
+    }
+
     public Market getMarket(String symbol) {
         Integer row = symbolToRow.get(symbol);
         return (row != null) ? rowToMarket.get(row) : null;
@@ -119,15 +123,62 @@ public class MarketTableModel extends AbstractTableModel {
     }
 
     public void saveMarketsToDB() {
-        List<Market> dbMarkets = MarketDataDAO.readAllMarkets();
-        for (Market market : markets) {
-            for (Market dbmarket : dbMarkets) {
-                if (dbmarket.getSymbol().equals(market.getSymbol())) {
-                    MarketDataDAO.updateMarket(market);
-                } else {
-                    MarketDataDAO.createMarket(market);
-                }
+        List<Market> databaseMarkets = MarketDataDAO.readAllMarkets(); // Assuming this method fetches markets from the database
+
+        // Compare lists and identify changes
+        List<Market> marketsToAdd = new ArrayList<>();
+        List<Market> marketsToDelete = new ArrayList<>();
+        List<Market> marketsToUpdate = new ArrayList<>();
+
+        for (Market appMarket : markets) {
+            Market dbMarket = findMarketInList(appMarket, databaseMarkets);
+
+            if (dbMarket == null) {
+                // Market is in the application list but not in the database
+                marketsToAdd.add(appMarket);
+            } else if (!appMarket.equals(dbMarket)) {
+                // Market is in both lists, but attributes have changed
+                marketsToUpdate.add(appMarket);
             }
+        }
+
+        for (Market dbMarket : databaseMarkets) {
+            if (!markets.contains(dbMarket)) {
+                // Market is in the database but not in the application list
+                marketsToDelete.add(dbMarket);
+            }
+        }
+
+        // Update the database
+        insertMarkets(marketsToAdd);
+        updateMarkets(marketsToUpdate);
+        deleteMarkets(marketsToDelete);
+    }
+
+    private Market findMarketInList(Market targetMarket, List<Market> marketList) {
+        for (Market market : marketList) {
+            if (targetMarket==market) {
+                return market;
+            }
+        }
+        return null;
+    }
+
+    private void insertMarkets(List<Market> markets) {
+        for (Market market : markets) {
+            MarketDataDAO.createMarket(market); // Assuming this method inserts a market into the database
+        }
+    }
+
+    private void updateMarkets(List<Market> markets) {
+        for (Market market : markets) {
+            MarketDataDAO.updateMarket(market); // Assuming this method updates a market in the database
+        }
+    }
+
+    private void deleteMarkets(List<Market> markets) {
+        for (Market market : markets) {
+            MarketDataDAO.deleteMarket(market.getSymbol()); // Assuming this method deletes a market from the database based on symbol
         }
     }
 }

@@ -13,6 +13,8 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
 import lt.vytzab.engine.helpers.CustomFixMessageParser;
 import quickfix.*;
@@ -28,6 +30,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
     private OrderTableModel openOrderTableModel = null;
     private OrderTableModel allOrderTableModel = null;
+    private final ObservableMarket observableMarket = new ObservableMarket();
     private final MarketController marketController = new MarketController();
     private final OrderIdGenerator generator = new OrderIdGenerator();
     private final LogPanel logPanel;
@@ -294,5 +297,21 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         noMDEntries.setString(Text.FIELD, "");
 
         return noMDEntries;
+    }
+
+    private static class ObservableMarket extends Observable {
+        public void update(Order order) {
+            setChanged();
+            notifyObservers(order);
+            clearChanged();
+        }
+    }
+
+    public void addMarketObserver(Observer observer) {
+        observableMarket.addObserver(observer);
+    }
+
+    public void deleteMarketObserver(Observer observer) {
+        observableMarket.deleteObserver(observer);
     }
 }

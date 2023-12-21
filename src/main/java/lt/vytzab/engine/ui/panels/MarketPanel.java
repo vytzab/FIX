@@ -22,7 +22,7 @@ public class MarketPanel extends JPanel {
         add(new JScrollPane(marketTable), constraints);
     }
 
-    public JTable getMarketTable() {
+    public JTable marketTable() {
         return marketTable;
     }
 }

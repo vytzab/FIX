@@ -21,7 +21,7 @@ public class MarketDataDAO {
                 statement.setDouble(3, market.getDayHigh());
                 statement.setDouble(4, market.getDayLow());
                 statement.setDouble(5, market.getBuyVolume());
-                statement.setDouble(5, market.getSellVolume());
+                statement.setDouble(6, market.getSellVolume());
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
@@ -99,8 +99,8 @@ public class MarketDataDAO {
                 statement.setDouble(2, market.getDayHigh());
                 statement.setDouble(3, market.getDayLow());
                 statement.setDouble(4, market.getBuyVolume());
-                statement.setDouble(4, market.getSellVolume());
-                statement.setString(5, market.getSymbol());
+                statement.setDouble(5, market.getSellVolume());
+                statement.setString(6, market.getSymbol());
 
                 int rowsAffected = statement.executeUpdate();
 

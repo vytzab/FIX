@@ -23,22 +23,8 @@ public class MarketTable extends JTable implements MouseListener {
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
         Component component = super.prepareRenderer(renderer, row, column);
 
-        // Customize the rendering based on market properties
-        // For example, you can change background color based on certain conditions
-
         DefaultTableCellRenderer r = (DefaultTableCellRenderer) component;
         r.setForeground(Color.black);
-
-        // Customize background color based on market conditions
-        // Uncomment and customize as needed
-        /*
-        Market market = ((MarketTableModel) dataModel).getMarket(row);
-        if (someCondition) {
-            r.setBackground(Color.someColor);
-        } else {
-            r.setBackground(Color.defaultColor);
-        }
-        */
 
         return component;
     }

@@ -77,12 +77,8 @@ public class AddMarketPanel extends JPanel implements Observer {
         add(new JLabel("Last Price"), ++x, y);
         add(new JLabel("Day High"), ++x, y);
         add(new JLabel("Day Low"), ++x, y);
-        add(new JLabel("Volume"), ++x, y);
-        constraints.ipadx = 30;
-//        add(limitPriceLabel, ++x, y);
-//        add(stopPriceLabel, ++x, y);
-        constraints.ipadx = 0;
-//        add(new JLabel("TIF"), ++x, y);
+        add(new JLabel("Buy Volume"), ++x, y);
+        add(new JLabel("Sell Volume"), ++x, y);
         constraints.ipadx = 30;
 
         symbolTextField.setName("SymbolTextField");
@@ -94,9 +90,9 @@ public class AddMarketPanel extends JPanel implements Observer {
         add(dayHighField, ++x, y);
         dayLowField.setName("DayLowField");
         add(dayLowField, ++x, y);
-        buyVolumeField.setName("VolumeField");
+        buyVolumeField.setName("BuyVolumeField");
         add(buyVolumeField, ++x, y);
-        sellVolumeField.setName("VolumeField");
+        sellVolumeField.setName("SellVolumeField");
         add(sellVolumeField, ++x, y);
 
         constraints.insets = new Insets(3, 5, 3, 5);
