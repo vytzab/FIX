@@ -165,9 +165,12 @@ public class OrderEntryApplication implements Application {
             newOrderSingle.setField(new Price(order.getLimit()));
         }
         if (order.getTIF() == OrderTIF.DAY) {
-            newOrderSingle.setField(new ExpireDate(LocalDate.now().toString()));
+            newOrderSingle.setField(new TimeInForce('0'));
         } else if (order.getTIF() == OrderTIF.GTD) {
+            newOrderSingle.setField(new TimeInForce('6'));
             newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().toString()));
+        }else if (order.getTIF() == OrderTIF.GTC) {
+            newOrderSingle.setField(new TimeInForce('1'));
         }
         Session.sendToTarget(newOrderSingle, order.getSessionID());
     }

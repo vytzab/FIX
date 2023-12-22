@@ -22,21 +22,35 @@ public class OrderTableModel extends AbstractTableModel {
     private final static int AVGPX = 8;
     private final static int ENTRYDATE = 9;
     private final static int GOODTILLDATE = 10;
+    private boolean filtered = false;
 
-    private final HashMap<Integer, Order> rowToOrder;
-    private final HashMap<String, Integer> idToRow;
-    private final HashMap<String, Order> idToOrder;
+    private HashMap<Integer, Order> originalRowToOrder;
+    private HashMap<String, Integer> originalIdToRow;
+    private HashMap<Integer, Order> rowToOrder;
+    private HashMap<String, Integer> idToRow;
 
     private final String[] headers;
 
     private List<Order> displayedOrders;
 
     public OrderTableModel() {
+        originalRowToOrder = new HashMap<>();
+        originalIdToRow = new HashMap<>();
         rowToOrder = new HashMap<>();
         idToRow = new HashMap<>();
-        idToOrder = new HashMap<>();
         headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Entry Date", "Good Till Date"};
         displayedOrders = new ArrayList<>();
+    }
+
+    public void setOriginalOrders(List<Order> orders) {
+        originalRowToOrder.clear();
+        originalIdToRow.clear();
+        int row = 0;
+        for (Order order : orders) {
+            originalRowToOrder.put(row, order);
+            originalIdToRow.put(order.getOrderID(), row);
+            row++;
+        }
     }
 
     public void setDisplayedOrders(List<Order> orders) {
@@ -47,15 +61,48 @@ public class OrderTableModel extends AbstractTableModel {
     public void filterByKeyword(String keyword) {
         if (keyword == null || keyword.isEmpty()) {
             // No filtering, show all orders
-            setDisplayedOrders(new ArrayList<>(rowToOrder.values()));
-        } else {
+            rowToOrder = new HashMap<>(originalRowToOrder);
+            idToRow = new HashMap<>(originalIdToRow);
+            filtered = false;
+        } else if (filtered) {
+            rowToOrder = new HashMap<>(originalRowToOrder);
+            idToRow = new HashMap<>(originalIdToRow);
+            originalRowToOrder = new HashMap<>(rowToOrder);
+            originalIdToRow = new HashMap<>(idToRow);
             // Filter orders based on the keyword
             List<Order> filteredOrders = rowToOrder.values().stream()
                     .filter(order -> orderMatchesKeyword(order, keyword))
-                    .collect(Collectors.toList());
-            setDisplayedOrders(filteredOrders);
+                    .toList();
+            rowToOrder = new HashMap<>();
+            idToRow = new HashMap<>();
+            int row = 0;
+            for (Order order : filteredOrders) {
+                rowToOrder.put(row, order);
+                idToRow.put(order.getOrderID(), row);
+                row++;
+            }
+            filtered = true;
+        } else if (!filtered) {
+            originalRowToOrder = new HashMap<>(rowToOrder);
+            originalIdToRow = new HashMap<>(idToRow);
+            // Filter orders based on the keyword
+            List<Order> filteredOrders = rowToOrder.values().stream()
+                    .filter(order -> orderMatchesKeyword(order, keyword))
+                    .toList();
+            rowToOrder = new HashMap<>();
+            idToRow = new HashMap<>();
+            int row = 0;
+            for (Order order : filteredOrders) {
+                rowToOrder.put(row, order);
+                idToRow.put(order.getOrderID(), row);
+                row++;
+            }
+            filtered = true;
+            }
+        // Notify the table model about the data change
+        fireTableDataChanged();
         }
-    }
+
 
     private boolean orderMatchesKeyword(Order order, String keyword) {
         return order.getSymbol().toLowerCase().contains(keyword.toLowerCase()) || String.valueOf(order.getQuantity()).toLowerCase().contains(keyword.toLowerCase()) || String.valueOf(order.getOpenQuantity()).toLowerCase().contains(keyword.toLowerCase()) ||
@@ -72,7 +119,6 @@ public class OrderTableModel extends AbstractTableModel {
             int row = rowToOrder.size();
             rowToOrder.put(row, order);
             idToRow.put(order.getOrderID(), row);
-            displayedOrders = new ArrayList<>(rowToOrder.values());
 
             fireTableRowsInserted(row, row);
         } else {
@@ -102,10 +148,6 @@ public class OrderTableModel extends AbstractTableModel {
             idToRow.put(order.getOrderID(), row);
         }
         fireTableRowsUpdated(row, row);
-    }
-
-    public void addID(Order order, String newID) {
-        idToOrder.put(newID, order);
     }
 
     public Order getOrder(String clOrdID) {
