@@ -12,8 +12,8 @@ public class MarketOrderDAO {
     public static boolean createMarketOrder(Order order, String tableName) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
             String sql = "INSERT INTO " + tableName + " (clOrdID, symbol, senderCompID, targetCompID, side, ordType, price, quantity, " +
-                    "openQuantity, executedQuantity, avgExecutedPrice, lastExecutedPrice, lastExecutedQuantity, entryTime, rejected, canceled, entryDate, goodTillDate) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                    "openQuantity, executedQuantity, avgExecutedPrice, lastExecutedPrice, lastExecutedQuantity, entryTime, rejected, canceled, entryDate, goodTillDate, tif) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, order.getClOrdID());
@@ -34,6 +34,7 @@ public class MarketOrderDAO {
                 statement.setBoolean(16, order.getCanceled());
                 statement.setObject(17, order.getEntryDate());
                 statement.setObject(18, order.getGoodTillDate());
+                statement.setObject(18, order.getTif());
 
                 statement.executeUpdate();
                 return true;
