@@ -17,7 +17,6 @@ import javax.swing.event.ListSelectionListener;
 
 import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.execution.ExecutionTableModel;
-import lt.vytzab.initiator.market.Market;
 import lt.vytzab.initiator.market.MarketTableModel;
 import lt.vytzab.initiator.order.Order;
 import lt.vytzab.initiator.order.OrderTableModel;

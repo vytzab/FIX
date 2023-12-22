@@ -20,6 +20,7 @@ import quickfix.fix42.MarketDataSnapshotFullRefresh;
 import quickfix.fix42.SecurityStatusRequest;
 
 import javax.swing.*;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -162,6 +163,11 @@ public class OrderEntryApplication implements Application {
 
         if (order.getType() == OrderType.LIMIT) {
             newOrderSingle.setField(new Price(order.getLimit()));
+        }
+        if (order.getTIF() == OrderTIF.DAY) {
+            newOrderSingle.setField(new ExpireDate(LocalDate.now().toString()));
+        } else if (order.getTIF() == OrderTIF.GTD) {
+            newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().toString()));
         }
         Session.sendToTarget(newOrderSingle, order.getSessionID());
     }
