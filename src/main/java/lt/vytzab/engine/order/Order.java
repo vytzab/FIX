@@ -26,7 +26,7 @@ public class Order {
     private LocalDate GoodTillDate;
 
     // Constructor with all parameters
-    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char tif, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate) {
+    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate, char tif) {
         this.entryTime = entryTime;
         this.clOrdID = clOrdID;
         this.symbol = symbol;

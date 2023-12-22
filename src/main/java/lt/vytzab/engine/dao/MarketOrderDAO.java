@@ -63,7 +63,6 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
-                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),
@@ -75,7 +74,8 @@ public class MarketOrderDAO {
                                 resultSet.getBoolean("rejected"),
                                 resultSet.getBoolean("canceled"),
                                 resultSet.getDate("entryDate").toLocalDate(),
-                                resultSet.getDate("goodTillDate").toLocalDate()
+                                resultSet.getDate("goodTillDate").toLocalDate(),
+                                resultSet.getString("tif").charAt(0)
                         );
                         orders.add(order);
                     }
@@ -107,7 +107,6 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
-                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),
@@ -119,7 +118,8 @@ public class MarketOrderDAO {
                                 resultSet.getBoolean("rejected"),
                                 resultSet.getBoolean("canceled"),
                                 resultSet.getDate("entryDate").toLocalDate(),
-                                resultSet.getDate("goodTillDate").toLocalDate()
+                                resultSet.getDate("goodTillDate").toLocalDate(),
+                                resultSet.getString("tif").charAt(0)
                         );
                         orders.add(order);
                     }
@@ -140,31 +140,38 @@ public class MarketOrderDAO {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
             String sql = "SELECT * FROM " + tableName;
 
+            System.out.println(connection);
+
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                System.out.println("Statement = " + statement);
                 try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        Order order = new Order(
-                                resultSet.getLong("entryTime"),
-                                resultSet.getString("clOrdID"),
-                                resultSet.getString("symbol"),
-                                resultSet.getString("senderCompID"),
-                                resultSet.getString("targetCompID"),
-                                resultSet.getString("side").charAt(0),
-                                resultSet.getString("tif").charAt(0),
-                                resultSet.getString("ordType").charAt(0),
-                                resultSet.getDouble("price"),
-                                resultSet.getLong("quantity"),
-                                resultSet.getLong("openQuantity"),
-                                resultSet.getLong("executedQuantity"),
-                                resultSet.getDouble("avgExecutedPrice"),
-                                resultSet.getDouble("lastExecutedPrice"),
-                                resultSet.getLong("lastExecutedQuantity"),
-                                resultSet.getBoolean("rejected"),
-                                resultSet.getBoolean("canceled"),
-                                resultSet.getDate("entryDate").toLocalDate(),
-                                resultSet.getDate("goodTillDate").toLocalDate()
-                        );
-                        orders.add(order);
+                    if (!resultSet.next()) {
+                        System.out.println("ResultSet is empty.");
+                    } else {
+                        while (resultSet.next()) {
+                            Order order = new Order(
+                                    resultSet.getLong("entryTime"),
+                                    resultSet.getString("clOrdID"),
+                                    resultSet.getString("symbol"),
+                                    resultSet.getString("senderCompID"),
+                                    resultSet.getString("targetCompID"),
+                                    resultSet.getString("side").charAt(0),
+                                    resultSet.getString("ordType").charAt(0),
+                                    resultSet.getDouble("price"),
+                                    resultSet.getLong("quantity"),
+                                    resultSet.getLong("openQuantity"),
+                                    resultSet.getLong("executedQuantity"),
+                                    resultSet.getDouble("avgExecutedPrice"),
+                                    resultSet.getDouble("lastExecutedPrice"),
+                                    resultSet.getLong("lastExecutedQuantity"),
+                                    resultSet.getBoolean("rejected"),
+                                    resultSet.getBoolean("canceled"),
+                                    resultSet.getDate("entryDate").toLocalDate(),
+                                    resultSet.getDate("goodTillDate").toLocalDate(),
+                                    resultSet.getString("tif").charAt(0)
+                            );
+                            orders.add(order);
+                        }
                     }
                 }
             }
@@ -194,7 +201,6 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
-                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),
@@ -206,7 +212,8 @@ public class MarketOrderDAO {
                                 resultSet.getBoolean("rejected"),
                                 resultSet.getBoolean("canceled"),
                                 resultSet.getDate("entryDate").toLocalDate(),
-                                resultSet.getDate("goodTillDate").toLocalDate()
+                                resultSet.getDate("goodTillDate").toLocalDate(),
+                                resultSet.getString("tif").charAt(0)
                         );
                         orders.add(order);
                     }
@@ -261,7 +268,7 @@ public class MarketOrderDAO {
         }
     }
 
-    public static Order getOrderByClOrdID(String clOrdID, String tableName){
+    public static Order getOrderByClOrdID(String clOrdID, String tableName) {
         Order order = null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
             String sql = "SELECT * FROM " + tableName + " WHERE clOrdID = ?";
@@ -278,7 +285,6 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
-                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),
@@ -290,7 +296,8 @@ public class MarketOrderDAO {
                                 resultSet.getBoolean("rejected"),
                                 resultSet.getBoolean("canceled"),
                                 resultSet.getDate("entryDate").toLocalDate(),
-                                resultSet.getDate("goodTillDate").toLocalDate()
+                                resultSet.getDate("goodTillDate").toLocalDate(),
+                                resultSet.getString("tif").charAt(0)
                         );
                     }
                 }
