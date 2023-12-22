@@ -1,6 +1,5 @@
 package lt.vytzab.engine.dao;
 
-import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.order.Order;
 
 import java.sql.*;
@@ -63,6 +62,7 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
+                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),
@@ -106,6 +106,7 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
+                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),
@@ -148,6 +149,7 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
+                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),
@@ -191,6 +193,7 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
+                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),
@@ -222,7 +225,7 @@ public class MarketOrderDAO {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
             String sql = "UPDATE " + tableName + " SET symbol = ?, senderCompID = ?, targetCompID = ?, side = ?," +
                     " ordType = ?, price = ?, quantity = ?, openQuantity = ?, executedQuantity = ?, avgExecutedPrice = ?," +
-                    " lastExecutedPrice = ?, lastExecutedQuantity = ?, entryTime = ?, rejected = ?, canceled = ?, goodTillDate = ?  WHERE clOrdID = ?";
+                    " lastExecutedPrice = ?, lastExecutedQuantity = ?, entryTime = ?, rejected = ?, canceled = ?, goodTillDate = ?, tif = ?  WHERE clOrdID = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, order.getSymbol());
@@ -241,6 +244,7 @@ public class MarketOrderDAO {
                 statement.setBoolean(14, order.getRejected());
                 statement.setBoolean(15, order.getCanceled());
                 statement.setObject(16, order.getGoodTillDate());
+                statement.setObject(16, order.getTif());
                 statement.setString(17, order.getClOrdID());
 
                 int rowsAffected = statement.executeUpdate();
@@ -273,6 +277,7 @@ public class MarketOrderDAO {
                                 resultSet.getString("senderCompID"),
                                 resultSet.getString("targetCompID"),
                                 resultSet.getString("side").charAt(0),
+                                resultSet.getString("tif").charAt(0),
                                 resultSet.getString("ordType").charAt(0),
                                 resultSet.getDouble("price"),
                                 resultSet.getLong("quantity"),

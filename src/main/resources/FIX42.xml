@@ -89,6 +89,7 @@
       <field name="Text" required="N"/>
       <field name="LocateReqd" required="N"/>
       <field name="OrigClOrdID" required="N"/>
+      <field name="ExpireTime" required="N"/>
     </message>
     <message name="ExecutionReport" msgtype="8" msgcat="app">
       <field name="OrderID" required="Y"/>

@@ -11,6 +11,7 @@ public class Order {
     private final String senderCompID;
     private final String targetCompID;
     private final char side;
+    private final char tif;
     private final char ordType;
     private final double price;
     private final long quantity;
@@ -24,36 +25,15 @@ public class Order {
     private LocalDate entryDate;
     private LocalDate GoodTillDate;
 
-
-    // Constructor without openQuantity parameters
-    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate) {
-        this.entryTime = entryTime;
-        this.clOrdID = clOrdID;
-        this.symbol = symbol;
-        this.senderCompID = senderCompID;
-        this.targetCompID = targetCompID;
-        this.side = side;
-        this.ordType = ordType;
-        this.price = price;
-        this.quantity = quantity;
-        this.openQuantity = quantity;
-        this.executedQuantity = executedQuantity;
-        this.avgExecutedPrice = avgExecutedPrice;
-        this.lastExecutedPrice = lastExecutedPrice;
-        this.lastExecutedQuantity = lastExecutedQuantity;
-        this.rejected = rejected;
-        this.canceled = canceled;
-        this.entryDate = entryDate;
-        GoodTillDate = goodTillDate;
-    }
     // Constructor with all parameters
-    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate) {
+    public Order(long entryTime, String clOrdID, String symbol, String senderCompID, String targetCompID, char side, char tif, char ordType, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate) {
         this.entryTime = entryTime;
         this.clOrdID = clOrdID;
         this.symbol = symbol;
         this.senderCompID = senderCompID;
         this.targetCompID = targetCompID;
         this.side = side;
+        this.tif = tif;
         this.ordType = ordType;
         this.price = price;
         this.quantity = quantity;
@@ -190,5 +170,9 @@ public class Order {
 
     public boolean isFullyExecuted() {
         return getOpenQuantity() == 0;
+    }
+
+    public char getTif() {
+        return tif;
     }
 }
