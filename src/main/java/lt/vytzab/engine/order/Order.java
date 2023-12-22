@@ -45,7 +45,7 @@ public class Order {
         this.rejected = rejected;
         this.canceled = canceled;
         this.entryDate = entryDate;
-        GoodTillDate = goodTillDate;
+        this.GoodTillDate = goodTillDate;
     }
 
     public LocalDate getEntryDate() {
