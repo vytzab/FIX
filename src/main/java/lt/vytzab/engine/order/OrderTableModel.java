@@ -123,28 +123,12 @@ public class OrderTableModel extends AbstractTableModel {
 
             fireTableRowsInserted(row, row);
         } else {
+            replaceOrder(order);
         }
     }
 
-    public void updateOrder(Order order, String id) {
-        if (!id.equals(order.getClOrdID())) {
-            String originalID = order.getClOrdID();
-            order.setClOrdID(id);
-            replaceOrder(order, originalID);
-            return;
-        }
-
+    public void replaceOrder(Order order) {
         Integer row = idToRow.get(order.getClOrdID());
-        if (row == null) {
-            return;
-        } else {
-            orders.set(row, order);
-        }
-        fireTableRowsUpdated(row, row);
-    }
-
-    public void replaceOrder(Order order, String clOrdID) {
-        Integer row = idToRow.get(clOrdID);
         if (row == null) {
             return;
         } else {
