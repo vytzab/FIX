@@ -16,5 +16,4 @@ public class DoubleNumberTextField extends JTextField {
             }
         }
     }
-
 }

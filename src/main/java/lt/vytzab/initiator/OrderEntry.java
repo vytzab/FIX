@@ -6,9 +6,6 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.swing.JFrame;
 import javax.swing.UIManager;
-
-import lt.vytzab.initiator.execution.ExecutionTableModel;
-import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.market.MarketTableModel;
 import lt.vytzab.initiator.ui.panels.LogPanel;
 import lt.vytzab.initiator.order.OrderTableModel;
@@ -18,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import quickfix.*;
 import lt.vytzab.initiator.ui.OrderEntryFrame;
-import quickfix.field.*;
-import quickfix.fix42.MarketDataRequest;
 
 import static lt.vytzab.initiator.ui.OrderEntryFrame.centerFrameOnScreen;
 
@@ -48,10 +43,10 @@ public class OrderEntry {
         boolean logHeartbeats = Boolean.valueOf(System.getProperty("logHeartbeats", "true"));
 
         OrderTableModel orderTableModel = new OrderTableModel();
-        ExecutionTableModel executionTableModel = new ExecutionTableModel();
+        OrderTableModel executedOrdersTableModel = new OrderTableModel();
         MarketTableModel marketTableModel = new MarketTableModel();
         LogPanel logPanel = new LogPanel();
-        OrderEntryApplication application = new OrderEntryApplication(marketTableModel, orderTableModel, executionTableModel, logPanel);
+        OrderEntryApplication application = new OrderEntryApplication(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true, logHeartbeats);
         MessageFactory messageFactory = new DefaultMessageFactory();
@@ -61,7 +56,7 @@ public class OrderEntry {
         JmxExporter exporter = new JmxExporter();
         exporter.register(initiator);
 
-        frame = new OrderEntryFrame(marketTableModel, orderTableModel, executionTableModel, logPanel, application);
+        frame = new OrderEntryFrame(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         centerFrameOnScreen(frame);
     }

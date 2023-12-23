@@ -16,7 +16,6 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import lt.vytzab.initiator.OrderEntryApplication;
-import lt.vytzab.initiator.execution.ExecutionTableModel;
 import lt.vytzab.initiator.market.MarketTableModel;
 import lt.vytzab.initiator.order.Order;
 import lt.vytzab.initiator.order.OrderTableModel;
@@ -29,15 +28,18 @@ public class OrderEntryPanel extends JPanel implements Observer, ActionListener 
     private final AddOrderPanel orderEntryPanel;
     private final MarketPanel marketPanel;
     private final OrderPanel orderPanel;
+    private final OrderPanel executedOrdersPanel;
     private final CancelReplacePanel cancelReplacePanel;
     private final MarketTableModel marketTableModel;
     private final OrderTableModel orderTableModel;
+    private final OrderTableModel executedOrdersTableModel;
     private final LogPanel logPanel;
 
-    public OrderEntryPanel(MarketTableModel marketTableModel, OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, LogPanel logPanel, OrderEntryApplication application) {
+    public OrderEntryPanel(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel, OrderEntryApplication application) {
         setName("Order Entry Panel");
         this.marketTableModel = marketTableModel;
         this.orderTableModel = orderTableModel;
+        this.executedOrdersTableModel = executedOrdersTableModel;
         this.logPanel = logPanel;
 
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -56,11 +58,11 @@ public class OrderEntryPanel extends JPanel implements Observer, ActionListener 
         JTabbedPane tabbedPane = new JTabbedPane();
         marketPanel = new MarketPanel(marketTableModel, application);
         orderPanel = new OrderPanel(orderTableModel, application);
-        ExecutedOrderPanel executionPanel = new ExecutedOrderPanel(executionTableModel);
+        executedOrdersPanel = new OrderPanel(executedOrdersTableModel, application);
 
         tabbedPane.add("Markets", marketPanel);
         tabbedPane.add("Orders", orderPanel);
-        tabbedPane.add("Executions", executionPanel);
+        tabbedPane.add("Executions", executedOrdersPanel);
         tabbedPane.add("Logs", logPanel);
         add(tabbedPane, constraints);
 

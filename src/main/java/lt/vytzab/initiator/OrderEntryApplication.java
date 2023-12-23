@@ -1,7 +1,5 @@
 package lt.vytzab.initiator;
 
-import lt.vytzab.initiator.execution.Execution;
-import lt.vytzab.initiator.execution.ExecutionTableModel;
 import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.helpers.LogonEvent;
 import lt.vytzab.initiator.helpers.TwoWayMap;
@@ -20,7 +18,6 @@ import quickfix.fix42.MarketDataSnapshotFullRefresh;
 import quickfix.fix42.SecurityStatusRequest;
 
 import javax.swing.*;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -29,7 +26,7 @@ import java.util.Observer;
 public class OrderEntryApplication implements Application {
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
     private OrderTableModel orderTableModel = null;
-    private ExecutionTableModel executionTableModel = null;
+    private OrderTableModel executedOrdersTableModel = null;
     private MarketTableModel marketTableModel = null;
     private final ObservableOrder observableOrder = new ObservableOrder();
     private final ObservableLogon observableLogon = new ObservableLogon();
@@ -46,10 +43,10 @@ public class OrderEntryApplication implements Application {
     static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(OrderEntryApplication.class);
 
-    public OrderEntryApplication(MarketTableModel marketTableModel, OrderTableModel orderTableModel, ExecutionTableModel executionTableModel, LogPanel logPanel) {
+    public OrderEntryApplication(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel) {
         this.marketTableModel = marketTableModel;
         this.orderTableModel = orderTableModel;
-        this.executionTableModel = executionTableModel;
+        this.executedOrdersTableModel = executedOrdersTableModel;
         this.logPanel = logPanel;
     }
 
@@ -238,6 +235,7 @@ public class OrderEntryApplication implements Application {
                 order.setOpenQuantity(order.getOpenQuantity() - (int) fillSize);
                 order.setExecutedQuantity(Integer.parseInt(message.getString(CumQty.FIELD)));
                 order.setAvgPx(Double.parseDouble(message.getString(AvgPx.FIELD)));
+                executedOrdersTableModel.addOrder(order);
             }
 
             OrdStatus ordStatus = (OrdStatus) message.getField(new OrdStatus());
@@ -256,20 +254,6 @@ public class OrderEntryApplication implements Application {
 
             orderTableModel.updateOrder(order, message.getString(ClOrdID.FIELD));
             observableOrder.update(order);
-
-            //Jeigu ivyko matchinimas, update execution table
-            if (fillSize > 0) {
-                Execution execution = new Execution();
-                execution.setExchangeID(sessionID + message.getString(ExecID.FIELD));
-                execution.setSymbol(message.getString(Symbol.FIELD));
-                execution.setQuantity((int) (fillSize));
-                if (message.isSetField(LastPx.FIELD)) {
-                    execution.setPrice(Double.parseDouble(message.getString(LastPx.FIELD)));
-                }
-                Side side = (Side) message.getField(new Side());
-                execution.setSide(FIXSideToSide(side));
-                executionTableModel.addExecution(execution);
-            }
         }
     }
 
@@ -381,19 +365,11 @@ public class OrderEntryApplication implements Application {
     static {
         sideMap.put(OrderSide.BUY, new Side(Side.BUY));
         sideMap.put(OrderSide.SELL, new Side(Side.SELL));
-        sideMap.put(OrderSide.SHORT_SELL, new Side(Side.SELL_SHORT));
-        sideMap.put(OrderSide.SHORT_SELL_EXEMPT, new Side(Side.SELL_SHORT_EXEMPT));
-        sideMap.put(OrderSide.CROSS, new Side(Side.CROSS));
-        sideMap.put(OrderSide.CROSS_SHORT, new Side(Side.CROSS_SHORT));
 
         typeMap.put(OrderType.MARKET, new OrdType(OrdType.MARKET));
         typeMap.put(OrderType.LIMIT, new OrdType(OrdType.LIMIT));
-        typeMap.put(OrderType.STOP, new OrdType(OrdType.STOP_STOP_LOSS));
-        typeMap.put(OrderType.STOP_LIMIT, new OrdType(OrdType.STOP_LIMIT));
 
         tifMap.put(OrderTIF.DAY, new TimeInForce(TimeInForce.DAY));
-        tifMap.put(OrderTIF.IOC, new TimeInForce(TimeInForce.IMMEDIATE_OR_CANCEL));
-        tifMap.put(OrderTIF.OPG, new TimeInForce(TimeInForce.AT_THE_OPENING));
         tifMap.put(OrderTIF.GTC, new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
         tifMap.put(OrderTIF.GTD, new TimeInForce(TimeInForce.GOOD_TILL_DATE));
     }

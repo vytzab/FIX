@@ -6,12 +6,10 @@ import java.util.Map;
 public class OrderTIF {
     static private final Map<String, OrderTIF> known = new HashMap<>();
     static public final OrderTIF DAY = new OrderTIF("Day");
-    static public final OrderTIF IOC = new OrderTIF("IOC");
-    static public final OrderTIF OPG = new OrderTIF("OPG");
     static public final OrderTIF GTC = new OrderTIF("GTC");
     static public final OrderTIF GTD = new OrderTIF("GTD");
 
-    static private final OrderTIF[] array = {DAY, IOC, OPG, GTC, GTD};
+    static private final OrderTIF[] array = {DAY, GTC, GTD};
 
     private final String name;
 
