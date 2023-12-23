@@ -15,7 +15,7 @@ public class EngineFrame extends JFrame {
     public EngineFrame(MarketTableModel marketTableModel, OrderTableModel openOrderTableModel, OrderTableModel allOrderTableModel, LogPanel logPanel, final EngineApplication application, JMenuBar menuBar) {
         super();
         setTitle("Engine Frame");
-        setSize(800, 600);
+        setSize(1000, 600);
 
         getContentPane().add(new EnginePanel(marketTableModel, openOrderTableModel, allOrderTableModel, logPanel, application), BorderLayout.CENTER);
         setJMenuBar(menuBar);

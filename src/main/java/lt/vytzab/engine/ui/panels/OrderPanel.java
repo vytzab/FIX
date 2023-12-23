@@ -1,12 +1,10 @@
 package lt.vytzab.engine.ui.panels;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
+import javax.swing.*;
 
 import lt.vytzab.engine.EngineApplication;
 import lt.vytzab.engine.order.OrderTableModel;
@@ -16,22 +14,48 @@ import lt.vytzab.engine.ui.tables.OrderTable;
  * Contains the Order table.
  */
 public class OrderPanel extends JPanel {
-
     private JTable orderTable = null;
+    private OrderTableModel orderTableModel = null;
+    private JTextField filterTextField;
 
     public OrderPanel(OrderTableModel orderTableModel, EngineApplication application) {
+        this.orderTableModel = orderTableModel;
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        setLayout(new GridBagLayout());
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.BOTH;
-        constraints.weightx = 1;
-        constraints.weighty = 1;
-
+        setLayout(new BorderLayout());
+        FilterPanel filterPanel = new FilterPanel(orderTableModel);
+        add(filterPanel, BorderLayout.NORTH);
         orderTable = new OrderTable(orderTableModel, application);
-        add(new JScrollPane(orderTable), constraints);
+        add(new JScrollPane(orderTable), BorderLayout.CENTER);
     }
+    public class FilterPanel extends JPanel {
+        private final OrderTableModel orderTableModel;
+        private final JTextField keywordTextField;
+        private final JLabel keywordLabel;
 
-    public JTable orderTable() {
-        return orderTable;
+        public FilterPanel(OrderTableModel orderTableModel) {
+            this.orderTableModel = orderTableModel;
+
+            setLayout(new FlowLayout(FlowLayout.LEFT));
+
+            keywordLabel = new JLabel("Keyword:");
+            keywordTextField = new JTextField(20);
+
+            JButton filterButton = new JButton("Filter");
+            filterButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    filterOrders();
+                }
+            });
+
+            add(keywordLabel);
+            add(keywordTextField);
+            add(filterButton);
+        }
+
+        private void filterOrders() {
+            String keyword = keywordTextField.getText();
+            orderTableModel.filterByKeyword(keyword);
+        }
     }
 }

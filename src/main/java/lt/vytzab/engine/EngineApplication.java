@@ -274,7 +274,10 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         Order order = new Order(System.currentTimeMillis(), newOrderSingle.getString(ClOrdID.FIELD), newOrderSingle.getString(Symbol.FIELD), newOrderSingle.getHeader().getString(SenderCompID.FIELD), newOrderSingle.getHeader().getString(TargetCompID.FIELD),
                 newOrderSingle.getChar(Side.FIELD), newOrderSingle.getChar(OrdType.FIELD), price, (long) newOrderSingle.getDouble(OrderQty.FIELD),
                 (long) newOrderSingle.getDouble(OrderQty.FIELD), 0, 0, 0, 0,
-                false, false, LocalDate.now(), newOrderSingle.getUtcDateOnly(ExpireDate.FIELD), newOrderSingle.getChar(TimeInForce.FIELD));
+                false, false, LocalDate.now(), LocalDate.now(), newOrderSingle.getChar(TimeInForce.FIELD));
+        if (newOrderSingle.getChar(TimeInForce.FIELD) != '0'){
+            order.setGoodTillDate(newOrderSingle.getUtcDateOnly(ExpireDate.FIELD));
+        }
         return order;
     }
 

@@ -19,6 +19,8 @@ public class Order {
     private long executedQuantity;
     private double avgExecutedPrice;
     private double lastExecutedPrice;
+    private double limit;
+    private double stop;
     private long lastExecutedQuantity;
     private boolean rejected;
     private boolean canceled;
@@ -174,5 +176,21 @@ public class Order {
 
     public char getTif() {
         return tif;
+    }
+
+    public double getLimit() {
+        return limit;
+    }
+
+    public void setLimit(double limit) {
+        this.limit = limit;
+    }
+
+    public double getStop() {
+        return stop;
+    }
+
+    public void setStop(double stop) {
+        this.stop = stop;
     }
 }

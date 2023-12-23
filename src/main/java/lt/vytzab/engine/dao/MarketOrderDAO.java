@@ -34,7 +34,7 @@ public class MarketOrderDAO {
                 statement.setBoolean(16, order.getCanceled());
                 statement.setObject(17, order.getEntryDate());
                 statement.setObject(18, order.getGoodTillDate());
-                statement.setObject(18, order.getTif());
+                statement.setString(19, String.valueOf(order.getTif()));
 
                 statement.executeUpdate();
                 return true;
@@ -140,10 +140,7 @@ public class MarketOrderDAO {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
             String sql = "SELECT * FROM " + tableName;
 
-            System.out.println(connection);
-
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
-                System.out.println("Statement = " + statement);
                 try (ResultSet resultSet = statement.executeQuery()) {
                     if (!resultSet.next()) {
                         System.out.println("ResultSet is empty.");
@@ -252,8 +249,8 @@ public class MarketOrderDAO {
                 statement.setBoolean(14, order.getRejected());
                 statement.setBoolean(15, order.getCanceled());
                 statement.setObject(16, order.getGoodTillDate());
-                statement.setObject(16, order.getTif());
-                statement.setString(17, order.getClOrdID());
+                statement.setString(17, String.valueOf(order.getTif()));
+                statement.setString(18, order.getClOrdID());
 
                 int rowsAffected = statement.executeUpdate();
 
