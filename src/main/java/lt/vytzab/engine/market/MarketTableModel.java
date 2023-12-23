@@ -60,6 +60,7 @@ public class MarketTableModel extends AbstractTableModel {
             symbolToRow = new HashMap<>(originalSymbolToRow);
             filtered = false;
         } else if (filtered) {
+            //recreate original before filtering
             rowToMarket = new HashMap<>(originalRowToMarket);
             symbolToRow = new HashMap<>(originalSymbolToRow);
             originalRowToMarket = new HashMap<>(rowToMarket);
@@ -76,7 +77,6 @@ public class MarketTableModel extends AbstractTableModel {
                 symbolToRow.put(market.getSymbol(), row);
                 row++;
             }
-            filtered = true;
         } else if (!filtered) {
             originalRowToMarket = new HashMap<>(rowToMarket);
             originalSymbolToRow = new HashMap<>(symbolToRow);
