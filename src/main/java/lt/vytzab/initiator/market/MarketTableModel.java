@@ -7,38 +7,130 @@ import java.util.List;
 
 public class MarketTableModel extends AbstractTableModel {
     private List<Market> markets = new ArrayList<>();
-
     private final static int SYMBOL = 0;
     private final static int LASTPRICE = 1;
     private final static int DAYHIGH = 2;
     private final static int DAYLOW = 3;
-    private final static int VOLUME = 4;
+    private final static int BUYVOLUME = 4;
+    private final static int SELLVOLUME = 5;
+    private boolean filtered = false;
 
-    private final HashMap<Integer, Market> rowToMarket;
-    private final HashMap<String, Integer> symbolToRow;
+    private HashMap<Integer, Market> originalRowToMarket;
+    private HashMap<String, Integer> originalSymbolToRow;
+    private HashMap<Integer, Market> rowToMarket;
+    private HashMap<String, Integer> symbolToRow;
 
     private final String[] headers;
 
+    private List<Market> displayedMarkets;
+
     public MarketTableModel() {
+        originalRowToMarket = new HashMap<>();
+        originalSymbolToRow = new HashMap<>();
         markets = new ArrayList<>();
         rowToMarket = new HashMap<>();
         symbolToRow = new HashMap<>();
 
-        headers = new String[]{"Symbol", "Last Price", "Day High", "Day Low", "Volume"};
+        headers = new String[]{"Symbol", "Last Price", "Day High", "Day Low", "Buy Volume", "Sell Volume"};
+    }
+
+    public void setOriginalMarkets(List<Market> markets) {
+        originalRowToMarket.clear();
+        originalSymbolToRow.clear();
+        int row = 0;
+        for (Market market : markets) {
+            originalRowToMarket.put(row, market);
+            originalSymbolToRow.put(market.getSymbol(), row);
+            row++;
+        }
+    }
+
+    public void setDisplayedMarkets(List<Market> markets) {
+        displayedMarkets = new ArrayList<>(markets);
+        fireTableDataChanged();
+    }
+
+    public void filterByKeyword(String keyword) {
+        if (keyword == null || keyword.isEmpty()) {
+            // No filtering, show all orders
+            rowToMarket = new HashMap<>(originalRowToMarket);
+            symbolToRow = new HashMap<>(originalSymbolToRow);
+            filtered = false;
+        } else if (filtered) {
+            //recreate original before filtering
+            rowToMarket = new HashMap<>(originalRowToMarket);
+            symbolToRow = new HashMap<>(originalSymbolToRow);
+            originalRowToMarket = new HashMap<>(rowToMarket);
+            originalSymbolToRow = new HashMap<>(symbolToRow);
+            // Filter orders based on the keyword
+            List<Market> filteredMarkets = rowToMarket.values().stream()
+                    .filter(market -> marketMatchesKeyword(market, keyword))
+                    .toList();
+            rowToMarket = new HashMap<>();
+            symbolToRow = new HashMap<>();
+            int row = 0;
+            for (Market market : filteredMarkets) {
+                rowToMarket.put(row, market);
+                symbolToRow.put(market.getSymbol(), row);
+                row++;
+            }
+        } else if (!filtered) {
+            originalRowToMarket = new HashMap<>(rowToMarket);
+            originalSymbolToRow = new HashMap<>(symbolToRow);
+            // Filter orders based on the keyword
+            List<Market> filteredOrders = rowToMarket.values().stream()
+                    .filter(market -> marketMatchesKeyword(market, keyword))
+                    .toList();
+            rowToMarket = new HashMap<>();
+            symbolToRow = new HashMap<>();
+            int row = 0;
+            for (Market market : filteredOrders) {
+                rowToMarket.put(row, market);
+                symbolToRow.put(market.getSymbol(), row);
+                row++;
+            }
+            filtered = true;
+        }
+        // Notify the table model about the data change
+        fireTableDataChanged();
+    }
+
+    private boolean marketMatchesKeyword(Market market, String keyword) {
+        return market.getSymbol().toLowerCase().contains(keyword.toLowerCase())
+                || market.getLastPrice().toString().toLowerCase().contains(keyword.toLowerCase())
+                || market.getDayHigh().toString().toLowerCase().contains(keyword.toLowerCase())
+                || market.getDayLow().toString().toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(market.getBuyVolume()).toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(market.getSellVolume()).toLowerCase().contains(keyword.toLowerCase());
     }
 
     public void addMarket(Market market) {
         if (getMarket(market.getSymbol()) == null) {
             int row = rowToMarket.size();
             markets.add(market);
-
             rowToMarket.put(row, market);
             symbolToRow.put(market.getSymbol(), row);
 
             fireTableRowsInserted(row, row);
-        } else {
-            replaceMarket(market, market.getSymbol());
         }
+        replaceMarket(market, market.getSymbol());
+    }
+
+    public void updateMarket(Market market, String symbol) {
+        if (!symbol.equals(market.getSymbol())) {
+            String originalSymbol = market.getSymbol();
+            market.setSymbol(symbol);
+            replaceMarket(market, originalSymbol);
+            return;
+        }
+
+        Integer row = symbolToRow.get(market.getSymbol());
+        if (row == null) {
+            return;
+        } else {
+            markets.set(row, market);
+        }
+        fireTableRowsUpdated(row, row);
     }
 
     public void replaceMarket(Market market, String symbol) {
@@ -48,13 +140,19 @@ public class MarketTableModel extends AbstractTableModel {
         } else {
             rowToMarket.put(row, market);
             symbolToRow.put(market.getSymbol(), row);
+            markets.set(row, market);
         }
+
         fireTableRowsUpdated(row, row);
     }
 
     public Market getMarket(String symbol) {
         Integer row = symbolToRow.get(symbol);
         return (row != null) ? rowToMarket.get(row) : null;
+    }
+
+    public Market getMarket(int row) {
+        return rowToMarket.get(row);
     }
 
     public void removeMarket(String symbol) {
@@ -82,21 +180,25 @@ public class MarketTableModel extends AbstractTableModel {
 
     public Object getValueAt(int rowIndex, int columnIndex) {
         Market market = rowToMarket.get(rowIndex);
-        switch (columnIndex) {
-            case 0:
-                return market.getSymbol();
-            case 1:
-                return market.getLastPrice();
-            case 2:
-                return market.getDayHigh();
-            case 3:
-                return market.getDayLow();
-            case 4:
-                return market.getBuyVolume();
-            case 5:
-                return market.getSellVolume();
-            default:
-                return "";
+
+        if (market != null) {
+            switch (columnIndex) {
+                case SYMBOL:
+                    return market.getSymbol();
+                case LASTPRICE:
+                    return market.getLastPrice();
+                case DAYHIGH:
+                    return market.getDayHigh();
+                case DAYLOW:
+                    return market.getDayLow();
+                case BUYVOLUME:
+                    return market.getBuyVolume();
+                case SELLVOLUME:
+                    return market.getSellVolume();
+                default:
+                    return "";
+            }
         }
+        return "";
     }
 }
