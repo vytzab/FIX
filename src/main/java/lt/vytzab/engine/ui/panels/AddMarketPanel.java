@@ -144,8 +144,7 @@ public class AddMarketPanel extends JPanel implements Observer {
             MarketDataDAO.createMarket(market);
             marketTableModel.addMarket(market);
             try {
-                System.out.println("GETS HERE");
-                application.sendSecurityStatusFromMarket(market);
+                application.sendSecurityStatusFromMarket(market, 0);
             } catch (FieldNotFound | SessionNotFound ex) {
                 throw new RuntimeException(ex);
             }

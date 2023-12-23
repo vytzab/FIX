@@ -163,7 +163,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void onMessage(SecurityStatusRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         for (Market market : marketController.getMarkets()) {
-            SecurityStatus securityStatus = securityStatusFromMarket(market);
+            SecurityStatus securityStatus = securityStatusFromMarket(market, 1);
             try {
                 Session.sendToTarget(securityStatus, message.getHeader().getString(quickfix.field.TargetCompID.FIELD), message.getHeader().getString(quickfix.field.SenderCompID.FIELD));
             } catch (SessionNotFound e) {
@@ -248,7 +248,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     private void OrderCancelReplaceRequestER(OrderCancelReplaceRequest message, char ordStatus) {
     }
 
-    private SecurityStatus securityStatusFromMarket (Market market) throws FieldNotFound {
+    private SecurityStatus securityStatusFromMarket (Market market, int status) throws FieldNotFound {
         SecurityStatus securityStatus = new SecurityStatus();
         securityStatus.set(new Symbol(market.getSymbol()));
         securityStatus.set(new HighPx(market.getDayHigh()));
@@ -256,6 +256,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         securityStatus.set(new LastPx(market.getLastPrice()));
         securityStatus.set(new BuyVolume(market.getBuyVolume()));
         securityStatus.set(new SellVolume(market.getSellVolume()));
+        securityStatus.set(new SecurityTradingStatus(status));
         return securityStatus;
     }
 
@@ -308,15 +309,11 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         return noMDEntries;
     }
 
-    public void sendSecurityStatusFromMarket(Market market) throws FieldNotFound, SessionNotFound {
-        System.out.println("GETS HERE2");
+    public void sendSecurityStatusFromMarket(Market market, int status) throws FieldNotFound, SessionNotFound {
         for (SessionID sessionID : sessionIDs) {
-            System.out.println("GETS HERE3");
             Session session = Session.lookupSession(sessionID);
-            System.out.println("GETS HERE4");
             if (session != null && session.isLoggedOn()) {
-                System.out.println("GETS HERE5");
-                Session.sendToTarget(securityStatusFromMarket(market), sessionID.getSenderCompID(), sessionID.getTargetCompID());
+                Session.sendToTarget(securityStatusFromMarket(market, status), sessionID.getSenderCompID(), sessionID.getTargetCompID());
             }
         }
     }
