@@ -46,12 +46,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     public void onLogon(SessionID sessionId) {
-        System.out.println("SessionIDs! : " + sessionIDs);
-        System.out.println("SessionID! : " + sessionId);
         sessionIDs.add(sessionId);
-        System.out.println("SessionIDs! : " + sessionIDs);
-        System.out.println("targetComp! : " + sessionId.getTargetCompID());
-        System.out.println("senderComp! : " + sessionId.getSenderCompID());
     }
 
     public void onLogout(SessionID sessionId) {
