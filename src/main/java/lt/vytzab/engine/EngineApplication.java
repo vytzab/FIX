@@ -163,7 +163,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void onMessage(SecurityStatusRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         for (Market market : marketController.getMarkets()) {
-            SecurityStatus securityStatus = securityStatusFromMarket(market, 1);
+            SecurityStatus securityStatus = securityStatusFromMarket(market, 0);
             try {
                 Session.sendToTarget(securityStatus, message.getHeader().getString(quickfix.field.TargetCompID.FIELD), message.getHeader().getString(quickfix.field.SenderCompID.FIELD));
             } catch (SessionNotFound e) {

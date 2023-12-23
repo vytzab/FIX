@@ -1,10 +1,16 @@
 package lt.vytzab.engine.order;
 
+import lt.vytzab.engine.dao.MarketDataDAO;
+import lt.vytzab.engine.dao.MarketOrderDAO;
+import lt.vytzab.engine.market.Market;
+
 import javax.swing.table.AbstractTableModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+
+import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
 
 public class OrderTableModel extends AbstractTableModel {
     private final List<Order> orders = new ArrayList<>();
@@ -234,5 +240,14 @@ public class OrderTableModel extends AbstractTableModel {
             }
         }
         return "";
+    }
+
+    public void getOrdersFromDB() {
+        List<Order> orderList = MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB);
+        for (Order order : orderList) {
+            if (!order.isClosed() || !order.isFullyExecuted() || !order.isFilled()) {
+                addOrder(order);
+            }
+        }
     }
 }

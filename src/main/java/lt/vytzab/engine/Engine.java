@@ -39,41 +39,10 @@ public class Engine {
     private final static Logger log = LoggerFactory.getLogger(Engine.class);
     private static SocketAcceptor acceptor = null;
     private static final MarketTableModel marketTableModel = new MarketTableModel();
+    private static final OrderTableModel openOrderTableModel = new OrderTableModel();
+    private static final OrderTableModel allOrderTableModel = new OrderTableModel();
 
-    public static void main(String[] args) {
-//        OrderIdGenerator gen = new OrderIdGenerator();
-        // public Market(String symbol, Double lastPrice, Double dayHigh, Double dayLow, int volume)
-//        INSERT INTO market_data (symbol, last_price, day_high, day_low, volume)
-//        Market market = new Market("TESTSYMBOL", 69.2, 99.9, 65.8, 10000);
-//        MarketDataDAO.createMarket(market);
-//        MarketDataDAO.updateMarket(market);
-//        System.out.println(MarketDataDAO.readAllMarkets());
-//        MarketDataDAO.deleteMarket("TESTSYMBOL");
-//        System.out.println(MarketDataDAO.readMarket("TESTSYMBOL"));
-
-        // public Order(long entryTime, String clOrdID, String symbol,
-        // String senderCompID, String targetCompID, char side, char ordType, double price, long quantity, long openQuantity,
-        // long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected,
-        // boolean canceled, LocalDate entryDate, LocalDate goodTillDate) {
-        //INSERT INTO market_orders (clOrdID, symbol, senderCompID, targetCompID, side, ordType, price, quantity, openQuantity, executedQuantity,
-        // avgExecutedPrice, lastExecutedPrice, lastExecutedQuantity, entryTime, rejected, canceled, entryDate, goodTillDate
-//        Order order = new Order(System.currentTimeMillis(), "12", "TESTSYMBOL3", "TESTSENDERCOMPID1", "TESTTARGETCOMPID", '1', '1',
-//                70.1, 1, 1000, 678, 69.9, 70.0, 78, false, false, LocalDate.now(), LocalDate.now().plusDays(7));
-//        Order orderx = new Order(System.currentTimeMillis(), "234", "TESTSYMBOL3", "TESTSENDERCOMPID1", "TESTTARGETCOMPID", '1', '1',
-//                70.1, 1, 1000, 678, 69.9, 70.0, 78, false, false, LocalDate.now(), LocalDate.now().plusDays(7));
-//        Order orderz = new Order(System.currentTimeMillis(), "55", "TESTSYMBOL3", "TESTSENDERCOMPID2", "TESTTARGETCOMPID", '1', '1',
-//                70.1, 2, 1000, 678, 69.9, 70.0, 78, false, false, LocalDate.now(), LocalDate.now().plusDays(7));
-//        Order ordert = new Order(System.currentTimeMillis(), "678", "TESTSYMBOL3", "TESTSENDERCOMPID3", "TESTTARGETCOMPID", '1', '1',
-//                70.1, 3, 1000, 678, 69.9, 70.0, 78, false, false, LocalDate.now(), LocalDate.now().plusDays(7));
-//        Order order2 = new Order(System.currentTimeMillis(), "888", "TESTSYMBOL4", "TESTSENDERCOMPID3", "TESTTARGETCOMPID", '1', '1',
-//                70.1, 3, 1000, 678, 69.9, 70.0, 78, false, false, LocalDate.now(), LocalDate.now().plusDays(7));
-//        Order order3 = new Order(System.currentTimeMillis(), "964", "TESTSYMBOL5", "TESTSENDERCOMPID2", "TESTTARGETCOMPID", '1', '1',
-//                70.1, 2, 1000, 678, 69.9, 70.0, 78, false, false, LocalDate.now(), LocalDate.now().plusDays(7));
-//        MarketOrderDAO.createMarketOrder(order);
-//        MarketOrderDAO.createMarketOrder(order2);
-//        MarketOrderDAO.createMarketOrder(order3);
-//        System.out.println(MarketOrderDAO.readAllMarketOrdersByField("price", "70.1"));
-        try {
+    public static void main(String[] args) {try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
             log.info(e.getMessage(), e);
@@ -120,6 +89,7 @@ public class Engine {
 
     private static void start() throws RuntimeError, ConfigError {
         marketTableModel.getMarketsFromDB();
+        openOrderTableModel.getOrdersFromDB();
         acceptor.start();
     }
 
