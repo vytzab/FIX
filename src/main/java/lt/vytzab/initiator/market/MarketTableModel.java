@@ -116,23 +116,6 @@ public class MarketTableModel extends AbstractTableModel {
         replaceMarket(market, market.getSymbol());
     }
 
-    public void updateMarket(Market market, String symbol) {
-        if (!symbol.equals(market.getSymbol())) {
-            String originalSymbol = market.getSymbol();
-            market.setSymbol(symbol);
-            replaceMarket(market, originalSymbol);
-            return;
-        }
-
-        Integer row = symbolToRow.get(market.getSymbol());
-        if (row == null) {
-            return;
-        } else {
-            markets.set(row, market);
-        }
-        fireTableRowsUpdated(row, row);
-    }
-
     public void replaceMarket(Market market, String symbol) {
         Integer row = symbolToRow.get(symbol);
         if (row == null) {
@@ -200,5 +183,11 @@ public class MarketTableModel extends AbstractTableModel {
             }
         }
         return "";
+    }
+
+    public void cleanUp() {
+        for (Market market : rowToMarket.values()) {
+            removeMarket(market.getSymbol());
+        }
     }
 }

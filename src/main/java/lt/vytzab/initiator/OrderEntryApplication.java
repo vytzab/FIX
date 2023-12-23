@@ -57,7 +57,6 @@ public class OrderEntryApplication implements Application {
         observableLogon.logon(sessionID);
         try {
             sendSecurityStatusRequest(sessionID);
-            System.out.println("SENT SSR");
         } catch (SessionNotFound e) {
             throw new RuntimeException(e);
         }
@@ -65,6 +64,7 @@ public class OrderEntryApplication implements Application {
 
     public void onLogout(SessionID sessionID) {
         observableLogon.logoff(sessionID);
+        marketTableModel.cleanUp();
     }
 
     public void toAdmin(quickfix.Message message, SessionID sessionID) {
@@ -113,12 +113,8 @@ public class OrderEntryApplication implements Application {
                         cancelReject(message, sessionID);
                     } else if (message.getHeader().getField(msgType).valueEquals("W")) {
                         marketSnapshot(message, sessionID);
-                        System.out.println("Market Snapshot received!");
-                        System.out.println(message);
                     } else if (message.getHeader().getField(msgType).valueEquals("f")) {
-                        System.out.println("Security Status received!");
                         securityStatus(message, sessionID);
-                        System.out.println(message);
                     }  else {
                         sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE, "Unsupported Message Type");
                     }
@@ -280,7 +276,13 @@ public class OrderEntryApplication implements Application {
 
     private void securityStatus(Message message, SessionID sessionID) throws FieldNotFound {
         Market market = new Market(message.getString(Symbol.FIELD), message.getDouble(LastPx.FIELD), message.getDouble(HighPx.FIELD), message.getDouble(LowPx.FIELD), message.getDouble(BuyVolume.FIELD), message.getDouble(SellVolume.FIELD));
-        marketTableModel.addMarket(market);
+        if (message.getInt(SecurityTradingStatus.FIELD) == 0) {
+            marketTableModel.addMarket(market);
+        } else if (message.getInt(SecurityTradingStatus.FIELD) == 1) {
+            marketTableModel.replaceMarket(market, market.getSymbol());
+        } else {
+            marketTableModel.removeMarket(market.getSymbol());
+        }
     }
 
     private boolean alreadyProcessed(ExecID execID, SessionID sessionID) {

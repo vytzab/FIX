@@ -89,7 +89,7 @@
       <field name="Text" required="N"/>
       <field name="LocateReqd" required="N"/>
       <field name="OrigClOrdID" required="N"/>
-      <field name="ExpireDate" required="N"/>
+      <field name="ExpireTime" required="N"/>
     </message>
     <message name="ExecutionReport" msgtype="8" msgcat="app">
       <field name="OrderID" required="Y"/>
@@ -214,6 +214,7 @@
       <field name="LastPx" required="N"/>
       <field name="BuyVolume" required="N"/>
       <field name="SellVolume" required="N"/>
+      <field name="SecurityTradingStatus" required="Y"/>
     </message>
   </messages>
 
@@ -465,6 +466,28 @@
     </field>
     <field number="283" name="LocationID" type="STRING"/>
     <field number="324" name="SecurityStatusReqID" type="STRING"/>
+    <field number="326" name="SecurityTradingStatus" type="INT">
+      <value enum="1" description="OPENING_DELAY"/>
+      <value enum="2" description="TRADING_HALT"/>
+      <value enum="3" description="RESUME"/>
+      <value enum="4" description="NO_OPENNO_RESUME"/>
+      <value enum="5" description="PRICE_INDICATION"/>
+      <value enum="6" description="TRADING_RANGE_INDICATION"/>
+      <value enum="7" description="MARKET_IMBALANCE_BUY"/>
+      <value enum="8" description="MARKET_IMBALANCE_SELL"/>
+      <value enum="9" description="MARKET_ON_CLOSE_IMBALANCE_BUY"/>
+      <value enum="10" description="MARKET_ON_CLOSE_IMBALANCE_SELL"/>
+      <value enum="11" description="NOT_ASSIGNED" />
+      <value enum="12" description="NO_MARKET_IMBALANCE"/>
+      <value enum="13" description="NO_MARKET_ON_CLOSE_IMBALANCE"/>
+      <value enum="14" description="ITS_PREOPENING"/>
+      <value enum="15" description="NEW_PRICE_INDICATION"/>
+      <value enum="16" description="TRADE_DISSEMINATION_TIME"/>
+      <value enum="17" description="READY_TO_TRADE"/>
+      <value enum="18" description="NOT_AVAILABLE_FOR_TRADING"/>
+      <value enum="19" description="NOT_TRADED_ON_THIS_MARKET"/>
+      <value enum="20" description="UNKNOWN_OR_INVALID"/>
+    </field>
     <field number="330" name="BuyVolume" type="QTY"/>
     <field number="331" name="SellVolume" type="QTY"/>
     <field number="332" name="HighPx" type="PRICE"/>
