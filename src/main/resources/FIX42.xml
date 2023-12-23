@@ -467,7 +467,7 @@
     <field number="283" name="LocationID" type="STRING"/>
     <field number="324" name="SecurityStatusReqID" type="STRING"/>
     <field number="326" name="SecurityTradingStatus" type="INT">
-      <value enum="1" description="CREATE"/>
+      <value enum="0" description="CREATE"/>
       <value enum="1" description="UPDATE"/>
       <value enum="2" description="DELETE"/>
     </field>
