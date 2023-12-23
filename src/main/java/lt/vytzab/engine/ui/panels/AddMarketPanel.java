@@ -6,10 +6,14 @@ import lt.vytzab.engine.helpers.DoubleNumberTextField;
 import lt.vytzab.engine.helpers.IntegerNumberTextField;
 import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
+import quickfix.FieldNotFound;
+import quickfix.SessionID;
+import quickfix.SessionNotFound;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -135,10 +139,16 @@ public class AddMarketPanel extends JPanel implements Observer {
             market.setDayHigh(Double.parseDouble(dayHighField.getText()));
             market.setDayLow(Double.parseDouble(dayLowField.getText()));
             market.setBuyVolume(Integer.parseInt(buyVolumeField.getText()));
-            market.setBuyVolume(Integer.parseInt(sellVolumeField.getText()));
+            market.setSellVolume(Integer.parseInt(sellVolumeField.getText()));
 
             MarketDataDAO.createMarket(market);
             marketTableModel.addMarket(market);
+            try {
+                System.out.println("GETS HERE");
+                application.sendSecurityStatusFromMarket(market);
+            } catch (FieldNotFound | SessionNotFound ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -155,7 +165,7 @@ public class AddMarketPanel extends JPanel implements Observer {
                 dayLowEntered = testField(obj);
             } else if (obj == buyVolumeField) {
                 buyVolumeEntered = testField(obj);
-            }else if (obj == sellVolumeField) {
+            } else if (obj == sellVolumeField) {
                 sellVolumeEntered = testField(obj);
             }
             activateSubmit();

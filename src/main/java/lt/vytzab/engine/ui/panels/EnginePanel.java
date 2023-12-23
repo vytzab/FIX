@@ -26,7 +26,7 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
     private final OrderPanel openOrderPanel;
     private final OrderPanel allOrderPanel;
     private final LogPanel logPanel;
-    private final CancelReplacePanel cancelReplacePanel;
+    private final DeleteUpdatePanel cancelReplacePanel;
     private final OrderTableModel openOrderTableModel;
     private final OrderTableModel allOrderTableModel;
     private final MarketTableModel marketTableModel;
@@ -62,7 +62,7 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
         tabbedPane.add("Logs", logPanel);
         add(tabbedPane, constraints);
 
-        cancelReplacePanel = new CancelReplacePanel(marketTableModel, application);
+        cancelReplacePanel = new DeleteUpdatePanel(marketTableModel, application);
         constraints.weighty = 0;
         add(cancelReplacePanel, constraints);
         cancelReplacePanel.setEnabled(false);

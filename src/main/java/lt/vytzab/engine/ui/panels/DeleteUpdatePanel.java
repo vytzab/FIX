@@ -9,8 +9,10 @@ import lt.vytzab.engine.dao.MarketDataDAO;
 import lt.vytzab.engine.helpers.DoubleNumberTextField;
 import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
+import quickfix.FieldNotFound;
+import quickfix.SessionNotFound;
 
-public class CancelReplacePanel extends JPanel {
+public class DeleteUpdatePanel extends JPanel {
     private final JLabel lastPriceLabel = new JLabel("Last Price");
     private final JLabel dayHighLabel = new JLabel("Day High");
     private final JLabel dayLowLabel = new JLabel("Day Low");
@@ -30,7 +32,7 @@ public class CancelReplacePanel extends JPanel {
 
     private final EngineApplication application;
 
-    public CancelReplacePanel(final MarketTableModel marketTableModel, final EngineApplication application) {
+    public DeleteUpdatePanel(final MarketTableModel marketTableModel, final EngineApplication application) {
         this.application = application;
         this.marketTableModel = marketTableModel;
         cancelButton.addActionListener(new DeleteListener());
@@ -127,6 +129,11 @@ public class CancelReplacePanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             MarketDataDAO.deleteMarket(market.getSymbol());
             marketTableModel.removeMarket(market.getSymbol());
+            try {
+                application.sendSecurityStatusFromMarket(market);
+            } catch (FieldNotFound | SessionNotFound ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 
@@ -142,6 +149,11 @@ public class CancelReplacePanel extends JPanel {
 
             MarketDataDAO.updateMarket(newMarket);
             marketTableModel.replaceMarket(newMarket, newMarket.getSymbol());
+            try {
+                application.sendSecurityStatusFromMarket(newMarket);
+            } catch (FieldNotFound | SessionNotFound ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 }

@@ -34,6 +34,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     private final MarketController marketController = new MarketController();
     private final OrderIdGenerator generator = new OrderIdGenerator();
     private final LogPanel logPanel;
+    private List<SessionID> sessionIDs = new ArrayList<>();
 
     public EngineApplication(OrderTableModel openOrderTableModel, OrderTableModel allOrderTableModel, LogPanel logPanel) {
         this.openOrderTableModel = openOrderTableModel;
@@ -45,6 +46,12 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     public void onLogon(SessionID sessionId) {
+        System.out.println("SessionIDs! : " + sessionIDs);
+        System.out.println("SessionID! : " + sessionId);
+        sessionIDs.add(sessionId);
+        System.out.println("SessionIDs! : " + sessionIDs);
+        System.out.println("targetComp! : " + sessionId.getTargetCompID());
+        System.out.println("senderComp! : " + sessionId.getSenderCompID());
     }
 
     public void onLogout(SessionID sessionId) {
@@ -301,6 +308,19 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         return noMDEntries;
     }
 
+    public void sendSecurityStatusFromMarket(Market market) throws FieldNotFound, SessionNotFound {
+        System.out.println("GETS HERE2");
+        for (SessionID sessionID : sessionIDs) {
+            System.out.println("GETS HERE3");
+            Session session = Session.lookupSession(sessionID);
+            System.out.println("GETS HERE4");
+            if (session != null && session.isLoggedOn()) {
+                System.out.println("GETS HERE5");
+                Session.sendToTarget(securityStatusFromMarket(market), sessionID.getSenderCompID(), sessionID.getTargetCompID());
+            }
+        }
+    }
+
     private static class ObservableMarket extends Observable {
         public void update(Order order) {
             setChanged();
@@ -315,5 +335,9 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void deleteMarketObserver(Observer observer) {
         observableMarket.deleteObserver(observer);
+    }
+
+    public List<SessionID> getSessionIDs() {
+        return sessionIDs;
     }
 }
