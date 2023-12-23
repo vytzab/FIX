@@ -275,7 +275,9 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 newOrderSingle.getChar(Side.FIELD), newOrderSingle.getChar(OrdType.FIELD), price, (long) newOrderSingle.getDouble(OrderQty.FIELD),
                 (long) newOrderSingle.getDouble(OrderQty.FIELD), 0, 0, 0, 0,
                 false, false, LocalDate.now(), LocalDate.now(), newOrderSingle.getChar(TimeInForce.FIELD));
-        if (newOrderSingle.getChar(TimeInForce.FIELD) != '0'){
+        if (newOrderSingle.getChar(TimeInForce.FIELD) == '0'){
+            order.setGoodTillDate(LocalDate.now());
+        } else if (newOrderSingle.getChar(TimeInForce.FIELD) == '6') {
             order.setGoodTillDate(newOrderSingle.getUtcDateOnly(ExpireDate.FIELD));
         }
         return order;
