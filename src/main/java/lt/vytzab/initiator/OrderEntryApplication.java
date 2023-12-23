@@ -18,6 +18,8 @@ import quickfix.fix42.MarketDataSnapshotFullRefresh;
 import quickfix.fix42.SecurityStatusRequest;
 
 import javax.swing.*;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Observable;
@@ -161,7 +163,7 @@ public class OrderEntryApplication implements Application {
             newOrderSingle.setField(new TimeInForce('0'));
         } else if (order.getTIF() == OrderTIF.GTD) {
             newOrderSingle.setField(new TimeInForce('6'));
-            newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().toString()));
+            newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))));
         }else if (order.getTIF() == OrderTIF.GTC) {
             newOrderSingle.setField(new TimeInForce('1'));
         }

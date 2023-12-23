@@ -142,7 +142,6 @@ public class MarketTableModel extends AbstractTableModel {
         Integer row = symbolToRow.get(symbol);
         if (row == null) return;
 
-        markets.remove(row.intValue());
         rowToMarket.remove(row);
         symbolToRow.remove(symbol);
 
