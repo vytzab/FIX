@@ -150,7 +150,7 @@ public class OrderEntryApplication implements Application {
         Session.sendToTarget(reply);
     }
 
-    public void sendNewOrderSingle(Order order) throws SessionNotFound {
+    public void sendNewOrderSingle(Order order, SessionID sessionID) throws SessionNotFound {
         NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getOrderID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
 
@@ -165,7 +165,8 @@ public class OrderEntryApplication implements Application {
         }else if (order.getTIF() == OrderTIF.GTC) {
             newOrderSingle.setField(new TimeInForce('1'));
         }
-        Session.sendToTarget(newOrderSingle, order.getSessionID());
+        System.out.println(sessionID);
+        Session.sendToTarget(newOrderSingle, sessionID);
     }
 
     public void sendOrderCancelRequest(Order order) throws SessionNotFound {

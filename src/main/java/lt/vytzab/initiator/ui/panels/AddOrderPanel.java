@@ -11,6 +11,8 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.time.ZoneId;
+import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -32,6 +34,7 @@ import lt.vytzab.initiator.order.OrderSide;
 import lt.vytzab.initiator.order.OrderTIF;
 import lt.vytzab.initiator.order.OrderTableModel;
 import lt.vytzab.initiator.order.OrderType;
+import quickfix.SessionID;
 import quickfix.SessionNotFound;
 import quickfix.field.TimeInForce;
 
@@ -228,13 +231,15 @@ public class AddOrderPanel extends JPanel implements Observer {
             order.setQuantity(Integer.parseInt(quantityTextField.getText()));
             order.setOpenQuantity(order.getQuantity());
 
+            order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+
             OrderType type = order.getType();
             if (type == OrderType.LIMIT) {
                 order.setLimit(limitPriceTextField.getText());
             }
             orderTableModel.addOrder(order);
             try {
-                application.sendNewOrderSingle(order);
+                application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
             } catch (SessionNotFound ex) {
                 throw new RuntimeException(ex);
             }
