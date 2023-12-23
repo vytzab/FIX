@@ -14,7 +14,8 @@ public class MarketTableModel extends AbstractTableModel {
     private final static int LASTPRICE = 1;
     private final static int DAYHIGH = 2;
     private final static int DAYLOW = 3;
-    private final static int VOLUME = 4;
+    private final static int BUYVOLUME = 4;
+    private final static int SELLVOLUME = 5;
     private boolean filtered = false;
 
     private HashMap<Integer, Market> originalRowToMarket;
@@ -185,17 +186,17 @@ public class MarketTableModel extends AbstractTableModel {
 
         if (market != null) {
             switch (columnIndex) {
-                case 0:
+                case SYMBOL:
                     return market.getSymbol();
-                case 1:
+                case LASTPRICE:
                     return market.getLastPrice();
-                case 2:
+                case DAYHIGH:
                     return market.getDayHigh();
-                case 3:
+                case DAYLOW:
                     return market.getDayLow();
-                case 4:
+                case BUYVOLUME:
                     return market.getBuyVolume();
-                case 5:
+                case SELLVOLUME:
                     return market.getSellVolume();
                 default:
                     return "";
