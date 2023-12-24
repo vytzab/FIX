@@ -184,9 +184,13 @@ public class MarketTableModel extends AbstractTableModel {
         return "";
     }
 
-    public void cleanUp() {
-        for (Market market : rowToMarket.values()) {
-            removeMarket(market.getSymbol());
+    public void clearMarkets() {
+        int start = 0;
+        int end = markets.size();
+        for (Market market : markets) {
+            rowToMarket.values().remove(market);
+
+            fireTableRowsDeleted(start, end);
         }
     }
 }

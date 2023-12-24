@@ -66,7 +66,7 @@ public class OrderEntryApplication implements Application {
 
     public void onLogout(SessionID sessionID) {
         observableLogon.logoff(sessionID);
-        marketTableModel.cleanUp();
+        marketTableModel.clearMarkets();
     }
 
     public void toAdmin(quickfix.Message message, SessionID sessionID) {
