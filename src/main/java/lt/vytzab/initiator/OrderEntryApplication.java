@@ -191,7 +191,7 @@ public class OrderEntryApplication implements Application {
 //        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
     }
 
-    public void sendMarketDataRequest(SessionID sessionID) throws SessionNotFound {
+    public void sendMarketDataRequest(Market market, SessionID sessionID) throws SessionNotFound {
         MarketDataRequest marketDataRequest = new MarketDataRequest(new MDReqID(IDGenerator.genMarketRequestID()), new SubscriptionRequestType('1'), new MarketDepth(1));
         MarketDataRequest.NoMDEntryTypes noMDEntryTypes = new MarketDataRequest.NoMDEntryTypes();
         noMDEntryTypes.set(new MDEntryType('0'));
@@ -199,7 +199,7 @@ public class OrderEntryApplication implements Application {
         noMDEntryTypes.set(new MDEntryType('1'));
         marketDataRequest.addGroup(noMDEntryTypes);
         MarketDataRequest.NoRelatedSym noRelatedSym = new MarketDataRequest.NoRelatedSym();
-        noRelatedSym.set(new Symbol("AAPL"));
+        noRelatedSym.set(new Symbol(market.getSymbol()));
         marketDataRequest.addGroup(noRelatedSym);
 
         Session.sendToTarget(marketDataRequest, sessionID);
@@ -277,10 +277,11 @@ public class OrderEntryApplication implements Application {
         orderTableModel.addOrder(order);
     }
 
-    private void securityStatus(Message message, SessionID sessionID) throws FieldNotFound {
+    private void securityStatus(Message message, SessionID sessionID) throws FieldNotFound, SessionNotFound {
         Market market = new Market(message.getString(Symbol.FIELD), message.getDouble(LastPx.FIELD), message.getDouble(HighPx.FIELD), message.getDouble(LowPx.FIELD), message.getDouble(BuyVolume.FIELD), message.getDouble(SellVolume.FIELD));
         if (message.getInt(SecurityTradingStatus.FIELD) == 0) {
             marketTableModel.addMarket(market);
+            sendMarketDataRequest(market, sessionID);
         } else if (message.getInt(SecurityTradingStatus.FIELD) == 1) {
             marketTableModel.replaceMarket(market, market.getSymbol());
         } else {
