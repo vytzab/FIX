@@ -10,22 +10,22 @@ import lt.vytzab.engine.EngineApplication;
 import lt.vytzab.engine.order.OrderTableModel;
 import lt.vytzab.engine.ui.tables.OrderTable;
 
-/**
- * Contains the Order table.
- */
 public class OrderPanel extends JPanel {
     private JTable orderTable = null;
     private OrderTableModel orderTableModel = null;
     private JTextField filterTextField;
 
     public OrderPanel(OrderTableModel orderTableModel, EngineApplication application) {
-        this.orderTableModel = orderTableModel;
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new BorderLayout());
         FilterPanel filterPanel = new FilterPanel(orderTableModel);
         add(filterPanel, BorderLayout.NORTH);
         orderTable = new OrderTable(orderTableModel, application);
         add(new JScrollPane(orderTable), BorderLayout.CENTER);
+    }
+
+    public JTable orderTable() {
+        return orderTable;
     }
     public class FilterPanel extends JPanel {
         private final OrderTableModel orderTableModel;

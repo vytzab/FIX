@@ -13,7 +13,7 @@ import java.util.List;
 import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
 
 public class OrderTableModel extends AbstractTableModel {
-    private final List<Order> orders = new ArrayList<>();
+    private List<Order> orders = new ArrayList<>();
     private final static int SENDERCOMPID = 0;
     private final static int SYMBOL = 1;
     private final static int QUANTITY = 2;
@@ -45,22 +45,6 @@ public class OrderTableModel extends AbstractTableModel {
         displayedOrders = new ArrayList<>();
 
         headers = new String[]{"Sender", "Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Entry Date", "Good Till Date"};
-    }
-
-    public void setOriginalOrders(List<Order> orders) {
-        originalRowToOrder.clear();
-        originalIdToRow.clear();
-        int row = 0;
-        for (Order order : orders) {
-            originalRowToOrder.put(row, order);
-            originalIdToRow.put(order.getClOrdID(), row);
-            row++;
-        }
-    }
-
-    public void setDisplayedOrders(List<Order> orders) {
-        displayedOrders = new ArrayList<>(orders);
-        fireTableDataChanged();
     }
 
     public void filterByKeyword(String keyword) {
@@ -165,17 +149,6 @@ public class OrderTableModel extends AbstractTableModel {
         return rowToOrder.get(row);
     }
 
-    public void removeOrder(String clOrdID) {
-        Integer row = idToRow.get(clOrdID);
-        if (row == null) {
-            return;
-        } else {
-            orders.remove(row.intValue());
-            rowToOrder.remove(row);
-            idToRow.remove(clOrdID);
-        }
-    }
-
     public Class<String> getColumnClass(int columnIndex) {
         return String.class;
     }
@@ -221,17 +194,37 @@ public class OrderTableModel extends AbstractTableModel {
                     return order.getEntryDate();
                 case GOODTILLDATE:
                     return order.getGoodTillDate();
+                default:
+                    return "";
             }
         }
         return "";
     }
 
-    public void getOrdersFromDB() {
-        List<Order> orderList = MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB);
-        for (Order order : orderList) {
-            if (!order.isClosed() || !order.isFullyExecuted() || !order.isFilled()) {
-                addOrder(order);
-            }
+    public void clearOrders() {
+        int start = 0;
+        int end = orders.size();
+        for (Order order : orders) {
+            rowToOrder.values().remove(order);
+
         }
+        fireTableRowsDeleted(start, end);
+    }
+
+    public void fillOrders() {
+        int start = 0;
+        int end = orders.size();
+        for (Order order : orders) {
+            int row = rowToOrder.size();
+            rowToOrder.put(row, order);
+            idToRow.put(order.getSymbol(), row);
+
+        }
+        fireTableRowsDeleted(start, end);
+    }
+
+    public void setOrders(List<Order> updatedOrders) {
+        orders = updatedOrders;
+        fillOrders();
     }
 }

@@ -36,22 +36,6 @@ public class MarketTableModel extends AbstractTableModel {
         headers = new String[]{"Symbol", "Last Price", "Day High", "Day Low", "Buy Volume", "Sell Volume"};
     }
 
-    public void setOriginalMarkets(List<Market> markets) {
-        originalRowToMarket.clear();
-        originalSymbolToRow.clear();
-        int row = 0;
-        for (Market market : markets) {
-            originalRowToMarket.put(row, market);
-            originalSymbolToRow.put(market.getSymbol(), row);
-            row++;
-        }
-    }
-
-    public void setDisplayedMarkets(List<Market> markets) {
-        displayedMarkets = new ArrayList<>(markets);
-        fireTableDataChanged();
-    }
-
     public void filterByKeyword(String keyword) {
         if (keyword == null || keyword.isEmpty()) {
             // No filtering, show all orders
@@ -152,7 +136,9 @@ public class MarketTableModel extends AbstractTableModel {
         updateRowIndices(row);
 
         fireTableRowsDeleted(row, row);
-    }private void updateRowIndices(int removedRow) {
+    }
+
+    private void updateRowIndices(int removedRow) {
         // Create a copy of the entry set to avoid ConcurrentModificationException
         Set<Map.Entry<Integer, Market>> entrySetCopy = new HashSet<>(rowToMarket.entrySet());
 
@@ -207,20 +193,30 @@ public class MarketTableModel extends AbstractTableModel {
         return "";
     }
 
-    public void getMarketsFromDB() {
-        List<Market> marketList = MarketDataDAO.readAllMarkets();
-        for (Market market : marketList) {
-            addMarket(market);
-        }
-    }
-
     public void clearMarkets() {
         int start = 0;
         int end = markets.size();
         for (Market market : markets) {
             rowToMarket.values().remove(market);
 
-            fireTableRowsDeleted(start, end);
         }
+        fireTableRowsDeleted(start, end);
+    }
+
+    public void fillMarkets() {
+        int start = 0;
+        int end = markets.size();
+        for (Market market : markets) {
+            int row = rowToMarket.size();
+            rowToMarket.put(row, market);
+            symbolToRow.put(market.getSymbol(), row);
+
+        }
+        fireTableRowsDeleted(start, end);
+    }
+
+    public void setMarkets(List<Market> updatedMarkets) {
+        markets = updatedMarkets;
+        fillMarkets();
     }
 }

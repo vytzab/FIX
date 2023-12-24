@@ -1,12 +1,10 @@
 package lt.vytzab.engine;
 
-import lt.vytzab.engine.dao.MarketDataDAO;
-import lt.vytzab.engine.dao.MarketOrderDAO;
-import lt.vytzab.engine.market.Market;
+import lt.vytzab.engine.market.workers.MarketFillWorker;
 import lt.vytzab.engine.market.MarketTableModel;
-import lt.vytzab.engine.order.Order;
-import lt.vytzab.engine.order.OrderIdGenerator;
 import lt.vytzab.engine.order.OrderTableModel;
+import lt.vytzab.engine.order.workers.AllOrderFillWorker;
+import lt.vytzab.engine.order.workers.OpenOrderFillWorker;
 import lt.vytzab.engine.ui.EngineFrame;
 import lt.vytzab.engine.ui.panels.LogPanel;
 import org.slf4j.Logger;
@@ -22,17 +20,13 @@ import quickfix.RuntimeError;
 import quickfix.ScreenLogFactory;
 import quickfix.SessionSettings;
 import quickfix.SocketAcceptor;
-import quickfix.field.OrdType;
-import quickfix.field.Side;
 
 import javax.management.JMException;
 import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.time.LocalDate;
 
-import static lt.vytzab.engine.helpers.DateTimeString.getCurrentDateTimeAsString;
 import static lt.vytzab.engine.ui.EngineFrame.centerFrameOnScreen;
 
 public class Engine {
@@ -62,14 +56,8 @@ public class Engine {
     }
 
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
-        // Uzfiksuojamas dabartinis laikas logams
-        String currentTime = getCurrentDateTimeAsString();
         // Ivykiu registro atvaizdavimas
         LogPanel logPanel = new LogPanel();
-        // Galiojantiems uzsakymams atvaizduoti
-        OrderTableModel openOrderTableModel = new OrderTableModel();
-        // Visiems gautiems uzsakymams atvaizduoti
-        OrderTableModel allOrderTableModel = new OrderTableModel();
         // Sukuriama Engine aplikacija
         EngineApplication application = new EngineApplication(openOrderTableModel, allOrderTableModel, logPanel);
         // Kaupia FIX zinutes
@@ -88,13 +76,19 @@ public class Engine {
     }
 
     private static void start() throws RuntimeError, ConfigError {
-        marketTableModel.getMarketsFromDB();
-        openOrderTableModel.getOrdersFromDB();
+        MarketFillWorker mfWorker = new MarketFillWorker(marketTableModel);
+        mfWorker.execute();
+        OpenOrderFillWorker oofWorker = new OpenOrderFillWorker(openOrderTableModel);
+        oofWorker.execute();
+        AllOrderFillWorker aofWorker = new AllOrderFillWorker(allOrderTableModel);
+        aofWorker.execute();
         acceptor.start();
     }
 
     private static void stop() {
         marketTableModel.clearMarkets();
+        openOrderTableModel.clearOrders();
+        allOrderTableModel.clearOrders();
         acceptor.stop();
     }
 
