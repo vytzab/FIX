@@ -94,7 +94,7 @@ public class Engine {
     }
 
     private static void stop() {
-        marketTableModel.saveMarketsToDB();
+        marketTableModel.clearMarkets();
         acceptor.stop();
     }
 
