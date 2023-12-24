@@ -214,24 +214,6 @@ public class MarketTableModel extends AbstractTableModel {
         }
     }
 
-    public void saveMarketsToDB() {
-        for (Market market : markets) {
-            Market dbMarket = MarketDataDAO.readMarket(market.getSymbol());
-            if (dbMarket == null) {
-                createDBMarket(market);
-            }
-            updateDBMarket(market);
-            removeMarket(market.getSymbol());
-        }
-    }
-    private void createDBMarket(Market market) {
-        MarketDataDAO.createMarket(market);
-    }
-
-    private void updateDBMarket(Market market) {
-        MarketDataDAO.updateMarket(market);
-    }
-
     public void clearMarkets() {
         int start = 0;
         int end = markets.size();
