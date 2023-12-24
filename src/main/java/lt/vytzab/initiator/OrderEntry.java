@@ -100,12 +100,8 @@ public class OrderEntry {
         } catch (Exception e) {
             log.info(e.getMessage(), e);
         }
-        log.info("initiating Banzai!");
         banzai = new OrderEntry(args);
-        log.info("Banzai initiated.");
-        if (!System.getProperties().containsKey("openfix")) {
-            banzai.logon();
-        }
+        banzai.logon();
         shutdownLatch.await();
     }
 
