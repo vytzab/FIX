@@ -140,20 +140,20 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         fixMD.getHeader().setString(SenderCompID.FIELD, targetCompId);
         fixMD.getHeader().setString(TargetCompID.FIELD, senderCompId);
 
-        for (int i = 1; i <= relatedSymbolCount; ++i) {
-            message.getGroup(i, noRelatedSyms);
-            String symbol = noRelatedSyms.getString(Symbol.FIELD);
-            fixMD.setString(Symbol.FIELD, symbol);
-            List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(symbol, MARKET_ORDERS_DB);
-            for (Order order : symbolOrders) {
-                noMDEntries = noMDEntriesFromOrder(order);
-                fixMD.addGroup(noMDEntries);
-            }
-            try {
-                Session.sendToTarget(fixMD, targetCompId, senderCompId);
-            } catch (SessionNotFound e) {
-            }
+
+        message.getGroup(0, noRelatedSyms);
+        String symbol = noRelatedSyms.getString(Symbol.FIELD);
+        fixMD.setString(Symbol.FIELD, symbol);
+        List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(symbol, MARKET_ORDERS_DB);
+        for (Order order : symbolOrders) {
+            noMDEntries = noMDEntriesFromOrder(order);
+            fixMD.addGroup(noMDEntries);
         }
+        try {
+            Session.sendToTarget(fixMD, targetCompId, senderCompId);
+        } catch (SessionNotFound e) {
+        }
+
     }
 
     public void onMessage(SecurityStatusRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
@@ -243,7 +243,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     private void OrderCancelReplaceRequestER(OrderCancelReplaceRequest message, char ordStatus) {
     }
 
-    private SecurityStatus securityStatusFromMarket (Market market, int status) throws FieldNotFound {
+    private SecurityStatus securityStatusFromMarket(Market market, int status) throws FieldNotFound {
         SecurityStatus securityStatus = new SecurityStatus();
         securityStatus.set(new Symbol(market.getSymbol()));
         securityStatus.set(new HighPx(market.getDayHigh()));
@@ -278,7 +278,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 newOrderSingle.getChar(Side.FIELD), newOrderSingle.getChar(OrdType.FIELD), price, (long) newOrderSingle.getDouble(OrderQty.FIELD),
                 (long) newOrderSingle.getDouble(OrderQty.FIELD), 0, 0, 0, 0,
                 false, false, LocalDate.now(), LocalDate.now(), newOrderSingle.getChar(TimeInForce.FIELD));
-        if (newOrderSingle.getChar(TimeInForce.FIELD) == '0'){
+        if (newOrderSingle.getChar(TimeInForce.FIELD) == '0') {
             order.setGoodTillDate(LocalDate.now());
         } else if (newOrderSingle.getChar(TimeInForce.FIELD) == '6') {
             order.setGoodTillDate(newOrderSingle.getUtcDateOnly(ExpireDate.FIELD));
