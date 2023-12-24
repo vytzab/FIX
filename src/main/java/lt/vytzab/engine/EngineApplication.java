@@ -130,7 +130,6 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void onMessage(MarketDataRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         MarketDataRequest.NoRelatedSym noRelatedSyms = new MarketDataRequest.NoRelatedSym();
-        int relatedSymbolCount = message.getInt(NoRelatedSym.FIELD);
 
         MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
         fixMD.setString(MDReqID.FIELD, message.getString(MDReqID.FIELD));
@@ -140,8 +139,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         fixMD.getHeader().setString(SenderCompID.FIELD, targetCompId);
         fixMD.getHeader().setString(TargetCompID.FIELD, senderCompId);
 
-
-        message.getGroup(0, noRelatedSyms);
+        message.getGroup(1, noRelatedSyms);
         String symbol = noRelatedSyms.getString(Symbol.FIELD);
         fixMD.setString(Symbol.FIELD, symbol);
         List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(symbol, MARKET_ORDERS_DB);
@@ -291,12 +289,12 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
         noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
         noMDEntries.setDouble(MDEntryPx.FIELD, order.getPrice());
-        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
-        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
         noMDEntries.setDouble(MDEntrySize.FIELD, order.getQuantity());
-        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
         noMDEntries.setUtcDateOnly(MDEntryDate.FIELD, order.getEntryDate());
         noMDEntries.setUtcTimeOnly(MDEntryTime.FIELD, LocalTime.now());
+        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
+        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
+        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
         noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
         noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
         noMDEntries.setString(Text.FIELD, "");
