@@ -298,6 +298,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         noMDEntries.setUtcTimeOnly(MDEntryTime.FIELD, LocalTime.now());
         noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
         noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
+        noMDEntries.setDouble(AvgPx.FIELD, order.getAvgExecutedPrice());
         noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
         noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
         noMDEntries.setString(OrderID.FIELD, order.getClOrdID());

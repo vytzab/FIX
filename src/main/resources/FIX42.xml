@@ -189,6 +189,7 @@
         <field name="ExpireDate" required="N"/>
         <field name="OrderID" required="N"/>
         <field name="Text" required="N"/>
+        <field name="AvgPx" required="Y"/>
         <field name="CumQty" required="Y"/>
         <field name="OrdType" required="Y"/>
         <field name="LeavesQty" required="Y"/>

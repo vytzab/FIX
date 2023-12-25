@@ -82,11 +82,11 @@ public class Engine {
 //        noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
 //        noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
 //        noMDEntries.setString(Text.FIELD, "");
+//        noMDEntries.setDouble(AvgPx.FIELD, order.getAvgExecutedPrice());
 //
 //        fixMD.addGroup(noMDEntries);
 //
 //        System.out.println(fixMD);
-
     }
 
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
