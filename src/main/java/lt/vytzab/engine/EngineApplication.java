@@ -48,13 +48,11 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     public void onLogon(SessionID sessionId) {
         Session session = Session.lookupSession(sessionId);
         sessionIDs.add(sessionId);
-        for (SessionID sessionID : sessionIDs) {
-            if (session != null && session.isLoggedOn()) {
-                try {
-                    sendSecurityStatusOnLogon(session);
-                } catch (FieldNotFound | UnsupportedMessageType | IncorrectTagValue e) {
-                    throw new RuntimeException(e);
-                }
+        if (session != null && session.isLoggedOn()) {
+            try {
+                sendSecurityStatusOnLogon(session);
+            } catch (FieldNotFound | UnsupportedMessageType | IncorrectTagValue e) {
+                throw new RuntimeException(e);
             }
         }
     }
