@@ -71,10 +71,10 @@ public class Engine {
 //        System.out.println(fixMD);
 //
 //        fixMD.setString(Symbol.FIELD, order.getSymbol());
+//        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
 //        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
 //        noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
 //        noMDEntries.setDouble(MDEntryPx.FIELD, order.getPrice());
-//        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
 //        noMDEntries.setDouble(MDEntrySize.FIELD, order.getQuantity());
 //        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
 //        noMDEntries.setUtcDateOnly(MDEntryDate.FIELD, order.getEntryDate());
@@ -83,8 +83,6 @@ public class Engine {
 //        noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
 //        noMDEntries.setString(Text.FIELD, "");
 //
-//        fixMD.addGroup(noMDEntries);
-//        fixMD.addGroup(noMDEntries);
 //        fixMD.addGroup(noMDEntries);
 //
 //        System.out.println(fixMD);

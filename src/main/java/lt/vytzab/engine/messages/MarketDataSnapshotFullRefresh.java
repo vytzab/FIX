@@ -102,7 +102,7 @@ public class MarketDataSnapshotFullRefresh extends Message {
     }
 
     public static class NoMDEntries extends Group {
-        private static final int[] ORDER = new int[]{269, 270, 271, 272, 273, 14, 346, 40, 151, 432, 37, 58};
+        private static final int[] ORDER = new int[]{269, 270, 14, 271, 272, 273, 346, 40, 151, 432, 37, 58};
 
         public NoMDEntries() {
             super(268, 269, ORDER);
