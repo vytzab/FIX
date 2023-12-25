@@ -46,12 +46,15 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     public void onLogon(SessionID sessionId) {
+        Session session = Session.lookupSession(sessionId);
         sessionIDs.add(sessionId);
         for (SessionID sessionID : sessionIDs) {
-            try {
-                sendSecurityStatusOnLogon(sessionID);
-            } catch (FieldNotFound | UnsupportedMessageType | IncorrectTagValue e) {
-                throw new RuntimeException(e);
+            if (session != null && session.isLoggedOn()) {
+                try {
+                    sendSecurityStatusOnLogon(session);
+                } catch (FieldNotFound | UnsupportedMessageType | IncorrectTagValue e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
@@ -197,12 +200,11 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    public void sendSecurityStatusOnLogon(SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-        Session session = Session.lookupSession(sessionID);
+    public void sendSecurityStatusOnLogon(Session session) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         for (Market market : marketController.getMarkets()) {
             SecurityStatus securityStatus = securityStatusFromMarket(market, 0);
             try {
-                Session.sendToTarget(securityStatus, sessionID.getSenderCompID(), sessionID.getTargetCompID());
+                session.sendToTarget(securityStatus, session.getSessionID().getSenderCompID(), session.getSessionID().getTargetCompID());
             } catch (SessionNotFound e) {
                 //TODO implement better logging
             }
