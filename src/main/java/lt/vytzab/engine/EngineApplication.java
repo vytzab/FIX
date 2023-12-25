@@ -46,8 +46,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     public void onLogon(SessionID sessionId) {
-        Session session = Session.lookupSession(sessionId);
         sessionIDs.add(sessionId);
+        Session session = Session.lookupSession(sessionId);
         if (session != null && session.isLoggedOn()) {
             try {
                 sendSecurityStatusOnLogon(session);
