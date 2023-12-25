@@ -47,6 +47,13 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void onLogon(SessionID sessionId) {
         sessionIDs.add(sessionId);
+        for (SessionID sessionID : sessionIDs) {
+            try {
+                sendSecurityStatusOnLogon(sessionID);
+            } catch (FieldNotFound | UnsupportedMessageType | IncorrectTagValue e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 
     public void onLogout(SessionID sessionId) {
@@ -182,10 +189,20 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     public void onMessage(SecurityStatusRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+        SecurityStatus securityStatus = securityStatusFromMarket(marketController.getMarket(message.getSymbol().toString()), 0);
+        try {
+            Session.sendToTarget(securityStatus, message.getHeader().getString(quickfix.field.TargetCompID.FIELD), message.getHeader().getString(quickfix.field.SenderCompID.FIELD));
+        } catch (SessionNotFound e) {
+            //TODO implement better logging
+        }
+    }
+
+    public void sendSecurityStatusOnLogon(SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+        Session session = Session.lookupSession(sessionID);
         for (Market market : marketController.getMarkets()) {
             SecurityStatus securityStatus = securityStatusFromMarket(market, 0);
             try {
-                Session.sendToTarget(securityStatus, message.getHeader().getString(quickfix.field.TargetCompID.FIELD), message.getHeader().getString(quickfix.field.SenderCompID.FIELD));
+                Session.sendToTarget(securityStatus, sessionID.getSenderCompID(), sessionID.getTargetCompID());
             } catch (SessionNotFound e) {
                 //TODO implement better logging
             }
