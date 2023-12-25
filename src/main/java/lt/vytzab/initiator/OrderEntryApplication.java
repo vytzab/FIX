@@ -172,7 +172,12 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendOrderCancelRequest(Order order) throws SessionNotFound {
-        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(new OrigClOrdID(order.getClOrdID()), new ClOrdID(IDGenerator.genOrderID()), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime());
+        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(
+                new OrigClOrdID(order.getClOrdID()),
+                new ClOrdID(IDGenerator.genOrderID()),
+                new Symbol(order.getSymbol()),
+                sideToFIXSide(order.getSide()),
+                new TransactTime());
         orderCancelRequest.setField(new OrderQty(order.getQuantity()));
 
         Session.sendToTarget(orderCancelRequest, order.getSessionID());
@@ -430,7 +435,7 @@ public class OrderEntryApplication implements Application {
         order.setAvgPx(noMDEntries.getDouble(AvgPx.FIELD));
         order.setEntryDate(noMDEntries.getUtcDateOnly(MDEntryDate.FIELD));
         order.setGoodTillDate(noMDEntries.getUtcDateOnly(ExpireDate.FIELD));
-        order.setOrderID(noMDEntries.getString(OrderID.FIELD));
+        order.setClOrdID(noMDEntries.getString(OrderID.FIELD));
 //TODO implement stop and limit
         return order;
     }
