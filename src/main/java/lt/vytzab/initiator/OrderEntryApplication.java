@@ -271,8 +271,11 @@ public class OrderEntryApplication implements Application {
     }
 
     private void marketSnapshot(Message message, SessionID sessionID) throws FieldNotFound {
-        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
-        Order order = orderFromNoMDEntries(message.getGroup(1, noMDEntries));
+        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new  MarketDataSnapshotFullRefresh.NoMDEntries();
+        Order order = new Order();
+        if (message.getGroup(1, noMDEntries) != null) {
+            order = orderFromNoMDEntries(message.getGroup(1, noMDEntries));
+        }
         order.setSymbol(message.getString(Symbol.FIELD));
         orderTableModel.addOrder(order);
     }
