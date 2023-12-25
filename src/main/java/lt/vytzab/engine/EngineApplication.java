@@ -143,6 +143,10 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         String symbol = noRelatedSyms.getString(Symbol.FIELD);
         fixMD.setString(Symbol.FIELD, symbol);
         List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(symbol, MARKET_ORDERS_DB);
+        if (symbolOrders.isEmpty()) {
+            noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
+            fixMD.addGroup(noMDEntries);
+        }
         for (Order order : symbolOrders) {
             noMDEntries = noMDEntriesFromOrder(order);
             fixMD.addGroup(noMDEntries);
@@ -298,6 +302,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
         noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
         noMDEntries.setString(Text.FIELD, "");
+        noMDEntries.setString(Text.FIELD, "MDEntry for " + order.getSymbol());
 
         return noMDEntries;
     }
