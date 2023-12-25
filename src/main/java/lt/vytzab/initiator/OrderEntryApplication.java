@@ -106,17 +106,15 @@ public class OrderEntryApplication implements Application {
             try {
                 MsgType msgType = new MsgType();
                 if (isAvailable) {
-                    //Jeigu gautas execution report msgType = 8
+                        //Execution Report
                     if (message.getHeader().getField(msgType).valueEquals("8")) {
                         executionReport(message, sessionID);
-                    } else if (message.getHeader().getField(msgType).valueEquals("9")) {
-                        cancelReject(message, sessionID);
+                        //SECURITY_STATUS
+                    } else if (message.getHeader().getField(msgType).valueEquals("f")) {
+                        securityStatus(message, sessionID);
+                        //MARKET_DATA_SNAPSHOT
                     } else if (message.getHeader().getField(msgType).valueEquals("W")) {
                         marketSnapshot(message, sessionID);
-                    } else if (message.getHeader().getField(msgType).valueEquals("f")) {
-                        securityStatus(message, sessionID);
-                    } else if (message.getHeader().getField(msgType).valueEquals("f")) {
-                        securityStatus(message, sessionID);
                     }  else {
                         sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE, "Unsupported Message Type");
                     }
@@ -265,19 +263,19 @@ public class OrderEntryApplication implements Application {
         }
     }
 
-    private void cancelReject(Message message, SessionID sessionID) throws FieldNotFound {
-        String id = message.getString(ClOrdID.FIELD);
-        Order order = orderTableModel.getOrder(id);
-        if (order == null) return;
-        if (order.getClOrdID() != null) order = orderTableModel.getOrder(order.getClOrdID());
-
-        try {
-            order.setMessage(message.getField(new Text()).getValue());
-        } catch (FieldNotFound e) {
-            throw new RuntimeException(e);
-        }
-        orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
-    }
+//    private void cancelReject(Message message, SessionID sessionID) throws FieldNotFound {
+//        String id = message.getString(ClOrdID.FIELD);
+//        Order order = orderTableModel.getOrder(id);
+//        if (order == null) return;
+//        if (order.getClOrdID() != null) order = orderTableModel.getOrder(order.getClOrdID());
+//
+//        try {
+//            order.setMessage(message.getField(new Text()).getValue());
+//        } catch (FieldNotFound e) {
+//            throw new RuntimeException(e);
+//        }
+//        orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
+//    }
 
     private void marketSnapshot(Message message, SessionID sessionID) throws FieldNotFound {
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new  MarketDataSnapshotFullRefresh.NoMDEntries();
