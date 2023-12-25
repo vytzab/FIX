@@ -56,11 +56,11 @@ public class OrderEntryApplication implements Application {
 
     public void onLogon(SessionID sessionID) {
         observableLogon.logon(sessionID);
-        try {
-            sendSecurityStatusRequest(sessionID);
-        } catch (SessionNotFound e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            sendSecurityStatusRequest(sessionID);
+//        } catch (SessionNotFound e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
     public void onLogout(SessionID sessionID) {
