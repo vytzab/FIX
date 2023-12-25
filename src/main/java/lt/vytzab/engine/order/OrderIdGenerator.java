@@ -17,7 +17,7 @@ public class OrderIdGenerator {
     }
 
     public String genOrderID() {
-        orders = MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB);
+        orders = MarketOrderDAO.readAllMarketOrders();
         for (Order order : orders) {
             if (Long.parseLong(order.getClOrdID()) > orderIdCounter) {
                 orderIdCounter = Long.parseLong(order.getClOrdID());
