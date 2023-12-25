@@ -45,6 +45,6 @@ public class AllOrderFillWorker extends SwingWorker<Void, List<Order>> {
 
     // Implement this method to fetch updated market data
     private List<Order> fetchData() {
-        return MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB);
+        return MarketOrderDAO.readAllMarketOrders();
     }
 }
