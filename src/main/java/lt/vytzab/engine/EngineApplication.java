@@ -89,7 +89,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     private void processNewOrder(quickfix.fix42.NewOrderSingle newOrderSingle) throws FieldNotFound {
         Order order = orderFromNewOrderSingle(newOrderSingle);
         //If order is added
-        if (marketController.insertOrder(order)) {
+        if (marketController.createOrder(order)) {
             //send accepted execution report
             messageExecutionReport(newOrderSingle, '0');
 
@@ -111,15 +111,39 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    public void onMessage(OrderCancelRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-        Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD), MARKET_ORDERS_DB);
+    public void onMessage(quickfix.fix42.OrderCancelRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+        Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
         if (order != null) {
             order.cancel();
-            marketController.deleteOrderByClOrdID(message.getString(OrigClOrdID.FIELD), MARKET_ORDERS_DB);
-//            cancelOrder(order);
+            marketController.deleteOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
+            messageExecutionReport(message, '5');
         } else {
-            OrderCancelReject orderCancelReject = new OrderCancelReject(new OrderID(generator.genOrderID()), new ClOrdID(message.getString(ClOrdID.FIELD)), new OrigClOrdID(message.getString(OrigClOrdID.FIELD)),
-                    new OrdStatus(OrdStatus.REJECTED), new CxlRejResponseTo(CxlRejResponseTo.ORDER_CANCEL_REQUEST));
+            OrderCancelReject orderCancelReject = new OrderCancelReject(
+                    new OrderID(generator.genOrderID()),
+                    new ClOrdID(message.getString(ClOrdID.FIELD)),
+                    new OrigClOrdID(message.getString(OrigClOrdID.FIELD)),
+                    new OrdStatus(OrdStatus.REJECTED),
+                    new CxlRejResponseTo(CxlRejResponseTo.ORDER_CANCEL_REQUEST));
+            try {
+                Session.sendToTarget(orderCancelReject, message.getHeader().getString(TargetCompID.FIELD), message.getHeader().getString(SenderCompID.FIELD));
+            } catch (SessionNotFound e) {
+                //TODO implement better logging
+            }
+        }
+    }
+
+    public void onMessage(quickfix.fix42.OrderCancelReplaceRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+        Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
+        if (order != null) {
+            marketController.updateOrder(order);
+            messageExecutionReport(message, '4');
+        } else {
+            OrderCancelReject orderCancelReject = new OrderCancelReject(
+                    new OrderID(generator.genOrderID()),
+                    new ClOrdID(message.getString(ClOrdID.FIELD)),
+                    new OrigClOrdID(message.getString(OrigClOrdID.FIELD)),
+                    new OrdStatus(OrdStatus.REJECTED),
+                    new CxlRejResponseTo(CxlRejResponseTo.ORDER_CANCEL_REQUEST));
             try {
                 Session.sendToTarget(orderCancelReject, message.getHeader().getString(TargetCompID.FIELD), message.getHeader().getString(SenderCompID.FIELD));
             } catch (SessionNotFound e) {
@@ -175,17 +199,10 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 executionReport = NewOrderSingleER((NewOrderSingle) message, ordStatus);
                 break;
             case "OrderCancelRequest":
-                OrderCancelRequestER((OrderCancelRequest) message, ordStatus);
+                executionReport = OrderCancelRequestER((OrderCancelRequest) message, ordStatus);
                 break;
             case "OrderCancelReplaceRequest":
-                OrderCancelReplaceRequestER((OrderCancelReplaceRequest) message, ordStatus);
-                break;
-            case "MarketDataRequest":
-                // TODO implement
-//                processMarketDataRequest((MarketDataRequest) message);
-                break;
-            default:
-                // Handle other message types or provide a default behavior
+                executionReport = OrderCancelReplaceRequestER((OrderCancelReplaceRequest) message, ordStatus);
                 break;
         }
         try {
@@ -230,18 +247,37 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 executionReport.set(new LeavesQty(message.getDouble(OrderQty.FIELD)));
                 executionReport.set(new CumQty(0));
                 executionReport.set(new AvgPx(0));
-//                = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(ExecType.REJECTED), new OrdStatus(OrdStatus.REJECTED),
-//                        new Symbol(message.getString(Symbol.FIELD)), new Side(message.getChar(Side.FIELD)), new LeavesQty(message.getDouble(LeavesQty.FIELD)), new CumQty(message.getDouble(CumQty.FIELD)), new AvgPx(message.getDouble(AvgPx.FIELD)));
-                // TODO in process newOrder, setField(LeavesQty.FIELD), setField(CumQty.FIELD), setField(AvgPx.FIELD)
                 break;
         }
         return executionReport;
     }
 
-    private void OrderCancelRequestER(OrderCancelRequest message, char ordStatus) {
+    private ExecutionReport OrderCancelRequestER(OrderCancelRequest message, char ordStatus) throws FieldNotFound {
+        ExecutionReport executionReport = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(ExecType.CANCELED),
+                new OrdStatus(OrdStatus.CANCELED), new Symbol(message.getString(Symbol.FIELD)), new Side(message.getChar(Side.FIELD)), new LeavesQty(0), new CumQty(0), new AvgPx(0));
+        executionReport.set(message.getClOrdID());
+        executionReport.set(message.getOrigClOrdID());
+
+        return executionReport;
     }
 
-    private void OrderCancelReplaceRequestER(OrderCancelReplaceRequest message, char ordStatus) {
+    private ExecutionReport OrderCancelReplaceRequestER(OrderCancelReplaceRequest message, char ordStatus) throws FieldNotFound {
+        ExecutionReport executionReport = new ExecutionReport(new OrderID(generator.genOrderID()), new ExecID(generator.genExecutionID()), new ExecTransType(ExecTransType.NEW), new ExecType(ExecType.REJECTED),
+                new OrdStatus(OrdStatus.REJECTED), new Symbol(message.getString(Symbol.FIELD)), new Side(message.getChar(Side.FIELD)), new LeavesQty(message.getDouble(OrderQty.FIELD)), new CumQty(0), new AvgPx(0));
+        executionReport.set(message.getClOrdID());
+        switch (ordStatus) {
+            case '8':
+                break;
+            case '4':
+                Order order = marketController.getOrderByClOrdID(message.getOrigClOrdID().toString());
+                executionReport.set(new ExecType(ExecType.REPLACED));
+                executionReport.set(new OrdStatus(OrdStatus.REPLACED));
+                executionReport.set(new LeavesQty(order.getOpenQuantity()));
+                executionReport.set(new CumQty(order.getExecutedQuantity()));
+                executionReport.set(new AvgPx(order.getAvgExecutedPrice()));
+                break;
+        }
+        return executionReport;
     }
 
     private SecurityStatus securityStatusFromMarket(Market market, int status) throws FieldNotFound {

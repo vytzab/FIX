@@ -9,9 +9,9 @@ import java.util.List;
 import static lt.vytzab.engine.Variables.*;
 
 public class MarketOrderDAO {
-    public static boolean createMarketOrder(Order order, String tableName) {
+    public static boolean createMarketOrder(Order order) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "INSERT INTO " + tableName + " (clOrdID, symbol, senderCompID, targetCompID, side, ordType, price, quantity, " +
+            String sql = "INSERT INTO market_orders (clOrdID, symbol, senderCompID, targetCompID, side, ordType, price, quantity, " +
                     "openQuantity, executedQuantity, avgExecutedPrice, lastExecutedPrice, lastExecutedQuantity, entryTime, rejected, canceled, entryDate, goodTillDate, tif) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -45,11 +45,11 @@ public class MarketOrderDAO {
         }
     }
 
-    public static List<Order> readAllMarketOrdersBySenderCompID(String senderCompID, String tableName) {
+    public static List<Order> readAllMarketOrdersBySenderCompID(String senderCompID) {
         List<Order> orders = new ArrayList<>();
         Order order = null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "SELECT * FROM " + tableName + " WHERE senderCompID = ?";
+            String sql = "SELECT * FROM market_orders WHERE senderCompID = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, senderCompID);
@@ -91,10 +91,10 @@ public class MarketOrderDAO {
         return orders;
     }
 
-    public static List<Order> readAllMarketOrdersByField(String column, String value, String tableName) {
+    public static List<Order> readAllMarketOrdersByField(String column, String value) {
         List<Order> orders = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "SELECT * FROM " + tableName + " market_orders WHERE " + column + " = ?";
+            String sql = "SELECT * FROM market_orders WHERE " + column + " = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, value);
@@ -135,10 +135,10 @@ public class MarketOrderDAO {
         return orders;
     }
 
-    public static List<Order> readAllMarketOrders(String tableName) {
+    public static List<Order> readAllMarketOrders() {
         List<Order> orders = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "SELECT * FROM " + tableName;
+            String sql = "SELECT * FROM market_orders";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
@@ -182,10 +182,10 @@ public class MarketOrderDAO {
         return orders;
     }
 
-    public static List<Order> readAllMarketOrdersBySymbol(String symbol, String tableName) {
+    public static List<Order> readAllMarketOrdersBySymbol(String symbol) {
         List<Order> orders = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "SELECT * FROM " + tableName + " WHERE symbol = ?";
+            String sql = "SELECT * FROM market_orders WHERE symbol = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, symbol);
@@ -263,9 +263,9 @@ public class MarketOrderDAO {
         return orders;
     }
 
-    public static void updateMarketOrder(Order order, String tableName) {
+    public static boolean updateMarketOrder(Order order) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "UPDATE " + tableName + " SET symbol = ?, senderCompID = ?, targetCompID = ?, side = ?," +
+            String sql = "UPDATE market_orders SET symbol = ?, senderCompID = ?, targetCompID = ?, side = ?," +
                     " ordType = ?, price = ?, quantity = ?, openQuantity = ?, executedQuantity = ?, avgExecutedPrice = ?," +
                     " lastExecutedPrice = ?, lastExecutedQuantity = ?, entryTime = ?, rejected = ?, canceled = ?, goodTillDate = ?, tif = ?  WHERE clOrdID = ?";
 
@@ -293,6 +293,7 @@ public class MarketOrderDAO {
 
                 if (rowsAffected > 0) {
                     System.out.println("Market Order updated successfully.");
+                    return true;
                 } else {
                     System.out.println("No rows were updated. Order not found.");
                 }
@@ -300,12 +301,13 @@ public class MarketOrderDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
-    public static Order getOrderByClOrdID(String clOrdID, String tableName) {
+    public static Order getOrderByClOrdID(String clOrdID) {
         Order order = null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "SELECT * FROM " + tableName + " WHERE clOrdID = ?";
+            String sql = "SELECT * FROM market_orders WHERE clOrdID = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, clOrdID);
@@ -348,9 +350,9 @@ public class MarketOrderDAO {
         return order;
     }
 
-    public static void deleteOrderByClOrdID(String clOrdID, String tableName) {
+    public static void deleteOrderByClOrdID(String clOrdID) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
-            String sql = "DELETE FROM " + tableName + " WHERE clOrdID = ?";
+            String sql = "DELETE FROM market_orders WHERE clOrdID = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 statement.setString(1, clOrdID);
