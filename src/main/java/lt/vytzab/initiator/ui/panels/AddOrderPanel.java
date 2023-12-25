@@ -231,7 +231,9 @@ public class AddOrderPanel extends JPanel implements Observer {
             order.setQuantity(Integer.parseInt(quantityTextField.getText()));
             order.setOpenQuantity(order.getQuantity());
 
-            order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            if (dateChooser.getDate()!=null) {
+                order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            }
 
             OrderType type = order.getType();
             if (type == OrderType.LIMIT) {
