@@ -71,18 +71,20 @@ public class Engine {
 //        System.out.println(fixMD);
 //
 //        fixMD.setString(Symbol.FIELD, order.getSymbol());
-//        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
-//        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
+//
 //        noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
 //        noMDEntries.setDouble(MDEntryPx.FIELD, order.getPrice());
 //        noMDEntries.setDouble(MDEntrySize.FIELD, order.getQuantity());
-//        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
 //        noMDEntries.setUtcDateOnly(MDEntryDate.FIELD, order.getEntryDate());
 //        noMDEntries.setUtcTimeOnly(MDEntryTime.FIELD, LocalTime.now());
+//        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
+//        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
+//        noMDEntries.setDouble(AvgPx.FIELD, order.getAvgExecutedPrice());
+//        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
 //        noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
 //        noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
 //        noMDEntries.setString(Text.FIELD, "");
-//        noMDEntries.setDouble(AvgPx.FIELD, order.getAvgExecutedPrice());
+//        noMDEntries.setString(Text.FIELD, "MDEntry for " + order.getSymbol());
 //
 //        fixMD.addGroup(noMDEntries);
 //
