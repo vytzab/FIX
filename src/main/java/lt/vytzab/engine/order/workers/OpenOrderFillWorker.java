@@ -45,7 +45,7 @@ public class OpenOrderFillWorker extends SwingWorker<Void, List<Order>> {
 
     // Implement this method to fetch updated market data
     private List<Order> fetchData() {
-        List<Order> orderList = MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB);
+        List<Order> orderList = MarketOrderDAO.readAllMarketOrders();
         List<Order> openOrderList = new ArrayList<>();
         for (Order order : orderList) {
             if (!order.isClosed() || !order.isFullyExecuted() || !order.isFilled()) {
