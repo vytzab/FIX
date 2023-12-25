@@ -12,10 +12,9 @@ import lt.vytzab.initiator.helpers.CustomFixMessageParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.*;
+import quickfix.Message;
 import quickfix.field.*;
-import quickfix.fix42.MarketDataRequest;
-import quickfix.fix42.MarketDataSnapshotFullRefresh;
-import quickfix.fix42.SecurityStatusRequest;
+import quickfix.fix42.*;
 
 import javax.swing.*;
 import java.time.ZoneId;
@@ -110,11 +109,12 @@ public class OrderEntryApplication implements Application {
                     //Jeigu gautas execution report msgType = 8
                     if (message.getHeader().getField(msgType).valueEquals("8")) {
                         executionReport(message, sessionID);
-                        //Jeigu gautas cancel reject report msgType = 8
                     } else if (message.getHeader().getField(msgType).valueEquals("9")) {
                         cancelReject(message, sessionID);
                     } else if (message.getHeader().getField(msgType).valueEquals("W")) {
                         marketSnapshot(message, sessionID);
+                    } else if (message.getHeader().getField(msgType).valueEquals("f")) {
+                        securityStatus(message, sessionID);
                     } else if (message.getHeader().getField(msgType).valueEquals("f")) {
                         securityStatus(message, sessionID);
                     }  else {
@@ -172,23 +172,27 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendOrderCancelRequest(Order order) throws SessionNotFound {
-//        String id = order.generateID();
-//        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(new OrigClOrdID(order.getID()), new ClOrdID(id), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime());
-//        orderCancelRequest.setField(new OrderQty(order.getQuantity()));
-//
-//        orderTableModel.addID(order, id);
-//        Session.sendToTarget(orderCancelRequest, order.getSessionID());
+        OrderCancelRequest orderCancelRequest = new OrderCancelRequest(new OrigClOrdID(order.getClOrdID()), new ClOrdID(IDGenerator.genOrderID()), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime());
+        orderCancelRequest.setField(new OrderQty(order.getQuantity()));
+
+        Session.sendToTarget(orderCancelRequest, order.getSessionID());
     }
 
     public void sendOrderCancelReplaceRequest(Order order, Order newOrder) throws SessionNotFound {
-//        OrderCancelReplaceRequest orderCancelReplaceRequest = new OrderCancelReplaceRequest(new OrigClOrdID(order.getID()), new ClOrdID(newOrder.getID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
-//
-//        orderTableModel.addID(order, newOrder.getID());
-//        if (order.getQuantity() != newOrder.getQuantity())
-//            orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
-//        if (!order.getLimit().equals(newOrder.getLimit()))
-//            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
-//        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
+        OrderCancelReplaceRequest orderCancelReplaceRequest = new OrderCancelReplaceRequest(
+                new OrigClOrdID(order.getClOrdID()),
+                new ClOrdID(newOrder.getClOrdID()),
+                new HandlInst('1'),
+                new Symbol(order.getSymbol()),
+                sideToFIXSide(order.getSide()),
+                new TransactTime(),
+                typeToFIXType(order.getType()));
+
+        if (order.getQuantity() != newOrder.getQuantity())
+            orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
+        if (!order.getLimit().equals(newOrder.getLimit()))
+            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
+        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
     }
 
     public void sendMarketDataRequest(Market market, SessionID sessionID) throws SessionNotFound {
