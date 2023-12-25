@@ -142,7 +142,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         message.getGroup(1, noRelatedSyms);
         String symbol = noRelatedSyms.getString(Symbol.FIELD);
         fixMD.setString(Symbol.FIELD, symbol);
-        List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(symbol, MARKET_ORDERS_DB);
+        List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbolAndSender(symbol, senderCompId);
         if (!symbolOrders.isEmpty()) {
             for (Order order : symbolOrders) {
                 noMDEntries = noMDEntriesFromOrder(order);

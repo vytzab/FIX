@@ -222,6 +222,47 @@ public class MarketOrderDAO {
         return orders;
     }
 
+    public static List<Order> readAllMarketOrdersBySymbolAndSender(String symbol, String senderCompID) {
+        List<Order> orders = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+            String sql = "SELECT * FROM market_orders WHERE symbol = ? AND senderCompID = ?";
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setString(1, symbol);
+                statement.setString(2, senderCompID);
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        Order order = new Order(
+                                resultSet.getLong("entryTime"),
+                                resultSet.getString("clOrdID"),
+                                resultSet.getString("symbol"),
+                                resultSet.getString("senderCompID"),
+                                resultSet.getString("targetCompID"),
+                                resultSet.getString("side").charAt(0),
+                                resultSet.getString("ordType").charAt(0),
+                                resultSet.getDouble("price"),
+                                resultSet.getLong("quantity"),
+                                resultSet.getLong("openQuantity"),
+                                resultSet.getLong("executedQuantity"),
+                                resultSet.getDouble("avgExecutedPrice"),
+                                resultSet.getDouble("lastExecutedPrice"),
+                                resultSet.getLong("lastExecutedQuantity"),
+                                resultSet.getBoolean("rejected"),
+                                resultSet.getBoolean("canceled"),
+                                resultSet.getDate("entryDate").toLocalDate(),
+                                resultSet.getDate("goodTillDate").toLocalDate(),
+                                resultSet.getString("tif").charAt(0)
+                        );
+                        orders.add(order);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orders;
+    }
+
     public static void updateMarketOrder(Order order, String tableName) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
             String sql = "UPDATE " + tableName + " SET symbol = ?, senderCompID = ?, targetCompID = ?, side = ?," +
