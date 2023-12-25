@@ -131,7 +131,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     public void onMessage(MarketDataRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         MarketDataRequest.NoRelatedSym noRelatedSyms = new MarketDataRequest.NoRelatedSym();
 
-        MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
+        lt.vytzab.engine.messages.MarketDataSnapshotFullRefresh fixMD = new lt.vytzab.engine.messages.MarketDataSnapshotFullRefresh();
         fixMD.setString(MDReqID.FIELD, message.getString(MDReqID.FIELD));
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries;
         String senderCompId = message.getHeader().getString(SenderCompID.FIELD);

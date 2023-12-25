@@ -43,51 +43,51 @@ public class Engine {
     private static final OrderTableModel allOrderTableModel = new OrderTableModel();
 
     public static void main(String[] args) {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            log.info(e.getMessage(), e);
-        }
-        try {
-            // bitu stream arba is failo arba default
-            InputStream inputStream = getSettingsInputStream(args);
-            // settings is bitu streamo
-            SessionSettings settings = new SessionSettings(inputStream);
-            inputStream.close();
+//        try {
+//            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+//        } catch (Exception e) {
+//            log.info(e.getMessage(), e);
+//        }
+//        try {
+//            // bitu stream arba is failo arba default
+//            InputStream inputStream = getSettingsInputStream(args);
+//            // settings is bitu streamo
+//            SessionSettings settings = new SessionSettings(inputStream);
+//            inputStream.close();
+//
+//            // sukuriamas Engine objektas
+//            Engine engine = new Engine(settings);
+//        } catch (Exception e) {
+//            log.error(e.getMessage(), e);
+//        }
+        Order order = MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB).get(0);
+        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
 
-            // sukuriamas Engine objektas
-            Engine engine = new Engine(settings);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-        }
-//        Order order = MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB).get(0);
-//        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
-//
-//        MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
-//        fixMD.setString(MDReqID.FIELD, "MdReqID");
-//        System.out.println(fixMD);
-//        fixMD.getHeader().setString(SenderCompID.FIELD, "SenderCompID");
-//        fixMD.getHeader().setString(TargetCompID.FIELD, "TargetCompID");
-//        System.out.println(fixMD);
-//
-//        fixMD.setString(Symbol.FIELD, order.getSymbol());
-//        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
-//        noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
-//        noMDEntries.setDouble(MDEntryPx.FIELD, order.getPrice());
-//        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
-//        noMDEntries.setDouble(MDEntrySize.FIELD, order.getQuantity());
-//        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
-//        noMDEntries.setUtcDateOnly(MDEntryDate.FIELD, order.getEntryDate());
-//        noMDEntries.setUtcTimeOnly(MDEntryTime.FIELD, LocalTime.now());
-//        noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
-//        noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
-//        noMDEntries.setString(Text.FIELD, "");
-//
-//        fixMD.addGroup(noMDEntries);
-//        fixMD.addGroup(noMDEntries);
-//        fixMD.addGroup(noMDEntries);
-//
-//        System.out.println(fixMD);
+        MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
+        fixMD.setString(MDReqID.FIELD, "MdReqID");
+        System.out.println(fixMD);
+        fixMD.getHeader().setString(SenderCompID.FIELD, "SenderCompID");
+        fixMD.getHeader().setString(TargetCompID.FIELD, "TargetCompID");
+        System.out.println(fixMD);
+
+        fixMD.setString(Symbol.FIELD, order.getSymbol());
+        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
+        noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
+        noMDEntries.setDouble(MDEntryPx.FIELD, order.getPrice());
+        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
+        noMDEntries.setDouble(MDEntrySize.FIELD, order.getQuantity());
+        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
+        noMDEntries.setUtcDateOnly(MDEntryDate.FIELD, order.getEntryDate());
+        noMDEntries.setUtcTimeOnly(MDEntryTime.FIELD, LocalTime.now());
+        noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
+        noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
+        noMDEntries.setString(Text.FIELD, "");
+
+        fixMD.addGroup(noMDEntries);
+        fixMD.addGroup(noMDEntries);
+        fixMD.addGroup(noMDEntries);
+
+        System.out.println(fixMD);
     }
 
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
