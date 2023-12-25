@@ -143,15 +143,17 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         String symbol = noRelatedSyms.getString(Symbol.FIELD);
         fixMD.setString(Symbol.FIELD, symbol);
         List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(symbol, MARKET_ORDERS_DB);
+        if (!symbolOrders.isEmpty()) {
+            for (Order order : symbolOrders) {
+                noMDEntries = noMDEntriesFromOrder(order);
+                fixMD.addGroup(noMDEntries);
+            }
+            try {
+                Session.sendToTarget(fixMD, targetCompId, senderCompId);
+            } catch (SessionNotFound e) {
+            }
+        }
 
-        for (Order order : symbolOrders) {
-            noMDEntries = noMDEntriesFromOrder(order);
-            fixMD.addGroup(noMDEntries);
-        }
-        try {
-            Session.sendToTarget(fixMD, targetCompId, senderCompId);
-        } catch (SessionNotFound e) {
-        }
 
     }
 

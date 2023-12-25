@@ -219,10 +219,6 @@ public class MarketOrderDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        if (orders.isEmpty()) {
-            System.out.println("No orders found.");
-        }
         return orders;
     }
 
