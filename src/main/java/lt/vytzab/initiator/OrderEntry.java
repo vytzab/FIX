@@ -4,9 +4,11 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 
-import javax.swing.JFrame;
-import javax.swing.UIManager;
+import javax.swing.*;
+
 import lt.vytzab.initiator.market.MarketTableModel;
+import lt.vytzab.initiator.order.worker.ExecutionClearWorker;
+import lt.vytzab.initiator.order.worker.OrderClearWorker;
 import lt.vytzab.initiator.ui.panels.LogPanel;
 import lt.vytzab.initiator.order.OrderTableModel;
 import org.quickfixj.jmx.JmxExporter;
@@ -21,10 +23,22 @@ import static lt.vytzab.initiator.ui.OrderEntryFrame.centerFrameOnScreen;
 public class OrderEntry {
     private static final CountDownLatch shutdownLatch = new CountDownLatch(1);
     private static final Logger log = LoggerFactory.getLogger(OrderEntry.class);
-    private static OrderEntry banzai;
+    private static OrderEntry orderEntry;
     private boolean initiatorStarted = false;
     private Initiator initiator = null;
-    private JFrame frame = null;
+    private static final MarketTableModel marketTableModel = new MarketTableModel();
+    private static final OrderTableModel orderTableModel = new OrderTableModel();
+    private static final OrderTableModel executedOrdersTableModel = new OrderTableModel();
+
+    public static void main(String[] args) throws Exception {
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+        } catch (Exception e) {
+            log.info(e.getMessage(), e);
+        }
+        orderEntry = new OrderEntry(args);
+        shutdownLatch.await();
+    }
 
     public OrderEntry(String[] args) throws Exception {
         InputStream inputStream = null;
@@ -52,11 +66,12 @@ public class OrderEntry {
         MessageFactory messageFactory = new DefaultMessageFactory();
 
         initiator = new SocketInitiator(application, messageStoreFactory, settings, logFactory, messageFactory);
+        JMenuBar menuBar = createMenu();
 
         JmxExporter exporter = new JmxExporter();
         exporter.register(initiator);
 
-        frame = new OrderEntryFrame(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application);
+        JFrame frame = new OrderEntryFrame(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application, menuBar);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         centerFrameOnScreen(frame);
     }
@@ -77,32 +92,40 @@ public class OrderEntry {
     }
 
     public void logout() {
+        orderTableModel.clearOrders();
+        executedOrdersTableModel.clearOrders();
+        marketTableModel.clearMarkets();
         for (SessionID sessionId : initiator.getSessions()) {
             Session.lookupSession(sessionId).logout("user requested");
         }
-    }
-
-    public void stop() {
         shutdownLatch.countDown();
     }
 
-    public JFrame getFrame() {
-        return frame;
-    }
-
     public static OrderEntry get() {
-        return banzai;
+        return orderEntry;
     }
 
-    public static void main(String[] args) throws Exception {
-        try {
-            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-        } catch (Exception e) {
-            log.info(e.getMessage(), e);
-        }
-        banzai = new OrderEntry(args);
-        banzai.logon();
-        shutdownLatch.await();
-    }
+    private JMenuBar createMenu() {
+        JMenuBar menuBar = new JMenuBar();
 
+        JMenu sessionMenu = new JMenu("Session");
+        JMenuItem startItem = new JMenuItem("Logon");
+        JMenuItem stopItem = new JMenuItem("Logout");
+
+        startItem.addActionListener(e -> {
+            logon();
+        });
+
+        stopItem.addActionListener(e -> {
+            logout();
+        });
+
+        sessionMenu.add(startItem);
+        sessionMenu.addSeparator();
+        sessionMenu.add(stopItem);
+
+        menuBar.add(sessionMenu);
+
+        return menuBar;
+    }
 }

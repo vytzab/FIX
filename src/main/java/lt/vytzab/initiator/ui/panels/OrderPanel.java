@@ -24,36 +24,11 @@ public class OrderPanel extends JPanel {
     public OrderPanel(OrderTableModel orderTableModel, OrderEntryApplication application) {
         this.orderTableModel = orderTableModel;
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-//        setLayout(new GridBagLayout());
         setLayout(new BorderLayout());
 
         FilterPanel filterPanel = new FilterPanel(orderTableModel);
 
-//        // Add a JTextField for filtering
-//        filterTextField = new JTextField();
-//        filterTextField.getDocument().addDocumentListener(new DocumentListener() {
-//            @Override
-//            public void insertUpdate(DocumentEvent e) {
-//                applyFilter();
-//            }
-//
-//            @Override
-//            public void removeUpdate(DocumentEvent e) {
-//                applyFilter();
-//            }
-//
-//            @Override
-//            public void changedUpdate(DocumentEvent e) {
-//                applyFilter();
-//            }
-//        });
-
         add(filterPanel, BorderLayout.NORTH);
-
-//        GridBagConstraints constraints = new GridBagConstraints();
-//        constraints.fill = GridBagConstraints.BOTH;
-//        constraints.weightx = 1;
-//        constraints.weighty = 1;
 
         orderTable = new OrderTable(orderTableModel, application);
         add(new JScrollPane(orderTable), BorderLayout.CENTER);

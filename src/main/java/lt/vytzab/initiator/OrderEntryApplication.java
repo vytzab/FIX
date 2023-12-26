@@ -19,10 +19,7 @@ import quickfix.fix42.*;
 import javax.swing.*;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Observable;
-import java.util.Observer;
+import java.util.*;
 
 public class OrderEntryApplication implements Application {
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
@@ -43,6 +40,7 @@ public class OrderEntryApplication implements Application {
     //Tikrinimui ar zinute su tokiu ExecutionID jau processed.
     static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(OrderEntryApplication.class);
+    private SessionID sessionID = null;
 
     public OrderEntryApplication(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel) {
         this.marketTableModel = marketTableModel;
@@ -56,11 +54,7 @@ public class OrderEntryApplication implements Application {
 
     public void onLogon(SessionID sessionID) {
         observableLogon.logon(sessionID);
-//        try {
-//            sendSecurityStatusRequest(sessionID);
-//        } catch (SessionNotFound e) {
-//            throw new RuntimeException(e);
-//        }
+        this.sessionID = sessionID;
     }
 
     public void onLogout(SessionID sessionID) {
@@ -106,7 +100,7 @@ public class OrderEntryApplication implements Application {
             try {
                 MsgType msgType = new MsgType();
                 if (isAvailable) {
-                        //Execution Report
+                    //Execution Report
                     if (message.getHeader().getField(msgType).valueEquals("8")) {
                         executionReport(message, sessionID);
                         //SECURITY_STATUS
@@ -115,7 +109,7 @@ public class OrderEntryApplication implements Application {
                         //MARKET_DATA_SNAPSHOT
                     } else if (message.getHeader().getField(msgType).valueEquals("W")) {
                         marketSnapshot(message, sessionID);
-                    }  else {
+                    } else {
                         sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE, "Unsupported Message Type");
                     }
                 } else {
@@ -162,7 +156,7 @@ public class OrderEntryApplication implements Application {
         } else if (order.getTIF() == OrderTIF.GTD) {
             newOrderSingle.setField(new TimeInForce('6'));
             newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))));
-        }else if (order.getTIF() == OrderTIF.GTC) {
+        } else if (order.getTIF() == OrderTIF.GTC) {
             newOrderSingle.setField(new TimeInForce('1'));
         }
         System.out.println(sessionID);
@@ -178,7 +172,7 @@ public class OrderEntryApplication implements Application {
                 new TransactTime());
         orderCancelRequest.setField(new OrderQty(order.getQuantity()));
 
-        Session.sendToTarget(orderCancelRequest, order.getSessionID());
+        Session.sendToTarget(orderCancelRequest, sessionID);
     }
 
     public void sendOrderCancelReplaceRequest(Order order, Order newOrder) throws SessionNotFound {
@@ -195,7 +189,7 @@ public class OrderEntryApplication implements Application {
             orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
         if (!order.getLimit().equals(newOrder.getLimit()))
             orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
-        Session.sendToTarget(orderCancelReplaceRequest, order.getSessionID());
+        Session.sendToTarget(orderCancelReplaceRequest, sessionID);
     }
 
     public void sendMarketDataRequest(Market market, SessionID sessionID) throws SessionNotFound {
@@ -224,11 +218,17 @@ public class OrderEntryApplication implements Application {
         if (alreadyProcessed(execID, sessionID)) {
             return;
         }
-        //Jeigu toks uzsakymas neegzistuoja sistemoje > ignore
-        Order order = orderTableModel.getOrder(message.getString(ClOrdID.FIELD));
-        if (order == null) {
-            return;
-        } else {
+        if (message.getChar(OrdStatus.FIELD) == '4') {
+//            orderTableModel.removeOrder(message.getString(OrigClOrdID.FIELD));
+
+
+        } else if (message.getChar(OrdStatus.FIELD) == '5') {
+            Order order = orderTableModel.getOrder(message.getString(OrigClOrdID.FIELD));
+            order.setExecutedQuantity(message.getDouble(CumQty.FIELD));
+            order.setOpenQuantity(message.getDouble(LeavesQty.FIELD));
+            order.setAvgPx(message.getDouble(AvgPx.FIELD));
+            orderTableModel.replaceOrder(order);
+
             double fillSize;
 
             // Ar buvo matchinta?
@@ -258,35 +258,21 @@ public class OrderEntryApplication implements Application {
                 }
             }
 
-            orderTableModel.updateOrder(order, message.getString(ClOrdID.FIELD));
+            orderTableModel.replaceOrder(order);
             observableOrder.update(order);
         }
     }
 
-//    private void cancelReject(Message message, SessionID sessionID) throws FieldNotFound {
-//        String id = message.getString(ClOrdID.FIELD);
-//        Order order = orderTableModel.getOrder(id);
-//        if (order == null) return;
-//        if (order.getClOrdID() != null) order = orderTableModel.getOrder(order.getClOrdID());
-//
-//        try {
-//            order.setMessage(message.getField(new Text()).getValue());
-//        } catch (FieldNotFound e) {
-//            throw new RuntimeException(e);
-//        }
-//        orderTableModel.updateOrder(order, message.getField(new OrigClOrdID()).getValue());
-//    }
-
     private void marketSnapshot(Message message, SessionID sessionID) throws FieldNotFound {
-        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new  MarketDataSnapshotFullRefresh.NoMDEntries();
+        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
         int numEntries = message.getInt(NoMDEntries.FIELD);
         for (int i = 1; i <= numEntries; i++) {
             Order order = new Order();
-            if (message.getGroup(1, noMDEntries) != null) {
-                order = orderFromNoMDEntries(message.getGroup(1, noMDEntries));
+            if (message.getGroup(i, noMDEntries) != null) {
+                order = orderFromNoMDEntries(message.getGroup(i, noMDEntries));
             }
             order.setSymbol(message.getString(Symbol.FIELD));
-            if (order.getExecutedQuantity()==order.getOpenQuantity()) {
+            if (order.getExecutedQuantity() == order.getOpenQuantity()) {
                 executedOrdersTableModel.addOrder(order);
             } else {
                 orderTableModel.addOrder(order);
@@ -363,66 +349,66 @@ public class OrderEntryApplication implements Application {
         observableOrder.deleteObserver(observer);
     }
 
-    private static class ObservableOrder extends Observable {
-        public void update(Order order) {
-            setChanged();
-            notifyObservers(order);
-            clearChanged();
-        }
+private static class ObservableOrder extends Observable {
+    public void update(Order order) {
+        setChanged();
+        notifyObservers(order);
+        clearChanged();
+    }
+}
+
+private static class ObservableLogon extends Observable {
+    public void logon(SessionID sessionID) {
+        setChanged();
+        notifyObservers(new LogonEvent(sessionID, true));
+        clearChanged();
     }
 
-    private static class ObservableLogon extends Observable {
-        public void logon(SessionID sessionID) {
-            setChanged();
-            notifyObservers(new LogonEvent(sessionID, true));
-            clearChanged();
+    public void logoff(SessionID sessionID) {
+        setChanged();
+        notifyObservers(new LogonEvent(sessionID, false));
+        clearChanged();
+    }
+}
+
+static {
+        sideMap.put(OrderSide.BUY,new Side(Side.BUY));
+        sideMap.put(OrderSide.SELL,new Side(Side.SELL));
+
+        typeMap.put(OrderType.MARKET,new OrdType(OrdType.MARKET));
+        typeMap.put(OrderType.LIMIT,new OrdType(OrdType.LIMIT));
+
+        tifMap.put(OrderTIF.DAY,new TimeInForce(TimeInForce.DAY));
+        tifMap.put(OrderTIF.GTC,new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
+        tifMap.put(OrderTIF.GTD,new TimeInForce(TimeInForce.GOOD_TILL_DATE));
         }
 
-        public void logoff(SessionID sessionID) {
-            setChanged();
-            notifyObservers(new LogonEvent(sessionID, false));
-            clearChanged();
-        }
-    }
-
-    static {
-        sideMap.put(OrderSide.BUY, new Side(Side.BUY));
-        sideMap.put(OrderSide.SELL, new Side(Side.SELL));
-
-        typeMap.put(OrderType.MARKET, new OrdType(OrdType.MARKET));
-        typeMap.put(OrderType.LIMIT, new OrdType(OrdType.LIMIT));
-
-        tifMap.put(OrderTIF.DAY, new TimeInForce(TimeInForce.DAY));
-        tifMap.put(OrderTIF.GTC, new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
-        tifMap.put(OrderTIF.GTD, new TimeInForce(TimeInForce.GOOD_TILL_DATE));
-    }
-
-    public boolean isMissingField() {
+public boolean isMissingField(){
         return isMissingField;
-    }
+        }
 
-    public void setMissingField(boolean isMissingField) {
-        this.isMissingField = isMissingField;
-    }
+public void setMissingField(boolean isMissingField){
+        this.isMissingField=isMissingField;
+        }
 
-    public boolean isAvailable() {
+public boolean isAvailable(){
         return isAvailable;
-    }
+        }
 
-    public void setAvailable(boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
+public void setAvailable(boolean isAvailable){
+        this.isAvailable=isAvailable;
+        }
 
-    public void displayFixMessageInLogs(String fixMessage) {
-        SwingUtilities.invokeLater(() -> {
-            logPanel.getLogModel().addElement(CustomFixMessageParser.parse(fixMessage));
-            logPanel.revalidate();
-            logPanel.repaint();
+public void displayFixMessageInLogs(String fixMessage){
+        SwingUtilities.invokeLater(()->{
+        logPanel.getLogModel().addElement(CustomFixMessageParser.parse(fixMessage));
+        logPanel.revalidate();
+        logPanel.repaint();
         });
 
-    }
-    public Order orderFromNoMDEntries(Group noMDEntries) throws FieldNotFound {
-        Order order = new Order();
+        }
+public Order orderFromNoMDEntries(Group noMDEntries)throws FieldNotFound{
+        Order order=new Order();
         order.setQuantity(noMDEntries.getDouble(MDEntrySize.FIELD));
         order.setOpenQuantity(noMDEntries.getDouble(LeavesQty.FIELD));
         order.setExecutedQuantity(noMDEntries.getDouble(CumQty.FIELD));
@@ -436,5 +422,5 @@ public class OrderEntryApplication implements Application {
         order.setClOrdID(noMDEntries.getString(OrderID.FIELD));
 //TODO implement stop and limit
         return order;
-    }
-}
+        }
+        }

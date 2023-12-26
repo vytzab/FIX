@@ -5,12 +5,11 @@ import quickfix.field.TimeInForce;
 
 import javax.swing.table.AbstractTableModel;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class OrderTableModel extends AbstractTableModel {
+    private List<Order> orders = new ArrayList<>();
     private final static int SYMBOL = 0;
     private final static int QUANTITY = 1;
     private final static int OPEN = 2;
@@ -36,10 +35,11 @@ public class OrderTableModel extends AbstractTableModel {
     public OrderTableModel() {
         originalRowToOrder = new HashMap<>();
         originalIdToRow = new HashMap<>();
+        orders = new ArrayList<>();;
         rowToOrder = new HashMap<>();
         idToRow = new HashMap<>();
+
         headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Entry Date", "Good Till Date"};
-        displayedOrders = new ArrayList<>();
     }
 
     public void setOriginalOrders(List<Order> orders) {
@@ -51,11 +51,6 @@ public class OrderTableModel extends AbstractTableModel {
             originalIdToRow.put(order.getOrderID(), row);
             row++;
         }
-    }
-
-    public void setDisplayedOrders(List<Order> orders) {
-        displayedOrders = new ArrayList<>(orders);
-        fireTableDataChanged();
     }
 
     public void filterByKeyword(String keyword) {
@@ -105,48 +100,45 @@ public class OrderTableModel extends AbstractTableModel {
 
 
     private boolean orderMatchesKeyword(Order order, String keyword) {
-        return order.getSymbol().toLowerCase().contains(keyword.toLowerCase()) || String.valueOf(order.getQuantity()).toLowerCase().contains(keyword.toLowerCase()) || String.valueOf(order.getOpenQuantity()).toLowerCase().contains(keyword.toLowerCase()) ||
-                String.valueOf(order.getExecutedQuantity()).toLowerCase().contains(keyword.toLowerCase()) || (order.getSide().toString()).toLowerCase().contains(keyword.toLowerCase()) || (order.getType().toString()).toLowerCase().contains(keyword.toLowerCase()) ||
-                String.valueOf(order.getLimit()).contains(keyword) || String.valueOf(order.getStop()).contains(keyword) || String.valueOf(order.getAvgPx()).contains(keyword) || String.valueOf(order.getEntryDate()).contains(keyword) || String.valueOf(order.getGoodTillDate()).contains(keyword);
-    }
-
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
+        return order.getSymbol().toLowerCase().contains(keyword.toLowerCase())
+                ||String.valueOf(order.getQuantity()).toLowerCase().contains(keyword.toLowerCase())
+                ||String.valueOf(order.getOpenQuantity()).toLowerCase().contains(keyword.toLowerCase())
+                ||String.valueOf(order.getExecutedQuantity()).toLowerCase().contains(keyword.toLowerCase())
+                ||(order.getSide().toString()).toLowerCase().contains(keyword.toLowerCase())
+                ||(order.getType().toString()).toLowerCase().contains(keyword.toLowerCase())
+                ||String.valueOf(order.getLimit()).contains(keyword)
+                ||String.valueOf(order.getStop()).contains(keyword)
+                ||String.valueOf(order.getAvgPx()).contains(keyword)
+                ||String.valueOf(order.getEntryDate()).contains(keyword)
+                ||String.valueOf(order.getGoodTillDate()).contains(keyword);
     }
 
     public void addOrder(Order order) {
-        if (getOrder(order.getOrderID()) == null) {
+        if (getOrder(order.getClOrdID()) == null) {
             int row = rowToOrder.size();
+            orders.add(order);
             rowToOrder.put(row, order);
-            idToRow.put(order.getOrderID(), row);
+            idToRow.put(order.getClOrdID(), row);
 
             fireTableRowsInserted(row, row);
+            System.out.println("Order added!");
+            System.out.println("Orders size() = " + orders.size());
         } else {
-            replaceOrder(order, order.getOrderID());
+            replaceOrder(order);
         }
     }
 
-    public void updateOrder(Order order, String id) {
-        if (!id.equals(order.getOrderID())) {
-            String originalID = order.getOrderID();
-            order.setOrderID(id);
-            replaceOrder(order, originalID);
-            return;
-        }
-
-        Integer row = idToRow.get(order.getOrderID());
-        if (row == null) return;
-        fireTableRowsUpdated(row, row);
-    }
-
-    public void replaceOrder(Order order, String clOrdID) {
-        Integer row = idToRow.get(clOrdID);
+    public void replaceOrder(Order order) {
+        Integer row = idToRow.get(order.getClOrdID());
         if (row == null) {
             return;
         } else {
             rowToOrder.put(row, order);
-            idToRow.put(order.getOrderID(), row);
+            idToRow.put(order.getClOrdID(), row);
+            orders.set(row, order);
         }
+
+        System.out.println("Order replaced!");
         fireTableRowsUpdated(row, row);
     }
 
@@ -159,8 +151,36 @@ public class OrderTableModel extends AbstractTableModel {
         return rowToOrder.get(row);
     }
 
-    public Class<String> getColumnClass(int columnIndex) {
-        return String.class;
+    public void removeOrder(String clOrdID) {
+        Integer row = idToRow.get(clOrdID);
+        if (row == null) return;
+
+        orders.remove(row.intValue());
+        rowToOrder.remove(row);
+        idToRow.remove(clOrdID);
+
+        // Update row indices in symbolToRow and rowToMarket maps
+        updateRowIndices(row);
+
+        fireTableRowsDeleted(row, row);
+    }
+    private void updateRowIndices(int removedRow) {
+        // Create a copy of the entry set to avoid ConcurrentModificationException
+        Set<Map.Entry<Integer, Order>> entrySetCopy = new HashSet<>(rowToOrder.entrySet());
+
+        for (Map.Entry<Integer, Order> entry : entrySetCopy) {
+            Integer row = entry.getKey();
+            if (row > removedRow) {
+                Order order = entry.getValue();
+                String clOrdID = order.getClOrdID();
+
+                // Update symbolToRow map
+                idToRow.put(clOrdID, row - 1);
+
+                // Update rowToMarket map
+                rowToOrder.put(row - 1, order);
+            }
+        }
     }
 
     public int getRowCount() {
@@ -177,44 +197,67 @@ public class OrderTableModel extends AbstractTableModel {
 
     public Object getValueAt(int rowIndex, int columnIndex) {
         Order order = rowToOrder.get(rowIndex);
-        switch (columnIndex) {
-            case SYMBOL:
-                return order.getSymbol();
-            case QUANTITY:
-                return order.getQuantity();
-            case OPEN:
-                return order.getOpenQuantity();
-            case EXECUTED:
-                return order.getExecutedQuantity();
-            case SIDE:
-                return order.getSide();
-            case TYPE:
-                return order.getType();
-            case LIMITPRICE:
-                if (order.getType() == OrderType.LIMIT) {
-                    return null;
-                } else {
+
+        if (order != null) {
+            switch (columnIndex) {
+                case SYMBOL:
+                    return order.getSymbol();
+                case QUANTITY:
+                    return order.getQuantity();
+                case OPEN:
+                    return order.getOpenQuantity();
+                case EXECUTED:
+                    return order.getExecutedQuantity();
+                case SIDE:
+                    return order.getSide();
+                case TYPE:
+                    return order.getType();
+                case LIMITPRICE:
                     return order.getLimit();
-                }
-            case STOPPRICE:
-                if (order.getType() == OrderType.LIMIT) {
-                    return null;
-                } else {
+                case STOPPRICE:
                     return order.getStop();
-                }
-            case AVGPX:
-                return order.getAvgPx();
-            case ENTRYDATE:
-                return order.getEntryDate();
-            case GOODTILLDATE:
-                if (order.getTIF() == OrderTIF.DAY) {
-                    return LocalDate.now();
-                } else if (order.getTIF() == OrderTIF.GTD) {
+                case AVGPX:
+                    return order.getAvgPx();
+                case ENTRYDATE:
+                    return order.getEntryDate();
+                case GOODTILLDATE:
                     return order.getGoodTillDate();
-                } else {
-                    return null;
-                }
+                default:
+                    return "";
+            }
         }
         return "";
+    }
+
+    public Class<String> getColumnClass(int columnIndex) {
+        return String.class;
+    }
+
+    public void clearOrders() {
+        System.out.println("Gets to clearOrders for " + getClass().getName());
+        System.out.println("orders.size() = " + orders.size());
+        int start = 0;
+        int end = orders.size();
+        for (Order order : orders) {
+            rowToOrder.values().remove(order);
+        }
+        fireTableRowsDeleted(start, end);
+    }
+
+    public void fillOrders() {
+        int start = 0;
+        int end = orders.size();
+        for (Order order : orders) {
+            int row = rowToOrder.size();
+            rowToOrder.put(row, order);
+            idToRow.put(order.getSymbol(), row);
+
+        }
+        fireTableRowsDeleted(start, end);
+    }
+
+    public void setOrders(List<Order> updatedOrders) {
+        orders = updatedOrders;
+        fillOrders();
     }
 }

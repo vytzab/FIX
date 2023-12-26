@@ -1,9 +1,7 @@
 package lt.vytzab.initiator.market;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 public class MarketTableModel extends AbstractTableModel {
     private List<Market> markets = new ArrayList<>();
@@ -78,13 +76,13 @@ public class MarketTableModel extends AbstractTableModel {
             originalRowToMarket = new HashMap<>(rowToMarket);
             originalSymbolToRow = new HashMap<>(symbolToRow);
             // Filter orders based on the keyword
-            List<Market> filteredOrders = rowToMarket.values().stream()
+            List<Market> filteredMarkets = rowToMarket.values().stream()
                     .filter(market -> marketMatchesKeyword(market, keyword))
                     .toList();
             rowToMarket = new HashMap<>();
             symbolToRow = new HashMap<>();
             int row = 0;
-            for (Market market : filteredOrders) {
+            for (Market market : filteredMarkets) {
                 rowToMarket.put(row, market);
                 symbolToRow.put(market.getSymbol(), row);
                 row++;
@@ -142,10 +140,33 @@ public class MarketTableModel extends AbstractTableModel {
         Integer row = symbolToRow.get(symbol);
         if (row == null) return;
 
+        markets.remove(row.intValue());
         rowToMarket.remove(row);
         symbolToRow.remove(symbol);
 
+        // Update row indices in symbolToRow and rowToMarket maps
+        updateRowIndices(row);
+
         fireTableRowsDeleted(row, row);
+    }
+
+    private void updateRowIndices(int removedRow) {
+        // Create a copy of the entry set to avoid ConcurrentModificationException
+        Set<Map.Entry<Integer, Market>> entrySetCopy = new HashSet<>(rowToMarket.entrySet());
+
+        for (Map.Entry<Integer, Market> entry : entrySetCopy) {
+            Integer row = entry.getKey();
+            if (row > removedRow) {
+                Market market = entry.getValue();
+                String symbol = market.getSymbol();
+
+                // Update symbolToRow map
+                symbolToRow.put(symbol, row - 1);
+
+                // Update rowToMarket map
+                rowToMarket.put(row - 1, market);
+            }
+        }
     }
 
     public int getRowCount() {
@@ -190,7 +211,7 @@ public class MarketTableModel extends AbstractTableModel {
         for (Market market : markets) {
             rowToMarket.values().remove(market);
 
-            fireTableRowsDeleted(start, end);
         }
+        fireTableRowsDeleted(start, end);
     }
 }

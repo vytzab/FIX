@@ -18,9 +18,7 @@ public class CancelReplacePanel extends JPanel {
     private final JButton cancelButton = new JButton("Cancel");
     private final JButton replaceButton = new JButton("Replace");
     private Order order = null;
-
     private final GridBagConstraints constraints = new GridBagConstraints();
-
     private final OrderEntryApplication application;
 
     public CancelReplacePanel(final OrderEntryApplication application) {

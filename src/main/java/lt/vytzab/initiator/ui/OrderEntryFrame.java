@@ -2,7 +2,7 @@ package lt.vytzab.initiator.ui;
 
 import java.awt.*;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.market.MarketTableModel;
@@ -12,11 +12,13 @@ import lt.vytzab.initiator.ui.panels.OrderEntryPanel;
 
 public class OrderEntryFrame extends JFrame {
 
-    public OrderEntryFrame(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel, final OrderEntryApplication application) {
+    public OrderEntryFrame(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel, final OrderEntryApplication application, JMenuBar menuBar) {
         super();
         setTitle("Order Entry Frame");
         setSize(900, 600);
+
         getContentPane().add(new OrderEntryPanel(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application), BorderLayout.CENTER);
+        setJMenuBar(menuBar);
         setVisible(true);
     }
     public static void centerFrameOnScreen(JFrame frame) {

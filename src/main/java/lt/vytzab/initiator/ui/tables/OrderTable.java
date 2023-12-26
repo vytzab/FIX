@@ -3,7 +3,6 @@ package lt.vytzab.initiator.ui.tables;
 import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.order.Order;
 import lt.vytzab.initiator.order.OrderTableModel;
-import quickfix.SessionNotFound;
 
 import javax.swing.table.*;
 import javax.swing.*;
@@ -40,14 +39,6 @@ public class OrderTable extends JTable implements MouseListener {
     }
 
     public void mouseClicked(MouseEvent e) {
-        if (e.getClickCount() != 2) return;
-        int row = rowAtPoint(e.getPoint());
-        Order order = ((OrderTableModel) dataModel).getOrder(row);
-        try {
-            application.sendOrderCancelRequest(order);
-        } catch (SessionNotFound ex) {
-            throw new RuntimeException(ex);
-        }
     }
 
     public void mouseEntered(MouseEvent e) {
