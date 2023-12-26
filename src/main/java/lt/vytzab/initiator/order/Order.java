@@ -27,7 +27,7 @@ public class Order implements Cloneable {
     private LocalDate goodTillDate = null;
 
     public Order() {
-        OrderID = IDGenerator.genOrderID();
+        ClOrdID = IDGenerator.genOrderID();
     }
 
     public Object clone() {

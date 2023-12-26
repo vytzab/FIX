@@ -103,7 +103,7 @@ public class CancelReplacePanel extends JPanel {
     private class ReplaceListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             Order newOrder = (Order) order.clone();
-            newOrder.setQuantity(Integer.parseInt(quantityTextField.getText()));
+            newOrder.setQuantity(Double.parseDouble(quantityTextField.getText()));
             newOrder.setLimit(Double.parseDouble(limitPriceTextField.getText()));
             newOrder.setRejected(false);
             newOrder.setCanceled(false);

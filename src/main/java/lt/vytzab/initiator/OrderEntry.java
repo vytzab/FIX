@@ -92,9 +92,6 @@ public class OrderEntry {
     }
 
     public void logout() {
-        orderTableModel.clearOrders();
-        executedOrdersTableModel.clearOrders();
-        marketTableModel.clearMarkets();
         for (SessionID sessionId : initiator.getSessions()) {
             Session.lookupSession(sessionId).logout("user requested");
         }

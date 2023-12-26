@@ -23,9 +23,9 @@ import java.util.*;
 
 public class OrderEntryApplication implements Application {
     private final DefaultMessageFactory messageFactory = new DefaultMessageFactory();
-    private OrderTableModel orderTableModel = null;
-    private OrderTableModel executedOrdersTableModel = null;
-    private MarketTableModel marketTableModel = null;
+    private final OrderTableModel orderTableModel;
+    private final OrderTableModel executedOrdersTableModel;
+    private final MarketTableModel marketTableModel;
     private final ObservableOrder observableOrder = new ObservableOrder();
     private final ObservableLogon observableLogon = new ObservableLogon();
     private final LogPanel logPanel;
@@ -59,6 +59,8 @@ public class OrderEntryApplication implements Application {
 
     public void onLogout(SessionID sessionID) {
         observableLogon.logoff(sessionID);
+        orderTableModel.clearOrders();
+        executedOrdersTableModel.clearOrders();
         marketTableModel.clearMarkets();
     }
 
@@ -145,7 +147,7 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendNewOrderSingle(Order order, SessionID sessionID) throws SessionNotFound {
-        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getOrderID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
+        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getClOrdID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
 
         if (order.getType() == OrderType.LIMIT) {
@@ -213,14 +215,17 @@ public class OrderEntryApplication implements Application {
     }
 
     private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
+        System.out.println("Execution Report");
+        System.out.println(orderTableModel.getOrders().size());
+        System.out.println(executedOrdersTableModel.getOrders().size());
         //Patikrinti ar jau apdirbta
         ExecID execID = (ExecID) message.getField(new ExecID());
         if (alreadyProcessed(execID, sessionID)) {
             return;
         }
         if (message.getChar(OrdStatus.FIELD) == '4') {
-//            orderTableModel.removeOrder(message.getString(OrigClOrdID.FIELD));
-
+            orderTableModel.removeOrder(message.getString(OrigClOrdID.FIELD));
+            orderTableModel.refreshOrders();
 
         } else if (message.getChar(OrdStatus.FIELD) == '5') {
             Order order = orderTableModel.getOrder(message.getString(OrigClOrdID.FIELD));
@@ -228,6 +233,7 @@ public class OrderEntryApplication implements Application {
             order.setOpenQuantity(message.getDouble(LeavesQty.FIELD));
             order.setAvgPx(message.getDouble(AvgPx.FIELD));
             orderTableModel.replaceOrder(order);
+            orderTableModel.refreshOrders();
 
             double fillSize;
 
@@ -264,6 +270,9 @@ public class OrderEntryApplication implements Application {
     }
 
     private void marketSnapshot(Message message, SessionID sessionID) throws FieldNotFound {
+        System.out.println("Market Snapshot");
+        System.out.println(orderTableModel.getOrders().size());
+        System.out.println(executedOrdersTableModel.getOrders().size());
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
         int numEntries = message.getInt(NoMDEntries.FIELD);
         for (int i = 1; i <= numEntries; i++) {
@@ -281,6 +290,9 @@ public class OrderEntryApplication implements Application {
     }
 
     private void securityStatus(Message message, SessionID sessionID) throws FieldNotFound, SessionNotFound {
+        System.out.println("Security Status");
+        System.out.println(orderTableModel.getOrders().size());
+        System.out.println(executedOrdersTableModel.getOrders().size());
         Market market = new Market(message.getString(Symbol.FIELD), message.getDouble(LastPx.FIELD), message.getDouble(HighPx.FIELD), message.getDouble(LowPx.FIELD), message.getDouble(BuyVolume.FIELD), message.getDouble(SellVolume.FIELD));
         if (message.getInt(SecurityTradingStatus.FIELD) == 0) {
             marketTableModel.addMarket(market);
@@ -349,66 +361,67 @@ public class OrderEntryApplication implements Application {
         observableOrder.deleteObserver(observer);
     }
 
-private static class ObservableOrder extends Observable {
-    public void update(Order order) {
-        setChanged();
-        notifyObservers(order);
-        clearChanged();
-    }
-}
-
-private static class ObservableLogon extends Observable {
-    public void logon(SessionID sessionID) {
-        setChanged();
-        notifyObservers(new LogonEvent(sessionID, true));
-        clearChanged();
+    private static class ObservableOrder extends Observable {
+        public void update(Order order) {
+            setChanged();
+            notifyObservers(order);
+            clearChanged();
+        }
     }
 
-    public void logoff(SessionID sessionID) {
-        setChanged();
-        notifyObservers(new LogonEvent(sessionID, false));
-        clearChanged();
-    }
-}
-
-static {
-        sideMap.put(OrderSide.BUY,new Side(Side.BUY));
-        sideMap.put(OrderSide.SELL,new Side(Side.SELL));
-
-        typeMap.put(OrderType.MARKET,new OrdType(OrdType.MARKET));
-        typeMap.put(OrderType.LIMIT,new OrdType(OrdType.LIMIT));
-
-        tifMap.put(OrderTIF.DAY,new TimeInForce(TimeInForce.DAY));
-        tifMap.put(OrderTIF.GTC,new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
-        tifMap.put(OrderTIF.GTD,new TimeInForce(TimeInForce.GOOD_TILL_DATE));
+    private static class ObservableLogon extends Observable {
+        public void logon(SessionID sessionID) {
+            setChanged();
+            notifyObservers(new LogonEvent(sessionID, true));
+            clearChanged();
         }
 
-public boolean isMissingField(){
+        public void logoff(SessionID sessionID) {
+            setChanged();
+            notifyObservers(new LogonEvent(sessionID, false));
+            clearChanged();
+        }
+    }
+
+    static {
+        sideMap.put(OrderSide.BUY, new Side(Side.BUY));
+        sideMap.put(OrderSide.SELL, new Side(Side.SELL));
+
+        typeMap.put(OrderType.MARKET, new OrdType(OrdType.MARKET));
+        typeMap.put(OrderType.LIMIT, new OrdType(OrdType.LIMIT));
+
+        tifMap.put(OrderTIF.DAY, new TimeInForce(TimeInForce.DAY));
+        tifMap.put(OrderTIF.GTC, new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
+        tifMap.put(OrderTIF.GTD, new TimeInForce(TimeInForce.GOOD_TILL_DATE));
+    }
+
+    public boolean isMissingField() {
         return isMissingField;
-        }
+    }
 
-public void setMissingField(boolean isMissingField){
-        this.isMissingField=isMissingField;
-        }
+    public void setMissingField(boolean isMissingField) {
+        this.isMissingField = isMissingField;
+    }
 
-public boolean isAvailable(){
+    public boolean isAvailable() {
         return isAvailable;
-        }
+    }
 
-public void setAvailable(boolean isAvailable){
-        this.isAvailable=isAvailable;
-        }
+    public void setAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
 
-public void displayFixMessageInLogs(String fixMessage){
-        SwingUtilities.invokeLater(()->{
-        logPanel.getLogModel().addElement(CustomFixMessageParser.parse(fixMessage));
-        logPanel.revalidate();
-        logPanel.repaint();
+    public void displayFixMessageInLogs(String fixMessage) {
+        SwingUtilities.invokeLater(() -> {
+            logPanel.getLogModel().addElement(CustomFixMessageParser.parse(fixMessage));
+            logPanel.revalidate();
+            logPanel.repaint();
         });
 
-        }
-public Order orderFromNoMDEntries(Group noMDEntries)throws FieldNotFound{
-        Order order=new Order();
+    }
+
+    public Order orderFromNoMDEntries(Group noMDEntries) throws FieldNotFound {
+        Order order = new Order();
         order.setQuantity(noMDEntries.getDouble(MDEntrySize.FIELD));
         order.setOpenQuantity(noMDEntries.getDouble(LeavesQty.FIELD));
         order.setExecutedQuantity(noMDEntries.getDouble(CumQty.FIELD));
@@ -422,5 +435,5 @@ public Order orderFromNoMDEntries(Group noMDEntries)throws FieldNotFound{
         order.setClOrdID(noMDEntries.getString(OrderID.FIELD));
 //TODO implement stop and limit
         return order;
-        }
-        }
+    }
+}

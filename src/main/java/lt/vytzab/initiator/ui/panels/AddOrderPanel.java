@@ -11,6 +11,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 import java.util.Observable;
@@ -231,8 +232,12 @@ public class AddOrderPanel extends JPanel implements Observer {
             order.setQuantity(Integer.parseInt(quantityTextField.getText()));
             order.setOpenQuantity(order.getQuantity());
 
-            if (dateChooser.getDate()!=null) {
-                order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+            if (order.getTIF()==OrderTIF.DAY){
+                order.setGoodTillDate(LocalDate.now());
+            } else if (order.getTIF()==OrderTIF.GTD) {
+                if (dateChooser.getDate()!=null) {
+                    order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                }
             }
 
             OrderType type = order.getType();

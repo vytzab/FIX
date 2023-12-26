@@ -42,17 +42,6 @@ public class OrderTableModel extends AbstractTableModel {
         headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Entry Date", "Good Till Date"};
     }
 
-    public void setOriginalOrders(List<Order> orders) {
-        originalRowToOrder.clear();
-        originalIdToRow.clear();
-        int row = 0;
-        for (Order order : orders) {
-            originalRowToOrder.put(row, order);
-            originalIdToRow.put(order.getOrderID(), row);
-            row++;
-        }
-    }
-
     public void filterByKeyword(String keyword) {
         if (keyword == null || keyword.isEmpty()) {
             // No filtering, show all orders
@@ -121,8 +110,6 @@ public class OrderTableModel extends AbstractTableModel {
             idToRow.put(order.getClOrdID(), row);
 
             fireTableRowsInserted(row, row);
-            System.out.println("Order added!");
-            System.out.println("Orders size() = " + orders.size());
         } else {
             replaceOrder(order);
         }
@@ -138,7 +125,6 @@ public class OrderTableModel extends AbstractTableModel {
             orders.set(row, order);
         }
 
-        System.out.println("Order replaced!");
         fireTableRowsUpdated(row, row);
     }
 
@@ -164,6 +150,7 @@ public class OrderTableModel extends AbstractTableModel {
 
         fireTableRowsDeleted(row, row);
     }
+
     private void updateRowIndices(int removedRow) {
         // Create a copy of the entry set to avoid ConcurrentModificationException
         Set<Map.Entry<Integer, Order>> entrySetCopy = new HashSet<>(rowToOrder.entrySet());
@@ -234,13 +221,13 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     public void clearOrders() {
-        System.out.println("Gets to clearOrders for " + getClass().getName());
-        System.out.println("orders.size() = " + orders.size());
         int start = 0;
         int end = orders.size();
         for (Order order : orders) {
             rowToOrder.values().remove(order);
         }
+        rowToOrder.clear();
+        idToRow.clear();
         fireTableRowsDeleted(start, end);
     }
 
@@ -258,6 +245,15 @@ public class OrderTableModel extends AbstractTableModel {
 
     public void setOrders(List<Order> updatedOrders) {
         orders = updatedOrders;
+        fillOrders();
+    }
+
+    public List<Order> getOrders() {
+        return orders;
+    }
+
+    public void refreshOrders() {
+        clearOrders();
         fillOrders();
     }
 }

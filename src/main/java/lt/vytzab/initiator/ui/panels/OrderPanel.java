@@ -16,10 +16,8 @@ import lt.vytzab.initiator.ui.tables.OrderTable;
  * Contains the Order table.
  */
 public class OrderPanel extends JPanel {
-    private JTable orderTable = null;
-    private OrderTableModel orderTableModel = null;
-    private JTextField filterTextField;
-    private FilterPanel filterPanel = null;
+    private final JTable orderTable;
+    private final OrderTableModel orderTableModel;
 
     public OrderPanel(OrderTableModel orderTableModel, OrderEntryApplication application) {
         this.orderTableModel = orderTableModel;
@@ -38,9 +36,6 @@ public class OrderPanel extends JPanel {
         return orderTable;
     }
 
-    private void applyFilter() {
-        orderTableModel.filterByKeyword(filterTextField.getText().trim().toLowerCase());
-    }
     public class FilterPanel extends JPanel {
         private final OrderTableModel orderTableModel;
         private final JTextField keywordTextField;
