@@ -126,6 +126,7 @@
       <field name="Side" required="Y"/>
       <field name="TransactTime" required="Y"/>
       <field name="OrdType" required="Y"/>
+      <field name="OrderQty" required="N"/>
     </message>
     <message name="OrderCancelRequest" msgtype="F" msgcat="app">
       <field name="OrigClOrdID" required="Y"/>

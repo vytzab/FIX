@@ -6,6 +6,7 @@ import java.awt.event.*;
 
 import lt.vytzab.initiator.*;
 import lt.vytzab.initiator.helpers.DoubleNumberTextField;
+import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.helpers.IntegerNumberTextField;
 import lt.vytzab.initiator.order.Order;
 import quickfix.SessionNotFound;
@@ -103,12 +104,11 @@ public class CancelReplacePanel extends JPanel {
     private class ReplaceListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             Order newOrder = (Order) order.clone();
+            newOrder.setClOrdID(IDGenerator.genOrderID());
             newOrder.setQuantity(Double.parseDouble(quantityTextField.getText()));
             newOrder.setLimit(Double.parseDouble(limitPriceTextField.getText()));
             newOrder.setRejected(false);
             newOrder.setCanceled(false);
-            newOrder.setOpenQuantity(0);
-            newOrder.setExecutedQuantity(0);
 
             try {
                 application.sendOrderCancelReplaceRequest(order, newOrder);

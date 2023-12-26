@@ -186,11 +186,7 @@ public class OrderEntryApplication implements Application {
                 sideToFIXSide(order.getSide()),
                 new TransactTime(),
                 typeToFIXType(order.getType()));
-
-        if (order.getQuantity() != newOrder.getQuantity())
-            orderCancelReplaceRequest.setField(new OrderQty(newOrder.getQuantity()));
-        if (!order.getLimit().equals(newOrder.getLimit()))
-            orderCancelReplaceRequest.setField(new Price(newOrder.getLimit()));
+                orderCancelReplaceRequest.set(new OrderQty(newOrder.getQuantity()));
         Session.sendToTarget(orderCancelReplaceRequest, sessionID);
     }
 
@@ -215,9 +211,6 @@ public class OrderEntryApplication implements Application {
     }
 
     private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
-        System.out.println("Execution Report");
-        System.out.println(orderTableModel.getOrders().size());
-        System.out.println(executedOrdersTableModel.getOrders().size());
         //Patikrinti ar jau apdirbta
         ExecID execID = (ExecID) message.getField(new ExecID());
         if (alreadyProcessed(execID, sessionID)) {
@@ -270,9 +263,6 @@ public class OrderEntryApplication implements Application {
     }
 
     private void marketSnapshot(Message message, SessionID sessionID) throws FieldNotFound {
-        System.out.println("Market Snapshot");
-        System.out.println(orderTableModel.getOrders().size());
-        System.out.println(executedOrdersTableModel.getOrders().size());
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
         int numEntries = message.getInt(NoMDEntries.FIELD);
         for (int i = 1; i <= numEntries; i++) {
@@ -290,9 +280,6 @@ public class OrderEntryApplication implements Application {
     }
 
     private void securityStatus(Message message, SessionID sessionID) throws FieldNotFound, SessionNotFound {
-        System.out.println("Security Status");
-        System.out.println(orderTableModel.getOrders().size());
-        System.out.println(executedOrdersTableModel.getOrders().size());
         Market market = new Market(message.getString(Symbol.FIELD), message.getDouble(LastPx.FIELD), message.getDouble(HighPx.FIELD), message.getDouble(LowPx.FIELD), message.getDouble(BuyVolume.FIELD), message.getDouble(SellVolume.FIELD));
         if (message.getInt(SecurityTradingStatus.FIELD) == 0) {
             marketTableModel.addMarket(market);
