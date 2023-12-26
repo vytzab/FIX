@@ -286,12 +286,13 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             case '8':
                 break;
             case '4':
-                Order order = marketController.getOrderByClOrdID(message.getOrigClOrdID().toString());
+                Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
                 executionReport.set(new ExecType(ExecType.REPLACED));
                 executionReport.set(new OrdStatus(OrdStatus.REPLACED));
                 executionReport.set(new LeavesQty(order.getOpenQuantity()));
                 executionReport.set(new CumQty(order.getExecutedQuantity()));
                 executionReport.set(new AvgPx(order.getAvgExecutedPrice()));
+                executionReport.set(new OrigClOrdID(message.getString(OrigClOrdID.FIELD)));
                 break;
         }
         return executionReport;

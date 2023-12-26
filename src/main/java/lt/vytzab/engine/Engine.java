@@ -41,6 +41,7 @@ public class Engine {
     private static final MarketTableModel marketTableModel = new MarketTableModel();
     private static final OrderTableModel openOrderTableModel = new OrderTableModel();
     private static final OrderTableModel allOrderTableModel = new OrderTableModel();
+    private static boolean started = false;
 
     public static void main(String[] args) {
         try {
@@ -60,35 +61,6 @@ public class Engine {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-//        Order order = MarketOrderDAO.readAllMarketOrders(MARKET_ORDERS_DB).get(0);
-//        MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
-//
-//        MarketDataSnapshotFullRefresh fixMD = new MarketDataSnapshotFullRefresh();
-//        fixMD.setString(MDReqID.FIELD, "MdReqID");
-//        System.out.println(fixMD);
-//        fixMD.getHeader().setString(SenderCompID.FIELD, "SenderCompID");
-//        fixMD.getHeader().setString(TargetCompID.FIELD, "TargetCompID");
-//        System.out.println(fixMD);
-//
-//        fixMD.setString(Symbol.FIELD, order.getSymbol());
-//
-//        noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
-//        noMDEntries.setDouble(MDEntryPx.FIELD, order.getPrice());
-//        noMDEntries.setDouble(MDEntrySize.FIELD, order.getQuantity());
-//        noMDEntries.setUtcDateOnly(MDEntryDate.FIELD, order.getEntryDate());
-//        noMDEntries.setUtcTimeOnly(MDEntryTime.FIELD, LocalTime.now());
-//        noMDEntries.setDouble(CumQty.FIELD, order.getExecutedQuantity());
-//        noMDEntries.setChar(OrdType.FIELD, order.getOrdType());
-//        noMDEntries.setDouble(AvgPx.FIELD, order.getAvgExecutedPrice());
-//        noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
-//        noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
-//        noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
-//        noMDEntries.setString(Text.FIELD, "");
-//        noMDEntries.setString(Text.FIELD, "MDEntry for " + order.getSymbol());
-//
-//        fixMD.addGroup(noMDEntries);
-//
-//        System.out.println(fixMD);
     }
 
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
@@ -118,14 +90,20 @@ public class Engine {
         oofWorker.execute();
         AllOrderFillWorker aofWorker = new AllOrderFillWorker(allOrderTableModel);
         aofWorker.execute();
-        acceptor.start();
+        if (!started) {
+            acceptor.start();
+            started = true;
+        }
     }
 
     private static void stop() {
         marketTableModel.clearMarkets();
         openOrderTableModel.clearOrders();
         allOrderTableModel.clearOrders();
-        acceptor.stop();
+        if (started) {
+            acceptor.stop();
+            started = false;
+        }
     }
 
     // Grazina bitu streama
