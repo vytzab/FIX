@@ -26,9 +26,6 @@ public class OrderEntry {
     private static OrderEntry orderEntry;
     private boolean initiatorStarted = false;
     private Initiator initiator = null;
-    private static final MarketTableModel marketTableModel = new MarketTableModel();
-    private static final OrderTableModel orderTableModel = new OrderTableModel();
-    private static final OrderTableModel executedOrdersTableModel = new OrderTableModel();
 
     public static void main(String[] args) throws Exception {
         try {

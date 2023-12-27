@@ -5,17 +5,15 @@ import java.awt.*;
 import java.awt.event.*;
 
 import lt.vytzab.initiator.*;
-import lt.vytzab.initiator.helpers.DoubleNumberTextField;
 import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.helpers.IntegerNumberTextField;
 import lt.vytzab.initiator.order.Order;
+import lt.vytzab.initiator.order.OrderType;
 import quickfix.SessionNotFound;
 
 public class CancelReplacePanel extends JPanel {
     private final JLabel quantityLabel = new JLabel("Quantity");
-    private final JLabel limitPriceLabel = new JLabel("Limit");
     private final IntegerNumberTextField quantityTextField = new IntegerNumberTextField();
-    private final DoubleNumberTextField limitPriceTextField = new DoubleNumberTextField();
     private final JButton cancelButton = new JButton("Cancel");
     private final JButton replaceButton = new JButton("Replace");
     private Order order = null;
@@ -51,23 +49,17 @@ public class CancelReplacePanel extends JPanel {
         constraints.weightx = 5;
         add(quantityTextField, ++x, y);
         constraints.weightx = 0;
-        add(limitPriceLabel, ++x, y);
-        constraints.weightx = 5;
-        add(limitPriceTextField, ++x, y);
     }
 
-    public void setEnabled(boolean enabled) {
+    public void setEnabledMarket(boolean enabled) {
         cancelButton.setEnabled(enabled);
         replaceButton.setEnabled(enabled);
         quantityTextField.setEnabled(enabled);
-        limitPriceTextField.setEnabled(enabled);
 
         Color labelColor = enabled ? Color.black : Color.gray;
         Color bgColor = enabled ? Color.white : Color.gray;
         quantityTextField.setBackground(bgColor);
-        limitPriceTextField.setBackground(bgColor);
         quantityLabel.setForeground(labelColor);
-        limitPriceLabel.setForeground(labelColor);
     }
 
     public void update() {
@@ -75,20 +67,18 @@ public class CancelReplacePanel extends JPanel {
     }
 
     public void setOrder(Order order) {
-        if (order == null) return;
         this.order = order;
+        if (order == null) {
+            return;
+        }
+        setEnabledMarket(true);
         quantityTextField.setText(Double.toString(order.getOpenQuantity()));
-
-        Double limit = order.getLimit();
-        if (limit != null) limitPriceTextField.setText(order.getLimit().toString());
-        setEnabled(order.getOpenQuantity() > 0);
     }
 
-    private JComponent add(JComponent component, int x, int y) {
+    private void add(JComponent component, int x, int y) {
         constraints.gridx = x;
         constraints.gridy = y;
         add(component, constraints);
-        return component;
     }
 
     private class CancelListener implements ActionListener {
@@ -105,16 +95,37 @@ public class CancelReplacePanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             Order newOrder = (Order) order.clone();
             newOrder.setClOrdID(IDGenerator.genOrderID());
-            newOrder.setQuantity(Double.parseDouble(quantityTextField.getText()));
-            newOrder.setLimit(Double.parseDouble(limitPriceTextField.getText()));
-            newOrder.setRejected(false);
-            newOrder.setCanceled(false);
+            if (order.getType() != OrderType.LIMIT){
+                if (checkQuantityField()) {
+                    newOrder.setQuantity(Double.parseDouble(quantityTextField.getText()));
+                    newOrder.setRejected(false);
+                    newOrder.setCanceled(false);
 
-            try {
-                application.sendOrderCancelReplaceRequest(order, newOrder);
-            } catch (SessionNotFound ex) {
-                throw new RuntimeException(ex);
+                    try {
+                        application.sendOrderCancelReplaceRequest(order, newOrder);
+                    } catch (SessionNotFound ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             }
+        }
+
+        private boolean checkQuantityField() {
+            String quantityText = quantityTextField.getText();
+            if (quantityText != null && !quantityText.trim().isEmpty()) {
+                try {
+                    double quantity = Double.parseDouble(quantityText);
+                    return quantity > 0;
+                } catch (NumberFormatException ex) {
+                    showMessageDialog();
+                    return false;
+                }
+            }
+            return false;
+        }
+
+        private void showMessageDialog() {
+            JOptionPane.showMessageDialog(CancelReplacePanel.this, "Please enter a valid positive quantity.", "Invalid Quantity", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

@@ -271,7 +271,7 @@ public class OrderEntryApplication implements Application {
                 order = orderFromNoMDEntries(message.getGroup(i, noMDEntries));
             }
             order.setSymbol(message.getString(Symbol.FIELD));
-            if (order.getExecutedQuantity() == order.getOpenQuantity()) {
+            if (order.getExecutedQuantity() == order.getQuantity()) {
                 executedOrdersTableModel.addOrder(order);
             } else {
                 orderTableModel.addOrder(order);
@@ -414,8 +414,9 @@ public class OrderEntryApplication implements Application {
         order.setExecutedQuantity(noMDEntries.getDouble(CumQty.FIELD));
         order.setSide(FIXSideToSide(new Side(noMDEntries.getChar(MDEntryType.FIELD))));
         order.setType(FIXTypeToType(new OrdType(noMDEntries.getChar(OrdType.FIELD))));
-        order.setLimit(noMDEntries.getDouble(MDEntryPx.FIELD));
-        order.setStop(noMDEntries.getDouble(MDEntryPx.FIELD));
+        if (order.getType() == OrderType.LIMIT) {
+            order.setLimit(noMDEntries.getDouble(MDEntryPx.FIELD));
+        }
         order.setAvgPx(noMDEntries.getDouble(AvgPx.FIELD));
         order.setEntryDate(noMDEntries.getUtcDateOnly(MDEntryDate.FIELD));
         order.setGoodTillDate(noMDEntries.getUtcDateOnly(ExpireDate.FIELD));

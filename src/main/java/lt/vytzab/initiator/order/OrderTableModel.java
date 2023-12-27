@@ -17,10 +17,9 @@ public class OrderTableModel extends AbstractTableModel {
     private final static int SIDE = 4;
     private final static int TYPE = 5;
     private final static int LIMITPRICE = 6;
-    private final static int STOPPRICE = 7;
-    private final static int AVGPX = 8;
-    private final static int ENTRYDATE = 9;
-    private final static int GOODTILLDATE = 10;
+    private final static int AVGPX = 7;
+    private final static int ENTRYDATE = 8;
+    private final static int GOODTILLDATE = 9;
     private boolean filtered = false;
 
     private HashMap<Integer, Order> originalRowToOrder;
@@ -39,7 +38,7 @@ public class OrderTableModel extends AbstractTableModel {
         rowToOrder = new HashMap<>();
         idToRow = new HashMap<>();
 
-        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Entry Date", "Good Till Date"};
+        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date"};
     }
 
     public void filterByKeyword(String keyword) {
@@ -96,7 +95,6 @@ public class OrderTableModel extends AbstractTableModel {
                 ||(order.getSide().toString()).toLowerCase().contains(keyword.toLowerCase())
                 ||(order.getType().toString()).toLowerCase().contains(keyword.toLowerCase())
                 ||String.valueOf(order.getLimit()).contains(keyword)
-                ||String.valueOf(order.getStop()).contains(keyword)
                 ||String.valueOf(order.getAvgPx()).contains(keyword)
                 ||String.valueOf(order.getEntryDate()).contains(keyword)
                 ||String.valueOf(order.getGoodTillDate()).contains(keyword);
@@ -201,8 +199,6 @@ public class OrderTableModel extends AbstractTableModel {
                     return order.getType();
                 case LIMITPRICE:
                     return order.getLimit();
-                case STOPPRICE:
-                    return order.getStop();
                 case AVGPX:
                     return order.getAvgPx();
                 case ENTRYDATE:

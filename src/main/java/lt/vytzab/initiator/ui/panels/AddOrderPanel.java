@@ -231,6 +231,7 @@ public class AddOrderPanel extends JPanel implements Observer {
             order.setSymbol(symbolTextField.getText());
             order.setQuantity(Integer.parseInt(quantityTextField.getText()));
             order.setOpenQuantity(order.getQuantity());
+            order.setEntryDate(LocalDate.now());
 
             if (order.getTIF()==OrderTIF.DAY){
                 order.setGoodTillDate(LocalDate.now());
