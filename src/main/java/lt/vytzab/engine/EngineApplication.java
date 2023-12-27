@@ -143,8 +143,9 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     public void onMessage(quickfix.fix42.OrderCancelReplaceRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
         Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
         if (order != null) {
+            order.setQuantity((long)(message.getDouble(OrderQty.FIELD)));
             marketController.updateOrder(order);
-            messageExecutionReport(message, '4');
+            messageExecutionReport(message, '5');
         } else {
             OrderCancelReject orderCancelReject = new OrderCancelReject(
                     new OrderID(generator.genOrderID()),
@@ -285,7 +286,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         switch (ordStatus) {
             case '8':
                 break;
-            case '4':
+            case '5':
                 Order order = marketController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
                 executionReport.set(new ExecType(ExecType.REPLACED));
                 executionReport.set(new OrdStatus(OrdStatus.REPLACED));

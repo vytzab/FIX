@@ -14,7 +14,7 @@ public class Order {
     private final char tif;
     private final char ordType;
     private final double price;
-    private final long quantity;
+    private long quantity;
     private long openQuantity;
     private long executedQuantity;
     private double avgExecutedPrice;
@@ -192,5 +192,9 @@ public class Order {
 
     public void setStop(double stop) {
         this.stop = stop;
+    }
+
+    public void setQuantity(long quantity) {
+        this.quantity = quantity;
     }
 }
