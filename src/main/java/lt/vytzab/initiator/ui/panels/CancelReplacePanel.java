@@ -95,17 +95,15 @@ public class CancelReplacePanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             Order newOrder = (Order) order.clone();
             newOrder.setClOrdID(IDGenerator.genOrderID());
-            if (order.getType() != OrderType.LIMIT){
-                if (checkQuantityField()) {
-                    newOrder.setQuantity(Double.parseDouble(quantityTextField.getText()));
-                    newOrder.setRejected(false);
-                    newOrder.setCanceled(false);
+            if (checkQuantityField()) {
+                newOrder.setQuantity(Double.parseDouble(quantityTextField.getText()));
+                newOrder.setRejected(false);
+                newOrder.setCanceled(false);
 
-                    try {
-                        application.sendOrderCancelReplaceRequest(order, newOrder);
-                    } catch (SessionNotFound ex) {
-                        throw new RuntimeException(ex);
-                    }
+                try {
+                    application.sendOrderCancelReplaceRequest(order, newOrder);
+                } catch (SessionNotFound ex) {
+                    throw new RuntimeException(ex);
                 }
             }
         }
