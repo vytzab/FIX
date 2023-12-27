@@ -3,7 +3,6 @@ package lt.vytzab.engine.helpers;
 public class IDGenerator {
     private static Long orderIdCounter = 0L;
     private Long executionIdCounter = 0L;
-    private Long marketRequestIdCounter = 0L;
 
 
     public String genOrderID() {

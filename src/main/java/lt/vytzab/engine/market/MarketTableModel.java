@@ -38,17 +38,14 @@ public class MarketTableModel extends AbstractTableModel {
 
     public void filterByKeyword(String keyword) {
         if (keyword == null || keyword.isEmpty()) {
-            // No filtering, show all orders
             rowToMarket = new ConcurrentHashMap<>(originalRowToMarket);
             symbolToRow = new ConcurrentHashMap<>(originalSymbolToRow);
             filtered = false;
         } else if (filtered) {
-            //recreate original before filtering
             rowToMarket = new ConcurrentHashMap<>(originalRowToMarket);
             symbolToRow = new ConcurrentHashMap<>(originalSymbolToRow);
             originalRowToMarket = new ConcurrentHashMap<>(rowToMarket);
             originalSymbolToRow = new ConcurrentHashMap<>(symbolToRow);
-            // Filter orders based on the keyword
             List<Market> filteredMarkets = rowToMarket.values().stream()
                     .filter(market -> marketMatchesKeyword(market, keyword))
                     .toList();
@@ -60,10 +57,9 @@ public class MarketTableModel extends AbstractTableModel {
                 symbolToRow.put(market.getSymbol(), row);
                 row++;
             }
-        } else if (!filtered) {
+        } else {
             originalRowToMarket = new ConcurrentHashMap<>(rowToMarket);
             originalSymbolToRow = new ConcurrentHashMap<>(symbolToRow);
-            // Filter orders based on the keyword
             List<Market> filteredOrders = rowToMarket.values().stream()
                     .filter(market -> marketMatchesKeyword(market, keyword))
                     .toList();
@@ -77,7 +73,6 @@ public class MarketTableModel extends AbstractTableModel {
             }
             filtered = true;
         }
-        // Notify the table model about the data change
         fireTableDataChanged();
     }
 
@@ -108,7 +103,7 @@ public class MarketTableModel extends AbstractTableModel {
             return;
         } else {
             rowToMarket.put(row, market);
-            symbolToRow.put(market.getSymbol(), row);
+            symbolToRow.put(symbol, row);
             markets.set(row, market);
         }
 
@@ -132,7 +127,6 @@ public class MarketTableModel extends AbstractTableModel {
         rowToMarket.remove(row);
         symbolToRow.remove(symbol);
 
-        // Update row indices in symbolToRow and rowToMarket maps
         updateRowIndices(row);
 
         fireTableRowsDeleted(row, row);

@@ -1,16 +1,10 @@
 package lt.vytzab.engine.order;
 
-import lt.vytzab.engine.dao.MarketDataDAO;
-import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.market.Market;
 
 import javax.swing.table.AbstractTableModel;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-
-import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class OrderTableModel extends AbstractTableModel {
     private List<Order> orders = new ArrayList<>();
@@ -22,80 +16,82 @@ public class OrderTableModel extends AbstractTableModel {
     private final static int SIDE = 5;
     private final static int TYPE = 6;
     private final static int LIMITPRICE = 7;
-    private final static int STOPPRICE = 8;
-    private final static int AVGPX = 9;
-    private final static int ENTRYDATE = 10;
-    private final static int GOODTILLDATE = 11;
+    private final static int AVGPX = 8;
+    private final static int ENTRYDATE = 9;
+    private final static int GOODTILLDATE = 10;
     private boolean filtered = false;
 
-    private HashMap<Integer, Order> originalRowToOrder;
-    private HashMap<String, Integer> originalIdToRow;
-    private HashMap<Integer, Order> rowToOrder;
-    private HashMap<String, Integer> idToRow;
+    private ConcurrentHashMap<Integer, Order> originalRowToOrder;
+    private ConcurrentHashMap<String, Integer> originalClOrdIDToRow;
+    private ConcurrentHashMap<Integer, Order> rowToOrder;
+    private ConcurrentHashMap<String, Integer> clOrdIDToRow;
 
     private final String[] headers;
 
     private List<Order> displayedOrders;
 
     public OrderTableModel() {
-        originalRowToOrder = new HashMap<>();
-        originalIdToRow = new HashMap<>();
-        rowToOrder = new HashMap<>();
-        idToRow = new HashMap<>();
-        displayedOrders = new ArrayList<>();
+        originalRowToOrder = new ConcurrentHashMap<>();
+        originalClOrdIDToRow = new ConcurrentHashMap<>();
+        orders = new ArrayList<>();
+        rowToOrder = new ConcurrentHashMap<>();
+        clOrdIDToRow = new ConcurrentHashMap<>();
 
-        headers = new String[]{"Sender", "Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Stop", "AvgPx", "Entry Date", "Good Till Date"};
+        headers = new String[]{"Sender", "Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date"};
     }
 
     public void filterByKeyword(String keyword) {
         if (keyword == null || keyword.isEmpty()) {
-            // No filtering, show all orders
-            rowToOrder = new HashMap<>(originalRowToOrder);
-            idToRow = new HashMap<>(originalIdToRow);
+            rowToOrder = new ConcurrentHashMap<>(originalRowToOrder);
+            clOrdIDToRow = new ConcurrentHashMap<>(originalClOrdIDToRow);
             filtered = false;
         } else if (filtered) {
-            rowToOrder = new HashMap<>(originalRowToOrder);
-            idToRow = new HashMap<>(originalIdToRow);
-            originalRowToOrder = new HashMap<>(rowToOrder);
-            originalIdToRow = new HashMap<>(idToRow);
-            // Filter orders based on the keyword
+            rowToOrder = new ConcurrentHashMap<>(originalRowToOrder);
+            clOrdIDToRow = new ConcurrentHashMap<>(originalClOrdIDToRow);
+            originalRowToOrder = new ConcurrentHashMap<>(rowToOrder);
+            originalClOrdIDToRow = new ConcurrentHashMap<>(clOrdIDToRow);
             List<Order> filteredOrders = rowToOrder.values().stream()
                     .filter(order -> orderMatchesKeyword(order, keyword))
                     .toList();
-            rowToOrder = new HashMap<>();
-            idToRow = new HashMap<>();
+            rowToOrder = new ConcurrentHashMap<>();
+            clOrdIDToRow = new ConcurrentHashMap<>();
             int row = 0;
             for (Order order : filteredOrders) {
                 rowToOrder.put(row, order);
-                idToRow.put(order.getClOrdID(), row);
+                clOrdIDToRow.put(order.getClOrdID(), row);
                 row++;
             }
             filtered = true;
-        } else if (!filtered) {
-            originalRowToOrder = new HashMap<>(rowToOrder);
-            originalIdToRow = new HashMap<>(idToRow);
-            // Filter orders based on the keyword
+        } else {
+            originalRowToOrder = new ConcurrentHashMap<>(rowToOrder);
+            originalClOrdIDToRow = new ConcurrentHashMap<>(clOrdIDToRow);
             List<Order> filteredOrders = rowToOrder.values().stream()
                     .filter(order -> orderMatchesKeyword(order, keyword))
                     .toList();
-            rowToOrder = new HashMap<>();
-            idToRow = new HashMap<>();
+            rowToOrder = new ConcurrentHashMap<>();
+            clOrdIDToRow = new ConcurrentHashMap<>();
             int row = 0;
             for (Order order : filteredOrders) {
                 rowToOrder.put(row, order);
-                idToRow.put(order.getClOrdID(), row);
+                clOrdIDToRow.put(order.getClOrdID(), row);
                 row++;
             }
             filtered = true;
         }
-        // Notify the table model about the data change
         fireTableDataChanged();
     }
 
     private boolean orderMatchesKeyword(Order order, String keyword) {
-        return order.getSymbol().toLowerCase().contains(keyword.toLowerCase()) || String.valueOf(order.getQuantity()).toLowerCase().contains(keyword.toLowerCase()) || String.valueOf(order.getOpenQuantity()).toLowerCase().contains(keyword.toLowerCase()) ||
-                String.valueOf(order.getExecutedQuantity()).toLowerCase().contains(keyword.toLowerCase()) || String.valueOf(order.getSide()).toLowerCase().contains(keyword.toLowerCase()) || String.valueOf(order.getOrdType()).toLowerCase().contains(keyword.toLowerCase()) ||
-                String.valueOf(order.getLimit()).contains(keyword) || String.valueOf(order.getStop()).contains(keyword) || String.valueOf(order.getAvgExecutedPrice()).contains(keyword) || String.valueOf(order.getEntryDate()).contains(keyword) || String.valueOf(order.getGoodTillDate()).contains(keyword);
+        return order.getSymbol().toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(order.getQuantity()).toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(order.getOpenQuantity()).toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(order.getExecutedQuantity()).toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(order.getSide()).toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(order.getOrdType()).toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(order.getLimit()).contains(keyword)
+                || String.valueOf(order.getAvgExecutedPrice()).contains(keyword)
+                || String.valueOf(order.getEntryDate()).contains(keyword)
+                || String.valueOf(order.getGoodTillDate()).contains(keyword);
     }
 
     public void addOrder(Order order) {
@@ -103,45 +99,29 @@ public class OrderTableModel extends AbstractTableModel {
             int row = rowToOrder.size();
             orders.add(order);
             rowToOrder.put(row, order);
-            idToRow.put(order.getClOrdID(), row);
+            clOrdIDToRow.put(order.getClOrdID(), row);
 
             fireTableRowsInserted(row, row);
         } else {
-            replaceOrder(order);
+            replaceOrder(order, order.getClOrdID());
         }
     }
 
-    public void replaceOrder(Order order) {
-        Integer row = idToRow.get(order.getClOrdID());
+    public void replaceOrder(Order order, String clOrdID) {
+        Integer row = clOrdIDToRow.get(clOrdID);
         if (row == null) {
             return;
         } else {
             rowToOrder.put(row, order);
-            idToRow.put(order.getClOrdID(), row);
+            clOrdIDToRow.put(clOrdID, row);
             orders.set(row, order);
         }
+
         fireTableRowsUpdated(row, row);
     }
 
-    public void removeFullyExecutedOrders() {
-        Iterator<Order> iterator = orders.iterator();
-        while (iterator.hasNext()) {
-            Order order = iterator.next();
-            if (order.isFullyExecuted()) {
-                // Remove the order from the mappings
-                int row = idToRow.get(order.getClOrdID());
-                rowToOrder.remove(row);
-                idToRow.remove(order.getClOrdID());
-
-                iterator.remove();
-            }
-        }
-
-        fireTableDataChanged();
-    }
-
     public Order getOrder(String clOrdID) {
-        Integer row = idToRow.get(clOrdID);
+        Integer row = clOrdIDToRow.get(clOrdID);
         return (row != null) ? rowToOrder.get(row) : null;
     }
 
@@ -149,8 +129,36 @@ public class OrderTableModel extends AbstractTableModel {
         return rowToOrder.get(row);
     }
 
-    public Class<String> getColumnClass(int columnIndex) {
-        return String.class;
+    public void removeOrder(String clOrdID) {
+        Integer row = clOrdIDToRow.get(clOrdID);
+        if (row == null) return;
+
+        orders.remove(row.intValue());
+        rowToOrder.remove(row);
+        clOrdIDToRow.remove(clOrdID);
+
+        updateRowIndices(row);
+
+        fireTableRowsDeleted(row, row);
+    }
+
+    private void updateRowIndices(int removedRow) {
+        // Create a copy of the entry set to avoid ConcurrentModificationException
+        Set<Map.Entry<Integer, Order>> entrySetCopy = new HashSet<>(rowToOrder.entrySet());
+
+        for (Map.Entry<Integer, Order> entry : entrySetCopy) {
+            Integer row = entry.getKey();
+            if (row > removedRow) {
+                Order order = entry.getValue();
+                String clOrdID = order.getClOrdID();
+
+                // Update symbolToRow map
+                clOrdIDToRow.put(clOrdID, row - 1);
+
+                // Update rowToMarket map
+                rowToOrder.put(row - 1, order);
+            }
+        }
     }
 
     public int getRowCount() {
@@ -186,8 +194,6 @@ public class OrderTableModel extends AbstractTableModel {
                     return order.getOrdType();
                 case LIMITPRICE:
                     return order.getLimit();
-                case STOPPRICE:
-                    return order.getStop();
                 case AVGPX:
                     return order.getAvgExecutedPrice();
                 case ENTRYDATE:
@@ -201,12 +207,24 @@ public class OrderTableModel extends AbstractTableModel {
         return "";
     }
 
+    public void removeFullyExecutedOrders() {
+        Iterator<Order> iterator = orders.iterator();
+        while (iterator.hasNext()) {
+            Order order = iterator.next();
+            if (order.isFullyExecuted()) {
+                removeOrder(order.getClOrdID());
+
+                iterator.remove();
+            }
+        }
+        fireTableDataChanged();
+    }
+
     public void clearOrders() {
         int start = 0;
         int end = orders.size();
         for (Order order : orders) {
             rowToOrder.values().remove(order);
-
         }
         fireTableRowsDeleted(start, end);
     }
@@ -217,8 +235,7 @@ public class OrderTableModel extends AbstractTableModel {
         for (Order order : orders) {
             int row = rowToOrder.size();
             rowToOrder.put(row, order);
-            idToRow.put(order.getSymbol(), row);
-
+            clOrdIDToRow.put(order.getClOrdID(), row);
         }
         fireTableRowsDeleted(start, end);
     }

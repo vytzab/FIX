@@ -7,7 +7,7 @@ import java.time.LocalDate;
 public class Order {
     private final long entryTime;
     private String clOrdID;
-    private final String symbol;
+    private String symbol;
     private final String senderCompID;
     private final String targetCompID;
     private final char side;
@@ -20,7 +20,6 @@ public class Order {
     private double avgExecutedPrice;
     private double lastExecutedPrice;
     private double limit;
-    private double stop;
     private long lastExecutedQuantity;
     private boolean rejected;
     private boolean canceled;
@@ -186,15 +185,27 @@ public class Order {
         this.limit = limit;
     }
 
-    public double getStop() {
-        return stop;
-    }
-
-    public void setStop(double stop) {
-        this.stop = stop;
-    }
-
     public void setQuantity(long quantity) {
         this.quantity = quantity;
+    }
+
+    public void setOpenQuantity(long openQuantity) {
+        this.openQuantity = openQuantity;
+    }
+
+    public void setExecutedQuantity(long executedQuantity) {
+        this.executedQuantity = executedQuantity;
+    }
+
+    public void setAvgExecutedPrice(double avgExecutedPrice) {
+        this.avgExecutedPrice = avgExecutedPrice;
+    }
+
+    public void setLastExecutedPrice(double lastExecutedPrice) {
+        this.lastExecutedPrice = lastExecutedPrice;
+    }
+
+    public void setLastExecutedQuantity(long lastExecutedQuantity) {
+        this.lastExecutedQuantity = lastExecutedQuantity;
     }
 }

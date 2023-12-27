@@ -12,10 +12,8 @@ import static lt.vytzab.engine.Variables.FILLED_ORDERS_DB;
 import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
 
 public class MarketController {
-    // List of markets loaded from MarketDataDAO
     private List<Market> markets = MarketDataDAO.readAllMarkets();
 
-    // Get a specific market by symbol
     public Market getMarket(String symbol) {
         for (Market market : markets) {
             if (market.getSymbol().equals(symbol)){
