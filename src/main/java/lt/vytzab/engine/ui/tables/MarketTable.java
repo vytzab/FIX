@@ -11,11 +11,9 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class MarketTable extends JTable implements MouseListener {
-    private final transient EngineApplication application;
 
-    public MarketTable(MarketTableModel marketTableModel, EngineApplication application) {
+    public MarketTable(MarketTableModel marketTableModel) {
         super(marketTableModel);
-        this.application = application;
         addMouseListener(this);
     }
 

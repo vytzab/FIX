@@ -113,7 +113,7 @@ public class DeleteUpdatePanel extends JPanel {
             dayHighField.setText(Double.toString(market.getDayHigh()));
             dayLowField.setText(Double.toString(market.getDayLow()));
             buyVolumeField.setText(Double.toString(market.getBuyVolume()));
-            sellVolumeField.setText(Double.toString(market.getLastPrice()));
+            sellVolumeField.setText(Double.toString(market.getSellVolume()));
             setEnabled(true);
         }
     }

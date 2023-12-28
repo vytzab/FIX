@@ -10,24 +10,20 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class MarketPanel extends JPanel {
-    private JTable marketTable = null;
+    private JTable marketTable;
     private MarketTableModel marketTableModel = null;
-    private JTextField filterTextField;
 
-    public MarketPanel(MarketTableModel marketTableModel, EngineApplication application) {
+    public MarketPanel(MarketTableModel marketTableModel) {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new BorderLayout());
         FilterPanel filterPanel = new FilterPanel(marketTableModel);
         add(filterPanel, BorderLayout.NORTH);
-        marketTable = new MarketTable(marketTableModel, application);
+        marketTable = new MarketTable(marketTableModel);
         add(new JScrollPane(marketTable), BorderLayout.CENTER);
     }
 
     public JTable marketTable() {
         return marketTable;
-    }
-    private void applyFilter() {
-        marketTableModel.filterByKeyword(filterTextField.getText().trim().toLowerCase());
     }
     public class FilterPanel extends JPanel {
         private final MarketTableModel marketTableModel;

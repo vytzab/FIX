@@ -1,9 +1,7 @@
 package lt.vytzab.engine;
 
-import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.market.workers.MarketFillWorker;
 import lt.vytzab.engine.market.MarketTableModel;
-import lt.vytzab.engine.order.Order;
 import lt.vytzab.engine.order.OrderTableModel;
 import lt.vytzab.engine.order.workers.AllOrderFillWorker;
 import lt.vytzab.engine.order.workers.OpenOrderFillWorker;
@@ -22,17 +20,13 @@ import quickfix.RuntimeError;
 import quickfix.ScreenLogFactory;
 import quickfix.SessionSettings;
 import quickfix.SocketAcceptor;
-import quickfix.field.*;
-import quickfix.fix42.MarketDataSnapshotFullRefresh;
 
 import javax.management.JMException;
 import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-import java.time.LocalTime;
 
-import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
 import static lt.vytzab.engine.ui.EngineFrame.centerFrameOnScreen;
 
 public class Engine {
@@ -146,7 +140,6 @@ public class Engine {
         sessionMenu.addSeparator();
         sessionMenu.add(stopItem);
 
-        // Add menus to the menu bar
         menuBar.add(sessionMenu);
 
         return menuBar;

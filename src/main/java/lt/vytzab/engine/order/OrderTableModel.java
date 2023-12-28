@@ -2,6 +2,7 @@ package lt.vytzab.engine.order;
 
 import lt.vytzab.engine.market.Market;
 
+import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -139,7 +140,7 @@ public class OrderTableModel extends AbstractTableModel {
 
         updateRowIndices(row);
 
-        fireTableRowsDeleted(row, row);
+        SwingUtilities.invokeLater(() -> fireTableRowsDeleted(row, row));
     }
 
     private void updateRowIndices(int removedRow) {
@@ -151,11 +152,7 @@ public class OrderTableModel extends AbstractTableModel {
             if (row > removedRow) {
                 Order order = entry.getValue();
                 String clOrdID = order.getClOrdID();
-
-                // Update symbolToRow map
                 clOrdIDToRow.put(clOrdID, row - 1);
-
-                // Update rowToMarket map
                 rowToOrder.put(row - 1, order);
             }
         }
@@ -212,7 +209,7 @@ public class OrderTableModel extends AbstractTableModel {
         while (iterator.hasNext()) {
             Order order = iterator.next();
             if (order.isFullyExecuted()) {
-                removeOrder(order.getClOrdID());
+                rowToOrder.values().remove(order);
 
                 iterator.remove();
             }
@@ -242,6 +239,11 @@ public class OrderTableModel extends AbstractTableModel {
 
     public void setOrders(List<Order> updatedOrders) {
         orders = updatedOrders;
+        fillOrders();
+    }
+
+    public void refreshOrders() {
+        clearOrders();
         fillOrders();
     }
 }

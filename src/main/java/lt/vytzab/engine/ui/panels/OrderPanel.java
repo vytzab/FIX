@@ -20,7 +20,7 @@ public class OrderPanel extends JPanel {
         setLayout(new BorderLayout());
         FilterPanel filterPanel = new FilterPanel(orderTableModel);
         add(filterPanel, BorderLayout.NORTH);
-        orderTable = new OrderTable(orderTableModel, application);
+        orderTable = new OrderTable(orderTableModel);
         add(new JScrollPane(orderTable), BorderLayout.CENTER);
     }
 

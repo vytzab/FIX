@@ -14,8 +14,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Observable;
-import java.util.Observer;
 
 import lt.vytzab.engine.helpers.CustomFixMessageParser;
 import quickfix.*;
@@ -28,7 +26,6 @@ import quickfix.fix42.SecurityStatus;
 public class EngineApplication extends MessageCracker implements quickfix.Application {
     private OrderTableModel openOrderTableModel = null;
     private OrderTableModel allOrderTableModel = null;
-    private final ObservableMarket observableMarket = new ObservableMarket();
     private final MarketController marketController = new MarketController();
     private final OrderController orderController = new OrderController();
     private final OrderIdGenerator generator = new OrderIdGenerator();
@@ -185,6 +182,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             ArrayList<Order> orders = new ArrayList<>();
             marketController.matchMarketOrders(marketController.getMarket(order.getSymbol()), orders);
             while (!orders.isEmpty()) {
+                openOrderTableModel.replaceOrder(orders.get(0), orders.get(0).getClOrdID());
                 openOrderTableModel.replaceOrder(orders.get(0), orders.get(0).getClOrdID());
                 orderExecutionReport(orders.get(0), orders.get(0).isFilled() ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED);
                 orders.remove(0);
@@ -417,25 +415,5 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 Session.sendToTarget(securityStatusFromMarket(market, status), sessionID.getSenderCompID(), sessionID.getTargetCompID());
             }
         }
-    }
-
-    private static class ObservableMarket extends Observable {
-        public void update(Order order) {
-            setChanged();
-            notifyObservers(order);
-            clearChanged();
-        }
-    }
-
-    public void addMarketObserver(Observer observer) {
-        observableMarket.addObserver(observer);
-    }
-
-    public void deleteMarketObserver(Observer observer) {
-        observableMarket.deleteObserver(observer);
-    }
-
-    public List<SessionID> getSessionIDs() {
-        return sessionIDs;
     }
 }

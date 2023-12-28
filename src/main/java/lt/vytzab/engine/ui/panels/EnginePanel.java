@@ -17,26 +17,17 @@ import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
 import lt.vytzab.engine.order.OrderTableModel;
 
-/**
- * Main content panel
- */
 public class EnginePanel extends JPanel implements Observer, ActionListener {
     private final AddMarketPanel addMarketPanel;
     private final MarketPanel marketPanel;
     private final OrderPanel openOrderPanel;
     private final OrderPanel allOrderPanel;
-    private final LogPanel logPanel;
-    private final DeleteUpdatePanel cancelReplacePanel;
-    private final OrderTableModel openOrderTableModel;
-    private final OrderTableModel allOrderTableModel;
+    private final DeleteUpdatePanel deleteUpdatePanel;
     private final MarketTableModel marketTableModel;
 
     public EnginePanel(MarketTableModel marketTableModel, OrderTableModel openOrderTableModel, OrderTableModel allOrderTableModel, LogPanel logPanel, EngineApplication application) {
         setName("Engine Panel");
-        this.openOrderTableModel = openOrderTableModel;
-        this.allOrderTableModel = allOrderTableModel;
         this.marketTableModel = marketTableModel;
-        this.logPanel = logPanel;
 
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new GridBagLayout());
@@ -54,7 +45,7 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
         JTabbedPane tabbedPane = new JTabbedPane();
         openOrderPanel = new OrderPanel(openOrderTableModel, application);
         allOrderPanel = new OrderPanel(allOrderTableModel, application);
-        marketPanel = new MarketPanel(marketTableModel, application);
+        marketPanel = new MarketPanel(marketTableModel);
 
         tabbedPane.add("Markets", marketPanel);
         tabbedPane.add("Open Orders", openOrderPanel);
@@ -62,20 +53,18 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
         tabbedPane.add("Logs", logPanel);
         add(tabbedPane, constraints);
 
-        cancelReplacePanel = new DeleteUpdatePanel(marketTableModel, application);
+        deleteUpdatePanel = new DeleteUpdatePanel(marketTableModel, application);
         constraints.weighty = 0;
-        add(cancelReplacePanel, constraints);
-        cancelReplacePanel.setEnabled(false);
+        add(deleteUpdatePanel, constraints);
+        deleteUpdatePanel.setEnabled(false);
 
         addMarketPanel.addActionListener(this);
         marketPanel.marketTable().getSelectionModel().addListSelectionListener(new MarketSelection());
-        cancelReplacePanel.addActionListener(this);
-        application.addMarketObserver(this);
-        application.deleteMarketObserver(this);
+        deleteUpdatePanel.addActionListener(this);
     }
 
     public void update(Observable o, Object arg) {
-        cancelReplacePanel.update();
+        deleteUpdatePanel.update();
     }
 
     public void actionPerformed(ActionEvent e) {
@@ -108,7 +97,7 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
                 Market market = marketTableModel.getMarket(selectedRow);
                 if (market != null) {
                     addMarketPanel.setMessage("Market selected");
-                    cancelReplacePanel.setMarket(market);
+                    deleteUpdatePanel.setMarket(market);
                 }
             }
         }

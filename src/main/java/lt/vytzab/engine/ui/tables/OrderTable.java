@@ -10,11 +10,9 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class OrderTable extends JTable implements MouseListener {
-    private final transient EngineApplication application;
 
-    public OrderTable(OrderTableModel orderTableModel, EngineApplication application) {
+    public OrderTable(OrderTableModel orderTableModel) {
         super(orderTableModel);
-        this.application = application;
         addMouseListener(this);
     }
 
