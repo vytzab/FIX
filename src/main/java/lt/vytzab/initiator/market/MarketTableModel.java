@@ -2,6 +2,7 @@ package lt.vytzab.initiator.market;
 
 import javax.swing.table.AbstractTableModel;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MarketTableModel extends AbstractTableModel {
     private List<Market> markets = new ArrayList<>();
@@ -13,21 +14,19 @@ public class MarketTableModel extends AbstractTableModel {
     private final static int SELLVOLUME = 5;
     private boolean filtered = false;
 
-    private HashMap<Integer, Market> originalRowToMarket;
-    private HashMap<String, Integer> originalSymbolToRow;
-    private HashMap<Integer, Market> rowToMarket;
-    private HashMap<String, Integer> symbolToRow;
+    private ConcurrentHashMap<Integer, Market> originalRowToMarket;
+    private ConcurrentHashMap<String, Integer> originalSymbolToRow;
+    private ConcurrentHashMap<Integer, Market> rowToMarket;
+    private ConcurrentHashMap<String, Integer> symbolToRow;
 
     private final String[] headers;
 
-    private List<Market> displayedMarkets;
-
     public MarketTableModel() {
-        originalRowToMarket = new HashMap<>();
-        originalSymbolToRow = new HashMap<>();
+        originalRowToMarket = new ConcurrentHashMap<>();
+        originalSymbolToRow = new ConcurrentHashMap<>();
         markets = new ArrayList<>();
-        rowToMarket = new HashMap<>();
-        symbolToRow = new HashMap<>();
+        rowToMarket = new ConcurrentHashMap<>();
+        symbolToRow = new ConcurrentHashMap<>();
 
         headers = new String[]{"Symbol", "Last Price", "Day High", "Day Low", "Buy Volume", "Sell Volume"};
     }
@@ -43,53 +42,43 @@ public class MarketTableModel extends AbstractTableModel {
         }
     }
 
-    public void setDisplayedMarkets(List<Market> markets) {
-        displayedMarkets = new ArrayList<>(markets);
-        fireTableDataChanged();
-    }
-
     public void filterByKeyword(String keyword) {
         if (keyword == null || keyword.isEmpty()) {
-            // No filtering, show all orders
-            rowToMarket = new HashMap<>(originalRowToMarket);
-            symbolToRow = new HashMap<>(originalSymbolToRow);
+            rowToMarket = new ConcurrentHashMap<>(originalRowToMarket);
+            symbolToRow = new ConcurrentHashMap<>(originalSymbolToRow);
             filtered = false;
         } else if (filtered) {
-            //recreate original before filtering
-            rowToMarket = new HashMap<>(originalRowToMarket);
-            symbolToRow = new HashMap<>(originalSymbolToRow);
-            originalRowToMarket = new HashMap<>(rowToMarket);
-            originalSymbolToRow = new HashMap<>(symbolToRow);
-            // Filter orders based on the keyword
+            rowToMarket = new ConcurrentHashMap<>(originalRowToMarket);
+            symbolToRow = new ConcurrentHashMap<>(originalSymbolToRow);
+            originalRowToMarket = new ConcurrentHashMap<>(rowToMarket);
+            originalSymbolToRow = new ConcurrentHashMap<>(symbolToRow);
             List<Market> filteredMarkets = rowToMarket.values().stream()
                     .filter(market -> marketMatchesKeyword(market, keyword))
                     .toList();
-            rowToMarket = new HashMap<>();
-            symbolToRow = new HashMap<>();
+            rowToMarket = new ConcurrentHashMap<>();
+            symbolToRow = new ConcurrentHashMap<>();
             int row = 0;
             for (Market market : filteredMarkets) {
                 rowToMarket.put(row, market);
                 symbolToRow.put(market.getSymbol(), row);
                 row++;
             }
-        } else if (!filtered) {
-            originalRowToMarket = new HashMap<>(rowToMarket);
-            originalSymbolToRow = new HashMap<>(symbolToRow);
-            // Filter orders based on the keyword
-            List<Market> filteredMarkets = rowToMarket.values().stream()
+        } else {
+            originalRowToMarket = new ConcurrentHashMap<>(rowToMarket);
+            originalSymbolToRow = new ConcurrentHashMap<>(symbolToRow);
+            List<Market> filteredOrders = rowToMarket.values().stream()
                     .filter(market -> marketMatchesKeyword(market, keyword))
                     .toList();
-            rowToMarket = new HashMap<>();
-            symbolToRow = new HashMap<>();
+            rowToMarket = new ConcurrentHashMap<>();
+            symbolToRow = new ConcurrentHashMap<>();
             int row = 0;
-            for (Market market : filteredMarkets) {
+            for (Market market : filteredOrders) {
                 rowToMarket.put(row, market);
                 symbolToRow.put(market.getSymbol(), row);
                 row++;
             }
             filtered = true;
         }
-        // Notify the table model about the data change
         fireTableDataChanged();
     }
 
@@ -120,7 +109,7 @@ public class MarketTableModel extends AbstractTableModel {
             return;
         } else {
             rowToMarket.put(row, market);
-            symbolToRow.put(market.getSymbol(), row);
+            symbolToRow.put(symbol, row);
             markets.set(row, market);
         }
 
@@ -144,7 +133,6 @@ public class MarketTableModel extends AbstractTableModel {
         rowToMarket.remove(row);
         symbolToRow.remove(symbol);
 
-        // Update row indices in symbolToRow and rowToMarket maps
         updateRowIndices(row);
 
         fireTableRowsDeleted(row, row);
