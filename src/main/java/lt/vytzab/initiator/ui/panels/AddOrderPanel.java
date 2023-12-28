@@ -17,13 +17,7 @@ import java.util.Date;
 import java.util.Observable;
 import java.util.Observer;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JComponent;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 import com.toedter.calendar.JDateChooser;
 import lt.vytzab.initiator.OrderEntryApplication;
@@ -207,7 +201,9 @@ public class AddOrderPanel extends JPanel implements Observer {
         public void itemStateChanged(ItemEvent e) {
             OrderTIF item = (OrderTIF) tifComboBox.getSelectedItem();
             enableDate(item == OrderTIF.GTD);
-            activateSubmit();
+            if (dateChooser.getDate()!=null) {
+                activateSubmit();
+            }
         }
 
         private void enableDate(boolean enabled) {
@@ -235,22 +231,41 @@ public class AddOrderPanel extends JPanel implements Observer {
 
             if (order.getTIF()==OrderTIF.DAY){
                 order.setGoodTillDate(LocalDate.now());
+                OrderType type = order.getType();
+                if (type == OrderType.LIMIT) {
+                    order.setLimit(limitPriceTextField.getText());
+                    orderTableModel.addOrder(order);
+                    try {
+                        application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
+                    } catch (SessionNotFound ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
             } else if (order.getTIF()==OrderTIF.GTD) {
-                if (dateChooser.getDate()!=null) {
+                if (checkDateField()) {
                     order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                    OrderType type = order.getType();
+                    if (type == OrderType.LIMIT) {
+                        order.setLimit(limitPriceTextField.getText());
+                        orderTableModel.addOrder(order);
+                        try {
+                            application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
+                        } catch (SessionNotFound ex) {
+                            throw new RuntimeException(ex);
+                        }
+                    }
+                } else {
+                    showMessageDialog();
                 }
             }
+        }
 
-            OrderType type = order.getType();
-            if (type == OrderType.LIMIT) {
-                order.setLimit(limitPriceTextField.getText());
-            }
-            orderTableModel.addOrder(order);
-            try {
-                application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
-            } catch (SessionNotFound ex) {
-                throw new RuntimeException(ex);
-            }
+        private boolean checkDateField() {
+            return dateChooser.getDate() != null;
+        }
+
+        private void showMessageDialog() {
+            JOptionPane.showMessageDialog(AddOrderPanel.this, "Please pick a date.", "Invalid Date", JOptionPane.ERROR_MESSAGE);
         }
     }
 

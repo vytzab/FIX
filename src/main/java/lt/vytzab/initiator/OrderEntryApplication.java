@@ -227,7 +227,9 @@ public class OrderEntryApplication implements Application {
             order.setAvgPx(message.getDouble(AvgPx.FIELD));
             orderTableModel.replaceOrder(order);
             orderTableModel.refreshOrders();
+        } else if (message.getChar(OrdStatus.FIELD) == '2' || message.getChar(OrdStatus.FIELD) == '1') {
 
+            Order order = orderTableModel.getOrder(message.getString(ClOrdID.FIELD));
             double fillSize;
 
             // Ar buvo matchinta?
