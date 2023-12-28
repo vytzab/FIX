@@ -1,44 +1,51 @@
 package lt.vytzab.initiator.ui.tables;
 
-import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.market.MarketTableModel;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import java.awt.*;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 
 public class MarketTable extends JTable implements MouseListener {
-    private final transient OrderEntryApplication application;
-
-    public MarketTable(MarketTableModel marketTableModel, OrderEntryApplication application) {
+    SortOrder currentSortOrder = null;
+    public MarketTable(MarketTableModel marketTableModel) {
         super(marketTableModel);
-        this.application = application;
         addMouseListener(this);
+
+        getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int columnIndex = getColumnModel().getColumnIndexAtX(e.getX());
+                marketTableModel.setSortedMarkets(columnIndex, toggleSortOrder(currentSortOrder));
+            }
+        });
+    }
+
+    public void setCurrentSortOrder(SortOrder currentSortOrder) {
+        this.currentSortOrder = currentSortOrder;
+    }
+
+    // Helper method to toggle sort order between ASCENDING and DESCENDING
+    private SortOrder toggleSortOrder(SortOrder currentSortOrder) {
+        if (currentSortOrder == null || currentSortOrder == SortOrder.DESCENDING) {
+            setCurrentSortOrder(SortOrder.ASCENDING);
+            return SortOrder.ASCENDING;
+        } else {
+            setCurrentSortOrder(SortOrder.DESCENDING);
+            return SortOrder.DESCENDING;
+        }
     }
 
     @Override
     public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
         Component component = super.prepareRenderer(renderer, row, column);
 
-        // Customize the rendering based on market properties
-        // For example, you can change background color based on certain conditions
-
         DefaultTableCellRenderer r = (DefaultTableCellRenderer) component;
         r.setForeground(Color.black);
-
-        // Customize background color based on market conditions
-        // Uncomment and customize as needed
-        /*
-        Market market = ((MarketTableModel) dataModel).getMarket(row);
-        if (someCondition) {
-            r.setBackground(Color.someColor);
-        } else {
-            r.setBackground(Color.defaultColor);
-        }
-        */
 
         return component;
     }

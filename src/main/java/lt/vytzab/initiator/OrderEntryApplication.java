@@ -17,7 +17,6 @@ import quickfix.field.*;
 import quickfix.fix42.*;
 
 import javax.swing.*;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -287,7 +286,7 @@ public class OrderEntryApplication implements Application {
             marketTableModel.addMarket(market);
             sendMarketDataRequest(market, sessionID);
         } else if (message.getInt(SecurityTradingStatus.FIELD) == 1) {
-            marketTableModel.replaceMarket(market, market.getSymbol());
+            marketTableModel.replaceMarket(market);
         } else {
             marketTableModel.removeMarket(market.getSymbol());
         }

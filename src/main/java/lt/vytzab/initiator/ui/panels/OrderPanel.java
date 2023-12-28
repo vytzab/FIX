@@ -16,26 +16,24 @@ import lt.vytzab.initiator.ui.tables.OrderTable;
  * Contains the Order table.
  */
 public class OrderPanel extends JPanel {
-    private final JTable orderTable;
-    private final OrderTableModel orderTableModel;
+    private JTable orderTable;
+    private OrderTableModel orderTableModel;
 
     public OrderPanel(OrderTableModel orderTableModel, OrderEntryApplication application) {
-        this.orderTableModel = orderTableModel;
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new BorderLayout());
+        this.orderTableModel = orderTableModel;
+        orderTable = new OrderTable(orderTableModel);
+        add(new JScrollPane(orderTable), BorderLayout.CENTER);
+        orderTable.setAutoCreateRowSorter(false);
 
         FilterPanel filterPanel = new FilterPanel(orderTableModel);
-
         add(filterPanel, BorderLayout.NORTH);
-
-        orderTable = new OrderTable(orderTableModel, application);
-        add(new JScrollPane(orderTable), BorderLayout.CENTER);
     }
 
     public JTable orderTable() {
         return orderTable;
     }
-
     public class FilterPanel extends JPanel {
         private final OrderTableModel orderTableModel;
         private final JTextField keywordTextField;

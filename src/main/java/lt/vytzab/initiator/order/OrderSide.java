@@ -1,9 +1,10 @@
 package lt.vytzab.initiator.order;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class OrderSide {
+public class OrderSide implements Comparable<OrderSide>{
     static private final Map<String, OrderSide> known = new HashMap<>();
     static public final OrderSide BUY = new OrderSide("Buy");
     static public final OrderSide SELL = new OrderSide("Sell");
@@ -37,5 +38,11 @@ public class OrderSide {
             throw new IllegalArgumentException("OrderSide: " + type + " is unknown.");
         }
         return result;
+    }
+
+    @Override
+    public int compareTo(OrderSide other) {
+        // Compare based on the order in the array
+        return Integer.compare(Arrays.asList(array).indexOf(this), Arrays.asList(array).indexOf(other));
     }
 }

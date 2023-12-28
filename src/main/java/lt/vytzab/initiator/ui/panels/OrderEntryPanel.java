@@ -50,7 +50,7 @@ public class OrderEntryPanel extends JPanel implements Observer, ActionListener 
         constraints.weighty = 10;
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        MarketPanel marketPanel = new MarketPanel(marketTableModel, application);
+        MarketPanel marketPanel = new MarketPanel(marketTableModel);
         orderPanel = new OrderPanel(orderTableModel, application);
         OrderPanel executedOrdersPanel = new OrderPanel(executedOrdersTableModel, application);
 
