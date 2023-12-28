@@ -11,17 +11,19 @@ import lt.vytzab.engine.order.OrderTableModel;
 import lt.vytzab.engine.ui.tables.OrderTable;
 
 public class OrderPanel extends JPanel {
-    private JTable orderTable = null;
-    private OrderTableModel orderTableModel = null;
-    private JTextField filterTextField;
+    private JTable orderTable;
+    private OrderTableModel orderTableModel;
 
     public OrderPanel(OrderTableModel orderTableModel, EngineApplication application) {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new BorderLayout());
-        FilterPanel filterPanel = new FilterPanel(orderTableModel);
-        add(filterPanel, BorderLayout.NORTH);
+        this.orderTableModel = orderTableModel;
         orderTable = new OrderTable(orderTableModel);
         add(new JScrollPane(orderTable), BorderLayout.CENTER);
+        orderTable.setAutoCreateRowSorter(false);
+
+        FilterPanel filterPanel = new FilterPanel(orderTableModel);
+        add(filterPanel, BorderLayout.NORTH);
     }
 
     public JTable orderTable() {

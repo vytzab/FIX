@@ -10,10 +10,34 @@ import java.awt.*;
 import java.awt.event.*;
 
 public class OrderTable extends JTable implements MouseListener {
+    SortOrder currentSortOrder = null;
 
     public OrderTable(OrderTableModel orderTableModel) {
         super(orderTableModel);
         addMouseListener(this);
+
+        getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int columnIndex = getColumnModel().getColumnIndexAtX(e.getX());
+                orderTableModel.setSortedOrders(columnIndex, toggleSortOrder(currentSortOrder));
+            }
+        });
+    }
+
+    public void setCurrentSortOrder(SortOrder currentSortOrder) {
+        this.currentSortOrder = currentSortOrder;
+    }
+
+    // Helper method to toggle sort order between ASCENDING and DESCENDING
+    private SortOrder toggleSortOrder(SortOrder currentSortOrder) {
+        if (currentSortOrder == null || currentSortOrder == SortOrder.DESCENDING) {
+            setCurrentSortOrder(SortOrder.ASCENDING);
+            return SortOrder.ASCENDING;
+        } else {
+            setCurrentSortOrder(SortOrder.DESCENDING);
+            return SortOrder.DESCENDING;
+        }
     }
 
     @Override

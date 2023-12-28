@@ -49,6 +49,7 @@ public class Engine {
             // settings is bitu streamo
             SessionSettings settings = new SessionSettings(inputStream);
             inputStream.close();
+            //TODO add credentials for DB
 
             // sukuriamas Engine objektas
             Engine engine = new Engine(settings);

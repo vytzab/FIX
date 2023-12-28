@@ -148,7 +148,7 @@ public class DeleteUpdatePanel extends JPanel {
             newMarket.setSellVolume(Double.parseDouble(sellVolumeField.getText()));
 
             MarketDataDAO.updateMarket(newMarket);
-            marketTableModel.replaceMarket(newMarket, newMarket.getSymbol());
+            marketTableModel.replaceMarket(newMarket);
             try {
                 application.sendSecurityStatusFromMarket(newMarket, 1);
             } catch (FieldNotFound | SessionNotFound ex) {

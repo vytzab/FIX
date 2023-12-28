@@ -5,10 +5,11 @@ import lt.vytzab.engine.market.Market;
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class OrderTableModel extends AbstractTableModel {
-    private List<Order> orders = new ArrayList<>();
+    private List<Order> orders;
+    private List<Order> originalOrders;
+    private List<Order> sortedOrders;
     private final static int SENDERCOMPID = 0;
     private final static int SYMBOL = 1;
     private final static int QUANTITY = 2;
@@ -22,63 +23,24 @@ public class OrderTableModel extends AbstractTableModel {
     private final static int GOODTILLDATE = 10;
     private boolean filtered = false;
 
-    private ConcurrentHashMap<Integer, Order> originalRowToOrder;
-    private ConcurrentHashMap<String, Integer> originalClOrdIDToRow;
-    private ConcurrentHashMap<Integer, Order> rowToOrder;
-    private ConcurrentHashMap<String, Integer> clOrdIDToRow;
-
     private final String[] headers;
 
     private List<Order> displayedOrders;
 
     public OrderTableModel() {
-        originalRowToOrder = new ConcurrentHashMap<>();
-        originalClOrdIDToRow = new ConcurrentHashMap<>();
         orders = new ArrayList<>();
-        rowToOrder = new ConcurrentHashMap<>();
-        clOrdIDToRow = new ConcurrentHashMap<>();
-
+        originalOrders = new ArrayList<>();
+        sortedOrders = new ArrayList<>();
         headers = new String[]{"Sender", "Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date"};
     }
 
     public void filterByKeyword(String keyword) {
-        if (keyword == null || keyword.isEmpty()) {
-            rowToOrder = new ConcurrentHashMap<>(originalRowToOrder);
-            clOrdIDToRow = new ConcurrentHashMap<>(originalClOrdIDToRow);
-            filtered = false;
-        } else if (filtered) {
-            rowToOrder = new ConcurrentHashMap<>(originalRowToOrder);
-            clOrdIDToRow = new ConcurrentHashMap<>(originalClOrdIDToRow);
-            originalRowToOrder = new ConcurrentHashMap<>(rowToOrder);
-            originalClOrdIDToRow = new ConcurrentHashMap<>(clOrdIDToRow);
-            List<Order> filteredOrders = rowToOrder.values().stream()
-                    .filter(order -> orderMatchesKeyword(order, keyword))
-                    .toList();
-            rowToOrder = new ConcurrentHashMap<>();
-            clOrdIDToRow = new ConcurrentHashMap<>();
-            int row = 0;
-            for (Order order : filteredOrders) {
-                rowToOrder.put(row, order);
-                clOrdIDToRow.put(order.getClOrdID(), row);
-                row++;
-            }
-            filtered = true;
-        } else {
-            originalRowToOrder = new ConcurrentHashMap<>(rowToOrder);
-            originalClOrdIDToRow = new ConcurrentHashMap<>(clOrdIDToRow);
-            List<Order> filteredOrders = rowToOrder.values().stream()
-                    .filter(order -> orderMatchesKeyword(order, keyword))
-                    .toList();
-            rowToOrder = new ConcurrentHashMap<>();
-            clOrdIDToRow = new ConcurrentHashMap<>();
-            int row = 0;
-            for (Order order : filteredOrders) {
-                rowToOrder.put(row, order);
-                clOrdIDToRow.put(order.getClOrdID(), row);
-                row++;
-            }
-            filtered = true;
-        }
+        List<Order> filteredOrders = originalOrders.stream()
+                .filter(order -> orderMatchesKeyword(order, keyword))
+                .toList();
+
+        orders = new ArrayList<>(filteredOrders);
+
         fireTableDataChanged();
     }
 
@@ -96,70 +58,50 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     public void addOrder(Order order) {
-        if (getOrder(order.getClOrdID()) == null) {
-            int row = rowToOrder.size();
+        if (!orders.contains(order)) {
             orders.add(order);
-            rowToOrder.put(row, order);
-            clOrdIDToRow.put(order.getClOrdID(), row);
-
-            fireTableRowsInserted(row, row);
-        } else {
-            replaceOrder(order, order.getClOrdID());
+            originalOrders.add(order);
+            fireTableRowsInserted(orders.indexOf(order), orders.indexOf(order));
         }
+        replaceOrder(order);
     }
 
-    public void replaceOrder(Order order, String clOrdID) {
-        Integer row = clOrdIDToRow.get(clOrdID);
-        if (row == null) {
-            return;
-        } else {
-            rowToOrder.put(row, order);
-            clOrdIDToRow.put(clOrdID, row);
-            orders.set(row, order);
-        }
+    public void replaceOrder(Order order) {
+        int index = orders.indexOf(order);
 
-        fireTableRowsUpdated(row, row);
+        if (index != -1) {
+            orders.set(index, order);
+            originalOrders.set(index, order);
+            fireTableRowsUpdated(index, index);
+        } else {
+            addOrder(order);
+        }
     }
 
     public Order getOrder(String clOrdID) {
-        Integer row = clOrdIDToRow.get(clOrdID);
-        return (row != null) ? rowToOrder.get(row) : null;
+        return orders.stream()
+                .filter(order -> order.getClOrdID().equals(clOrdID))
+                .findFirst()
+                .orElse(null);
     }
 
     public Order getOrder(int row) {
-        return rowToOrder.get(row);
+        return row < orders.size() ? orders.get(row) : null;
     }
 
     public void removeOrder(String clOrdID) {
-        Integer row = clOrdIDToRow.get(clOrdID);
-        if (row == null) return;
+        Order orderToRemove = getOrder(clOrdID);
+        if (orderToRemove != null) {
+            int index = orders.indexOf(orderToRemove);
+            orders.remove(index);
+            originalOrders.remove(index);
 
-        orders.remove(row.intValue());
-        rowToOrder.remove(row);
-        clOrdIDToRow.remove(clOrdID);
-
-        updateRowIndices(row);
-
-        SwingUtilities.invokeLater(() -> fireTableRowsDeleted(row, row));
-    }
-
-    private void updateRowIndices(int removedRow) {
-        // Create a copy of the entry set to avoid ConcurrentModificationException
-        Set<Map.Entry<Integer, Order>> entrySetCopy = new HashSet<>(rowToOrder.entrySet());
-
-        for (Map.Entry<Integer, Order> entry : entrySetCopy) {
-            Integer row = entry.getKey();
-            if (row > removedRow) {
-                Order order = entry.getValue();
-                String clOrdID = order.getClOrdID();
-                clOrdIDToRow.put(clOrdID, row - 1);
-                rowToOrder.put(row - 1, order);
-            }
+            fireTableRowsDeleted(index, index);
         }
     }
 
     public int getRowCount() {
-        return rowToOrder.size();
+        return orders.size();
     }
 
     public int getColumnCount() {
@@ -171,7 +113,7 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     public Object getValueAt(int rowIndex, int columnIndex) {
-        Order order = rowToOrder.get(rowIndex);
+        Order order = getOrder(rowIndex);
 
         if (order != null) {
             switch (columnIndex) {
@@ -205,45 +147,108 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     public void removeFullyExecutedOrders() {
-        Iterator<Order> iterator = orders.iterator();
+        ListIterator<Order> iterator = orders.listIterator();
         while (iterator.hasNext()) {
             Order order = iterator.next();
             if (order.isFullyExecuted()) {
-                rowToOrder.values().remove(order);
-
+                int index = iterator.nextIndex() - 1;
                 iterator.remove();
+
+                fireTableRowsDeleted(index, index);
             }
         }
-        fireTableDataChanged();
     }
 
     public void clearOrders() {
-        int start = 0;
-        int end = orders.size();
-        for (Order order : orders) {
-            rowToOrder.values().remove(order);
-        }
-        fireTableRowsDeleted(start, end);
+        orders.clear();
+//        fireTableRowsDeleted(start, end);
     }
 
     public void fillOrders() {
-        int start = 0;
-        int end = orders.size();
-        for (Order order : orders) {
-            int row = rowToOrder.size();
-            rowToOrder.put(row, order);
-            clOrdIDToRow.put(order.getClOrdID(), row);
-        }
-        fireTableRowsDeleted(start, end);
+        orders.addAll(originalOrders);
+    }
+
+    public void updateOrders(List<Order> updatedOrders) {
+        originalOrders = new ArrayList<>(orders);
+        orders = new ArrayList<>(updatedOrders);
+
+        fireTableDataChanged();
     }
 
     public void setOrders(List<Order> updatedOrders) {
-        orders = updatedOrders;
-        fillOrders();
+        orders = new ArrayList<>(updatedOrders);
+
+        // Initialize or clear the originalMarkets list
+        if (originalOrders == null) {
+            originalOrders = new ArrayList<>(updatedOrders);
+        } else {
+            originalOrders.clear();
+            originalOrders.addAll(updatedOrders);
+        }
+
+        fireTableDataChanged();
     }
 
     public void refreshOrders() {
         clearOrders();
         fillOrders();
+    }
+
+    public void setSortedOrders(int columnIndex, SortOrder sortOrder) {
+        orders = sortOrders(columnIndex, sortOrder);
+
+        fireTableDataChanged();
+    }
+
+    private List<Order> sortOrders(int columnIndex, SortOrder sortOrder) {
+        sortedOrders = new ArrayList<>(orders);
+
+        OrderTableModel.OrderComparator comparator = new OrderTableModel.OrderComparator(columnIndex);
+
+        // Sort the list based on the comparator and sortOrder
+        sortedOrders.sort((market1, market2) -> {
+            int result = comparator.compare(market1, market2);
+            return (sortOrder == SortOrder.DESCENDING) ? -result : result;
+        });
+        return sortedOrders;
+    }
+
+    private static class OrderComparator implements Comparator<Order> {
+        private int columnIndex;
+
+        public OrderComparator(int columnIndex) {
+            this.columnIndex = columnIndex;
+        }
+
+        @Override
+        public int compare(Order order1, Order order2) {
+            // Implement comparison logic based on the specified column index
+            switch (columnIndex) {
+                case SENDERCOMPID:
+                    return order1.getSenderCompID().compareTo(order2.getSenderCompID());
+                case SYMBOL:
+                    return order1.getSymbol().compareTo(order2.getSymbol());
+                case QUANTITY:
+                    return Long.compare(order1.getQuantity(), order2.getQuantity());
+                case OPEN:
+                    return Long.compare(order1.getOpenQuantity(), order2.getOpenQuantity());
+                case EXECUTED:
+                    return Long.compare(order1.getExecutedQuantity(), order2.getExecutedQuantity());
+                case SIDE:
+                    return Character.compare(order1.getSide(), order2.getSide());
+                case TYPE:
+                    return Character.compare(order1.getOrdType(), order2.getOrdType());
+                case LIMITPRICE:
+                    return Double.compare(order1.getLimit(), order2.getLimit());
+                case AVGPX:
+                    return Double.compare(order1.getAvgExecutedPrice(), order2.getAvgExecutedPrice());
+                case ENTRYDATE:
+                    return order1.getEntryDate().compareTo(order2.getEntryDate());
+                case GOODTILLDATE:
+                    return order1.getGoodTillDate().compareTo(order2.getGoodTillDate());
+                default:
+                    return 0; // Default to no sorting
+            }
+        }
     }
 }

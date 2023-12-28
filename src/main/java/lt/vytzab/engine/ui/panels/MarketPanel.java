@@ -1,6 +1,5 @@
 package lt.vytzab.engine.ui.panels;
 
-import lt.vytzab.engine.EngineApplication;
 import lt.vytzab.engine.market.MarketTableModel;
 import lt.vytzab.engine.ui.tables.MarketTable;
 
@@ -11,15 +10,18 @@ import java.awt.event.ActionListener;
 
 public class MarketPanel extends JPanel {
     private JTable marketTable;
-    private MarketTableModel marketTableModel = null;
+    private MarketTableModel marketTableModel;
 
     public MarketPanel(MarketTableModel marketTableModel) {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new BorderLayout());
-        FilterPanel filterPanel = new FilterPanel(marketTableModel);
-        add(filterPanel, BorderLayout.NORTH);
+        this.marketTableModel = marketTableModel;
         marketTable = new MarketTable(marketTableModel);
         add(new JScrollPane(marketTable), BorderLayout.CENTER);
+        marketTable.setAutoCreateRowSorter(false);
+
+        FilterPanel filterPanel = new FilterPanel(marketTableModel);
+        add(filterPanel, BorderLayout.NORTH);
     }
 
     public JTable marketTable() {

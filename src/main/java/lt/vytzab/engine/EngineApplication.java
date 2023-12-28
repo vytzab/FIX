@@ -118,7 +118,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             order.setQuantity((long)(message.getDouble(OrderQty.FIELD)));
             order.setOpenQuantity((long)(message.getDouble(OrderQty.FIELD)));
             orderController.updateOrder(order);
-            openOrderTableModel.replaceOrder(order, order.getClOrdID());
+            openOrderTableModel.replaceOrder(order);
             messageExecutionReport(message, '5');
         } else {
             OrderCancelReject orderCancelReject = new OrderCancelReject(
@@ -182,8 +182,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             ArrayList<Order> orders = new ArrayList<>();
             marketController.matchMarketOrders(marketController.getMarket(order.getSymbol()), orders);
             while (!orders.isEmpty()) {
-                openOrderTableModel.replaceOrder(orders.get(0), orders.get(0).getClOrdID());
-                openOrderTableModel.replaceOrder(orders.get(0), orders.get(0).getClOrdID());
+                openOrderTableModel.replaceOrder(orders.get(0));
+                allOrderTableModel.replaceOrder(orders.get(0));
                 orderExecutionReport(orders.get(0), orders.get(0).isFilled() ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED);
                 orders.remove(0);
             }

@@ -212,7 +212,7 @@ public class Market {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Market market)) return false;
-        return Objects.equals(getBidOrders(), market.getBidOrders()) && Objects.equals(getAskOrders(), market.getAskOrders()) && Objects.equals(getSymbol(), market.getSymbol()) && Objects.equals(getLastPrice(), market.getLastPrice()) && Objects.equals(getDayHigh(), market.getDayHigh()) && Objects.equals(getDayLow(), market.getDayLow()) && Objects.equals(getBuyVolume(), market.getBuyVolume()) && Objects.equals(getSellVolume(), market.getSellVolume());
+        return Objects.equals(getBidOrders(), market.getBidOrders()) && Objects.equals(getAskOrders(), market.getAskOrders()) && Objects.equals(getSymbol(), market.getSymbol());
     }
 
     @Override

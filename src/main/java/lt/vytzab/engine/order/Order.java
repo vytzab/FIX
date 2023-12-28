@@ -3,6 +3,7 @@ package lt.vytzab.engine.order;
 import quickfix.field.Side;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class Order {
     private final long entryTime;
@@ -207,5 +208,17 @@ public class Order {
 
     public void setLastExecutedQuantity(long lastExecutedQuantity) {
         this.lastExecutedQuantity = lastExecutedQuantity;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Order order)) return false;
+        return Objects.equals(getClOrdID(), order.getClOrdID());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getClOrdID());
     }
 }
