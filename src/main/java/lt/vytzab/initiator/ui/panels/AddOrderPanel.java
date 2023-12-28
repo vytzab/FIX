@@ -201,7 +201,7 @@ public class AddOrderPanel extends JPanel implements Observer {
         public void itemStateChanged(ItemEvent e) {
             OrderTIF item = (OrderTIF) tifComboBox.getSelectedItem();
             enableDate(item == OrderTIF.GTD);
-            if (dateChooser.getDate()!=null) {
+            if (dateChooser.getDate() != null) {
                 activateSubmit();
             }
         }
@@ -229,36 +229,27 @@ public class AddOrderPanel extends JPanel implements Observer {
             order.setOpenQuantity(order.getQuantity());
             order.setEntryDate(LocalDate.now());
 
-            if (order.getTIF()==OrderTIF.DAY){
+            OrderType type = order.getType();
+            if (type == OrderType.LIMIT) {
+                order.setLimit(limitPriceTextField.getText());
+            }
+            if (order.getTIF() == OrderTIF.DAY) {
                 order.setGoodTillDate(LocalDate.now());
-                OrderType type = order.getType();
-                if (type == OrderType.LIMIT) {
-                    order.setLimit(limitPriceTextField.getText());
-                    orderTableModel.addOrder(order);
-                    try {
-                        application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
-                    } catch (SessionNotFound ex) {
-                        throw new RuntimeException(ex);
-                    }
-                }
-            } else if (order.getTIF()==OrderTIF.GTD) {
+            } else if (order.getTIF() == OrderTIF.GTD) {
                 if (checkDateField()) {
                     order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-                    OrderType type = order.getType();
-                    if (type == OrderType.LIMIT) {
-                        order.setLimit(limitPriceTextField.getText());
-                        orderTableModel.addOrder(order);
-                        try {
-                            application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
-                        } catch (SessionNotFound ex) {
-                            throw new RuntimeException(ex);
-                        }
-                    }
-                } else {
-                    showMessageDialog();
                 }
+            } else {
+                showMessageDialog();
+            }
+            try {
+                orderTableModel.addOrder(order);
+                application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
+            } catch (SessionNotFound ex) {
+                throw new RuntimeException(ex);
             }
         }
+
 
         private boolean checkDateField() {
             return dateChooser.getDate() != null;

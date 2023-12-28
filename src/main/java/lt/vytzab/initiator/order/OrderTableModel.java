@@ -13,17 +13,16 @@ public class OrderTableModel extends AbstractTableModel {
     private List<Order> orders;
     private List<Order> originalOrders;
     private List<Order> sortedOrders;
-    private final static int SENDERCOMPID = 0;
-    private final static int SYMBOL = 1;
-    private final static int QUANTITY = 2;
-    private final static int OPEN = 3;
-    private final static int EXECUTED = 4;
-    private final static int SIDE = 5;
-    private final static int TYPE = 6;
-    private final static int LIMITPRICE = 7;
-    private final static int AVGPX = 8;
-    private final static int ENTRYDATE = 9;
-    private final static int GOODTILLDATE = 10;
+    private final static int SYMBOL = 0;
+    private final static int QUANTITY = 1;
+    private final static int OPEN = 2;
+    private final static int EXECUTED = 3;
+    private final static int SIDE = 4;
+    private final static int TYPE = 5;
+    private final static int LIMITPRICE = 6;
+    private final static int AVGPX = 7;
+    private final static int ENTRYDATE = 8;
+    private final static int GOODTILLDATE = 9;
     private boolean filtered = false;
 
     private final String[] headers;
@@ -34,7 +33,7 @@ public class OrderTableModel extends AbstractTableModel {
         orders = new ArrayList<>();
         originalOrders = new ArrayList<>();
         sortedOrders = new ArrayList<>();
-        headers = new String[]{"Sender", "Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date"};
+        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date"};
     }
 
     public void filterByKeyword(String keyword) {
