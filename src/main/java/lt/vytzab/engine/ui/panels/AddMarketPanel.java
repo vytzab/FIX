@@ -1,19 +1,16 @@
 package lt.vytzab.engine.ui.panels;
 
 import lt.vytzab.engine.*;
-import lt.vytzab.engine.dao.MarketDataDAO;
+import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.helpers.DoubleNumberTextField;
-import lt.vytzab.engine.helpers.IntegerNumberTextField;
 import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
 import quickfix.FieldNotFound;
-import quickfix.SessionID;
 import quickfix.SessionNotFound;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -141,7 +138,7 @@ public class AddMarketPanel extends JPanel implements Observer {
             market.setBuyVolume(Integer.parseInt(buyVolumeField.getText()));
             market.setSellVolume(Integer.parseInt(sellVolumeField.getText()));
 
-            MarketDataDAO.createMarket(market);
+            MarketDAO.createMarket(market);
             marketTableModel.addMarket(market);
             try {
                 application.sendSecurityStatusFromMarket(market, 0);

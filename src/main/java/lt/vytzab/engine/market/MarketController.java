@@ -1,6 +1,6 @@
 package lt.vytzab.engine.market;
 
-import lt.vytzab.engine.dao.MarketDataDAO;
+import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.order.Order;
 import quickfix.field.OrdType;
@@ -8,11 +8,8 @@ import quickfix.field.OrdType;
 import java.util.ArrayList;
 import java.util.List;
 
-import static lt.vytzab.engine.Variables.FILLED_ORDERS_DB;
-import static lt.vytzab.engine.Variables.MARKET_ORDERS_DB;
-
 public class MarketController {
-    private List<Market> markets = MarketDataDAO.readAllMarkets();
+    private List<Market> markets = MarketDAO.readAllMarkets();
 
     public Market getMarket(String symbol) {
         for (Market market : markets) {
@@ -25,7 +22,7 @@ public class MarketController {
 
     // Check if a market with the given symbol exists
     public boolean checkIfMarketExists(String symbol){
-        Market market = MarketDataDAO.readMarket(symbol);
+        Market market = MarketDAO.readMarket(symbol);
         return market != null;
     }
 
@@ -137,6 +134,6 @@ public class MarketController {
 
     // Placeholder method for displaying market information
     public void refreshMarkets() {
-        markets = MarketDataDAO.readAllMarkets();
+        markets = MarketDAO.readAllMarkets();
     }
 }

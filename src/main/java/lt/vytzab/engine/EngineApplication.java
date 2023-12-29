@@ -1,6 +1,5 @@
 package lt.vytzab.engine;
 
-import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.order.OrderController;
 import lt.vytzab.engine.order.OrderIdGenerator;
@@ -149,7 +148,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         message.getGroup(1, noRelatedSyms);
         String symbol = noRelatedSyms.getString(Symbol.FIELD);
         fixMD.setString(Symbol.FIELD, symbol);
-        List<Order> symbolOrders = MarketOrderDAO.readAllMarketOrdersBySymbolAndSender(symbol, senderCompId);
+        List<Order> symbolOrders = orderController.getAllOrdersBySymbolAndSender(symbol, senderCompId);
         if (!symbolOrders.isEmpty()) {
             for (Order order : symbolOrders) {
                 noMDEntries = noMDEntriesFromOrder(order);

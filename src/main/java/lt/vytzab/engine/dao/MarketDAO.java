@@ -4,12 +4,11 @@ import lt.vytzab.engine.market.Market;
 
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static lt.vytzab.engine.Variables.*;
 
-public class MarketDataDAO {
+public class MarketDAO {
     public static void createMarket(Market market) {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
             String sql = "INSERT INTO market_data (symbol, last_price, day_high, day_low, buy_volume, sell_volume) " +

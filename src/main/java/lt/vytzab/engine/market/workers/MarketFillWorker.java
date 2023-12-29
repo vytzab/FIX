@@ -1,6 +1,6 @@
 package lt.vytzab.engine.market.workers;
 
-import lt.vytzab.engine.dao.MarketDataDAO;
+import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
 
@@ -43,6 +43,6 @@ public class MarketFillWorker extends SwingWorker<Void, List<Market>> {
     // Implement this method to fetch updated market data
     private List<Market> fetchData() {
         // Your implementation to fetch data (e.g., from a database or external source)
-        return MarketDataDAO.readAllMarkets();
+        return MarketDAO.readAllMarkets();
     }
 }

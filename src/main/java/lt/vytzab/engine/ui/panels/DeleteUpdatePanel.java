@@ -5,7 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import lt.vytzab.engine.*;
-import lt.vytzab.engine.dao.MarketDataDAO;
+import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.helpers.DoubleNumberTextField;
 import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
@@ -127,7 +127,7 @@ public class DeleteUpdatePanel extends JPanel {
 
     private class DeleteListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            MarketDataDAO.deleteMarket(market.getSymbol());
+            MarketDAO.deleteMarket(market.getSymbol());
             marketTableModel.removeMarket(market.getSymbol());
             try {
                 application.sendSecurityStatusFromMarket(market, 2);
@@ -147,7 +147,7 @@ public class DeleteUpdatePanel extends JPanel {
             newMarket.setBuyVolume(Double.parseDouble(buyVolumeField.getText()));
             newMarket.setSellVolume(Double.parseDouble(sellVolumeField.getText()));
 
-            MarketDataDAO.updateMarket(newMarket);
+            MarketDAO.updateMarket(newMarket);
             marketTableModel.replaceMarket(newMarket);
             try {
                 application.sendSecurityStatusFromMarket(newMarket, 1);
