@@ -12,9 +12,6 @@ import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.order.OrderTableModel;
 import lt.vytzab.initiator.ui.tables.OrderTable;
 
-/**
- * Contains the Order table.
- */
 public class OrderPanel extends JPanel {
     private JTable orderTable;
     private OrderTableModel orderTableModel;

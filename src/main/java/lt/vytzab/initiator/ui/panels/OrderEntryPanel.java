@@ -20,9 +20,6 @@ import lt.vytzab.initiator.market.MarketTableModel;
 import lt.vytzab.initiator.order.Order;
 import lt.vytzab.initiator.order.OrderTableModel;
 
-/**
- * Main content panel
- */
 public class OrderEntryPanel extends JPanel implements Observer, ActionListener {
 
     private final AddOrderPanel orderEntryPanel;

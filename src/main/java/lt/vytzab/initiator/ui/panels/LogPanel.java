@@ -3,9 +3,6 @@ package lt.vytzab.initiator.ui.panels;
 import javax.swing.*;
 import java.awt.*;
 
-/**
- * Contains the logs panel
- */
 public class LogPanel extends JPanel {
     DefaultListModel<String> model = new DefaultListModel<>();
 
