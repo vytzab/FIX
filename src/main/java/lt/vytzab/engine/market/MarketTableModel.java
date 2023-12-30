@@ -128,17 +128,6 @@ public class MarketTableModel extends AbstractTableModel {
 //        fireTableRowsDeleted(start, end);
     }
 
-    public void fillMarkets() {
-        markets.addAll(originalMarkets);
-    }
-
-    public void updateMarkets(List<Market> updatedMarkets) {
-        originalMarkets = new ArrayList<>(markets);
-        markets = new ArrayList<>(updatedMarkets);
-
-        fireTableDataChanged();
-    }
-
     public void setMarkets(List<Market> updatedMarkets) {
         markets = new ArrayList<>(updatedMarkets);
 

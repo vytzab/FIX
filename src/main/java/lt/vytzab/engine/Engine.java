@@ -1,5 +1,6 @@
 package lt.vytzab.engine;
 
+import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.market.workers.MarketFillWorker;
 import lt.vytzab.engine.market.MarketTableModel;
 import lt.vytzab.engine.order.OrderTableModel;
@@ -26,6 +27,7 @@ import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.util.Scanner;
 
 import static lt.vytzab.engine.ui.EngineFrame.centerFrameOnScreen;
 
@@ -49,7 +51,7 @@ public class Engine {
             // settings is bitu streamo
             SessionSettings settings = new SessionSettings(inputStream);
             inputStream.close();
-            //TODO add credentials for DB
+            setDBCredentials();
 
             // sukuriamas Engine objektas
             Engine engine = new Engine(settings);
@@ -144,5 +146,18 @@ public class Engine {
         menuBar.add(sessionMenu);
 
         return menuBar;
+    }
+    private static void setDBCredentials() {
+        boolean connected = false;
+        Scanner scanner = new Scanner(System.in);
+        while (!connected) {
+            System.out.print("Please enter the database username: ");
+            Variables.setUsername(scanner.nextLine());
+
+            System.out.print("Please enter the database password: ");
+            Variables.setPassword(scanner.nextLine());
+
+            connected = MarketDAO.checkDatabaseConnectivity();
+        }
     }
 }

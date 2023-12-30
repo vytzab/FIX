@@ -1,5 +1,6 @@
 package lt.vytzab.engine.dao;
 
+import lt.vytzab.engine.Variables;
 import lt.vytzab.engine.market.Market;
 
 import java.sql.*;
@@ -10,7 +11,7 @@ import static lt.vytzab.engine.Variables.*;
 
 public class MarketDAO {
     public static void createMarket(Market market) {
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "INSERT INTO market_data (symbol, last_price, day_high, day_low, buy_volume, sell_volume) " +
                     "VALUES (?, ?, ?, ?, ?, ?)";
 
@@ -30,7 +31,7 @@ public class MarketDAO {
 
     public static Market readMarket(String symbol) {
         Market market = null;
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_data WHERE symbol = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -52,16 +53,12 @@ public class MarketDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        if (market == null) {
-            System.out.println("Market not found.");
-        }
         return market;
     }
 
     public static List<Market> readAllMarkets() {
         List<Market> markets = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_data";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -82,15 +79,11 @@ public class MarketDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        if (markets.isEmpty()) {
-            System.out.println("Markets not found.");
-        }
         return markets;
     }
 
     public static void updateMarket(Market market) {
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "UPDATE market_data SET last_price = ?, day_high = ?, day_low = ?, buy_volume = ?, sell_volume = ? WHERE symbol = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -101,13 +94,7 @@ public class MarketDAO {
                 statement.setDouble(5, market.getSellVolume());
                 statement.setString(6, market.getSymbol());
 
-                int rowsAffected = statement.executeUpdate();
-
-                if (rowsAffected > 0) {
-                    System.out.println("Market Data Entry updated successfully.");
-                } else {
-                    System.out.println("No rows were updated. Market Data Entry not found.");
-                }
+                statement.executeUpdate();
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -115,7 +102,7 @@ public class MarketDAO {
     }
 
     public static void deleteMarket(String symbol) {
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "DELETE FROM market_data WHERE symbol = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -124,13 +111,26 @@ public class MarketDAO {
                 int rowsAffected = statement.executeUpdate();
 
                 if (rowsAffected > 0) {
-                    System.out.println("Market Data Entry deleted successfully.");
-                } else {
-                    System.out.println("No rows were deleted. Market Data Entry not found.");
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        }
+
+    }
+
+    public static boolean checkDatabaseConnectivity() {
+
+        try {
+            System.out.println("Connecting to database...");
+            Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword());
+            System.out.println("Database connected!");
+
+            connection.close();
+            return true;
+        } catch (SQLException e) {
+            System.err.println("Database connection error.");
+            return false;
         }
     }
 }

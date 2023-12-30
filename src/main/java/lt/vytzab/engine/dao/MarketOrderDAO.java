@@ -1,5 +1,6 @@
 package lt.vytzab.engine.dao;
 
+import lt.vytzab.engine.Variables;
 import lt.vytzab.engine.order.Order;
 
 import java.sql.*;
@@ -10,7 +11,7 @@ import static lt.vytzab.engine.Variables.*;
 
 public class MarketOrderDAO {
     public static boolean createMarketOrder(Order order) {
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "INSERT INTO market_orders (clOrdID, symbol, senderCompID, targetCompID, side, ordType, price, quantity, " +
                     "openQuantity, executedQuantity, avgExecutedPrice, lastExecutedPrice, lastExecutedQuantity, entryTime, rejected, canceled, entryDate, goodTillDate, tif) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -47,7 +48,7 @@ public class MarketOrderDAO {
 
     public static Order getOrderByClOrdID(String clOrdID) {
         Order order = null;
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders WHERE clOrdID = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -84,15 +85,11 @@ public class MarketOrderDAO {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
-        if (order == null) {
-            System.out.println("Order not found.");
-        }
         return order;
     }
 
     public static boolean updateMarketOrder(Order order) {
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "UPDATE market_orders SET symbol = ?, senderCompID = ?, targetCompID = ?, side = ?," +
                     " ordType = ?, price = ?, quantity = ?, openQuantity = ?, executedQuantity = ?, avgExecutedPrice = ?," +
                     " lastExecutedPrice = ?, lastExecutedQuantity = ?, entryTime = ?, rejected = ?, canceled = ?, goodTillDate = ?, tif = ?  WHERE clOrdID = ?";
@@ -120,10 +117,7 @@ public class MarketOrderDAO {
                 int rowsAffected = statement.executeUpdate();
 
                 if (rowsAffected > 0) {
-                    System.out.println("Market Order updated successfully.");
                     return true;
-                } else {
-                    System.out.println("No rows were updated. Order not found.");
                 }
             }
         } catch (SQLException e) {
@@ -133,7 +127,7 @@ public class MarketOrderDAO {
     }
 
     public static boolean deleteOrderByClOrdID(String clOrdID) {
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "DELETE FROM market_orders WHERE clOrdID = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -155,47 +149,39 @@ public class MarketOrderDAO {
 
     public static List<Order> readAllMarketOrders() {
         List<Order> orders = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
                 try (ResultSet resultSet = statement.executeQuery()) {
-                    if (!resultSet.next()) {
-                        System.out.println("ResultSet is empty.");
-                    } else {
-                        while (resultSet.next()) {
-                            Order order = new Order(
-                                    resultSet.getLong("entryTime"),
-                                    resultSet.getString("clOrdID"),
-                                    resultSet.getString("symbol"),
-                                    resultSet.getString("senderCompID"),
-                                    resultSet.getString("targetCompID"),
-                                    resultSet.getString("side").charAt(0),
-                                    resultSet.getString("ordType").charAt(0),
-                                    resultSet.getDouble("price"),
-                                    resultSet.getLong("quantity"),
-                                    resultSet.getLong("openQuantity"),
-                                    resultSet.getLong("executedQuantity"),
-                                    resultSet.getDouble("avgExecutedPrice"),
-                                    resultSet.getDouble("lastExecutedPrice"),
-                                    resultSet.getLong("lastExecutedQuantity"),
-                                    resultSet.getBoolean("rejected"),
-                                    resultSet.getBoolean("canceled"),
-                                    resultSet.getDate("entryDate").toLocalDate(),
-                                    resultSet.getDate("goodTillDate").toLocalDate(),
-                                    resultSet.getString("tif").charAt(0)
-                            );
-                            orders.add(order);
-                        }
+                    while (resultSet.next()) {
+                        Order order = new Order(
+                                resultSet.getLong("entryTime"),
+                                resultSet.getString("clOrdID"),
+                                resultSet.getString("symbol"),
+                                resultSet.getString("senderCompID"),
+                                resultSet.getString("targetCompID"),
+                                resultSet.getString("side").charAt(0),
+                                resultSet.getString("ordType").charAt(0),
+                                resultSet.getDouble("price"),
+                                resultSet.getLong("quantity"),
+                                resultSet.getLong("openQuantity"),
+                                resultSet.getLong("executedQuantity"),
+                                resultSet.getDouble("avgExecutedPrice"),
+                                resultSet.getDouble("lastExecutedPrice"),
+                                resultSet.getLong("lastExecutedQuantity"),
+                                resultSet.getBoolean("rejected"),
+                                resultSet.getBoolean("canceled"),
+                                resultSet.getDate("entryDate").toLocalDate(),
+                                resultSet.getDate("goodTillDate").toLocalDate(),
+                                resultSet.getString("tif").charAt(0)
+                        );
+                        orders.add(order);
                     }
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-        }
-
-        if (orders.isEmpty()) {
-            System.out.println("Orders not found.");
         }
         return orders;
     }
@@ -203,7 +189,7 @@ public class MarketOrderDAO {
     public static List<Order> readAllMarketOrdersBySenderCompID(String senderCompID) {
         List<Order> orders = new ArrayList<>();
         Order order = null;
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders WHERE senderCompID = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -248,7 +234,7 @@ public class MarketOrderDAO {
 
     public static List<Order> readAllMarketOrdersByField(String column, String value) {
         List<Order> orders = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders WHERE " + column + " = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -283,16 +269,12 @@ public class MarketOrderDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-
-        if (orders.isEmpty()) {
-            System.out.println("Orders not found.");
-        }
         return orders;
     }
 
     public static List<Order> readAllMarketOrdersBySymbol(String symbol) {
         List<Order> orders = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders WHERE symbol = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {
@@ -332,7 +314,7 @@ public class MarketOrderDAO {
 
     public static List<Order> readAllMarketOrdersBySymbolAndSender(String symbol, String senderCompID) {
         List<Order> orders = new ArrayList<>();
-        try (Connection connection = DriverManager.getConnection(JDBC_URL, JDBC_USERNAME, JDBC_PASSWORD)) {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders WHERE symbol = ? AND senderCompID = ?";
 
             try (PreparedStatement statement = connection.prepareStatement(sql)) {

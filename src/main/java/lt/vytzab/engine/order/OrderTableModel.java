@@ -54,7 +54,8 @@ public class OrderTableModel extends AbstractTableModel {
                 || String.valueOf(order.getLimit()).contains(keyword)
                 || String.valueOf(order.getAvgExecutedPrice()).contains(keyword)
                 || String.valueOf(order.getEntryDate()).contains(keyword)
-                || String.valueOf(order.getGoodTillDate()).contains(keyword);
+                || String.valueOf(order.getGoodTillDate()).contains(keyword)
+                || String.valueOf(order.getSenderCompID()).toLowerCase().contains(keyword);
     }
 
     public void addOrder(Order order) {
@@ -160,8 +161,9 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     public void clearOrders() {
+        int end = orders.size();
         orders.clear();
-//        fireTableRowsDeleted(start, end);
+        fireTableRowsDeleted(0, end);
     }
 
     public void fillOrders() {

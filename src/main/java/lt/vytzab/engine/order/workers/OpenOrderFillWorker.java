@@ -48,7 +48,7 @@ public class OpenOrderFillWorker extends SwingWorker<Void, List<Order>> {
         List<Order> orderList = MarketOrderDAO.readAllMarketOrders();
         List<Order> openOrderList = new ArrayList<>();
         for (Order order : orderList) {
-            if (!order.isClosed() || !order.isFullyExecuted() || !order.isFilled()) {
+            if (!order.isClosed() && !order.isFullyExecuted() && !order.isFilled() && !order.getCanceled()) {
                 openOrderList.add(order);
             }
         }

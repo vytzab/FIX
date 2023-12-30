@@ -25,17 +25,6 @@ public class MarketController {
         Market market = MarketDAO.readMarket(symbol);
         return market != null;
     }
-
-
-    // Insert an order into the market
-    public boolean createOrder(Order order) {
-        return MarketOrderDAO.createMarketOrder(order);
-    }
-
-    public boolean updateOrder(Order order) {
-        return MarketOrderDAO.updateMarketOrder(order);
-    }
-
     // Match orders within a market
     public boolean matchMarketOrders(Market market, ArrayList<Order> orders) {
         // Fetch bid and ask orders for the given market
@@ -112,17 +101,6 @@ public class MarketController {
         MarketOrderDAO.updateMarketOrder(bid);
         MarketOrderDAO.updateMarketOrder(ask);
     }
-
-    // Get an order by ClOrdID
-    public Order getOrderByClOrdID(String clOrdID) {
-        return MarketOrderDAO.getOrderByClOrdID(clOrdID);
-    }
-
-    // Delete an order by ClOrdID
-    public void deleteOrderByClOrdID(String clOrdID) {
-        MarketOrderDAO.deleteOrderByClOrdID(clOrdID);
-    }
-
     public List<Market> getMarkets() {
         return markets;
     }
