@@ -7,8 +7,6 @@ import java.util.concurrent.CountDownLatch;
 import javax.swing.*;
 
 import lt.vytzab.initiator.market.MarketTableModel;
-import lt.vytzab.initiator.order.worker.ExecutionClearWorker;
-import lt.vytzab.initiator.order.worker.OrderClearWorker;
 import lt.vytzab.initiator.ui.panels.LogPanel;
 import lt.vytzab.initiator.order.OrderTableModel;
 import org.quickfixj.jmx.JmxExporter;
