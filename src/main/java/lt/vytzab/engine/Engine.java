@@ -1,5 +1,6 @@
 package lt.vytzab.engine;
 
+import lt.vytzab.engine.api.MarketAPIService;
 import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.market.workers.MarketFillWorker;
 import lt.vytzab.engine.market.MarketTableModel;
@@ -37,6 +38,7 @@ public class Engine {
     private static final MarketTableModel marketTableModel = new MarketTableModel();
     private static final OrderTableModel openOrderTableModel = new OrderTableModel();
     private static final OrderTableModel allOrderTableModel = new OrderTableModel();
+    private static final MarketAPIService marketApiService = new MarketAPIService();
     private static boolean started = false;
 
     public static void main(String[] args) {

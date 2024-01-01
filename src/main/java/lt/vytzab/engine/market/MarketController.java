@@ -104,14 +104,4 @@ public class MarketController {
     public List<Market> getMarkets() {
         return markets;
     }
-
-    // Placeholder method for displaying market information
-    public void display() {
-        // TODO: Implement logic for displaying market information
-    }
-
-    // Placeholder method for displaying market information
-    public void refreshMarkets() {
-        markets = MarketDAO.readAllMarkets();
-    }
 }

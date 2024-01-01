@@ -1,5 +1,6 @@
 package lt.vytzab.engine.market.workers;
 
+import lt.vytzab.engine.api.MarketAPIService;
 import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
@@ -16,10 +17,8 @@ public class MarketFillWorker extends SwingWorker<Void, List<Market>> {
 
     @Override
     protected Void doInBackground() throws Exception {
-        // Perform background task (e.g., fetch updated market data)
-        List<Market> updatedMarkets = fetchData(); // Implement this method based on your requirements
+        List<Market> updatedMarkets = fetchData();
 
-        // Publish the intermediate result to the process method
         publish(updatedMarkets);
 
         return null;
@@ -27,22 +26,24 @@ public class MarketFillWorker extends SwingWorker<Void, List<Market>> {
 
     @Override
     protected void process(List<List<Market>> chunks) {
-        // Process intermediate results on the Event Dispatch Thread
         if (!isCancelled()) {
-            // Assuming you are updating the entire table
             tableModel.setMarkets(chunks.get(chunks.size() - 1));
         }
     }
 
     @Override
     protected void done() {
-        // Executed on the Event Dispatch Thread after doInBackground is finished
-        // You can perform any final UI updates or cleanup here
     }
 
-    // Implement this method to fetch updated market data
     private List<Market> fetchData() {
-        // Your implementation to fetch data (e.g., from a database or external source)
-        return MarketDAO.readAllMarkets();
+        MarketAPIService marketAPIService = new MarketAPIService();
+        List<Market> markets = MarketDAO.readAllMarkets();
+        if (markets.isEmpty()) {
+            markets = marketAPIService.fetchMarketData();
+        }
+        for (Market market : markets) {
+            MarketDAO.createMarket(market);
+        }
+        return markets;
     }
 }

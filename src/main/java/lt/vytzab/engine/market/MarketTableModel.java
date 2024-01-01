@@ -199,6 +199,10 @@ public class MarketTableModel extends AbstractTableModel {
         }
     }
 
+    public boolean isMarketsEmpty() {
+        return markets.isEmpty();
+    }
+
     private static class MarketComparator implements Comparator<Market> {
         private int columnIndex;
 
