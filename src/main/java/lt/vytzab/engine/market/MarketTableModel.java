@@ -2,6 +2,10 @@ package lt.vytzab.engine.market;
 
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.*;
 
 public class MarketTableModel extends AbstractTableModel {
@@ -159,6 +163,40 @@ public class MarketTableModel extends AbstractTableModel {
             return (sortOrder == SortOrder.DESCENDING) ? -result : result;
         });
         return sortedMarkets;
+    }
+
+    private String marketToCSVString(Market market) {
+        DecimalFormat priceFormat = new DecimalFormat("#.00");
+        DecimalFormat volumeFormat = new DecimalFormat("###.##");
+
+        return String.format("%s,%.2f,%.2f,%.2f,%s,%s,%d,%d",
+                market.getSymbol(),
+                market.getLastPrice(),
+                market.getDayHigh(),
+                market.getDayLow(),
+                volumeFormat.format(market.getBuyVolume()),
+                volumeFormat.format(market.getSellVolume()),
+                market.getBidOrders().size(),
+                market.getAskOrders().size());
+    }
+
+    public void generateReport(String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            // Write headers
+            writer.write("Symbol,Last Price,Day High,Day Low,Buy Volume,Sell Volume,Bid Orders,Ask Orders");
+            writer.newLine();
+
+            // Write data
+            for (Market market : markets) {
+                writer.write(marketToCSVString(market));
+                writer.newLine();
+            }
+
+            System.out.println("CSV file exported successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle the exception appropriately
+        }
     }
 
     private static class MarketComparator implements Comparator<Market> {

@@ -1,10 +1,11 @@
 package lt.vytzab.engine.order;
 
-import lt.vytzab.engine.market.Market;
-
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
+import java.io.IOException;
 import java.util.*;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 
 public class OrderTableModel extends AbstractTableModel {
     private List<Order> orders;
@@ -24,8 +25,6 @@ public class OrderTableModel extends AbstractTableModel {
     private boolean filtered = false;
 
     private final String[] headers;
-
-    private List<Order> displayedOrders;
 
     public OrderTableModel() {
         orders = new ArrayList<>();
@@ -213,6 +212,39 @@ public class OrderTableModel extends AbstractTableModel {
             return (sortOrder == SortOrder.DESCENDING) ? -result : result;
         });
         return sortedOrders;
+    }
+
+    private String orderToCSVString(Order order) {
+        return String.format("%s,%s,%d,%d,%d,%c,%c,%.2f,%.2f,%s,%s",
+                order.getSenderCompID(),
+                order.getSymbol(),
+                order.getQuantity(),
+                order.getOpenQuantity(),
+                order.getExecutedQuantity(),
+                order.getSide(),
+                order.getOrdType(),
+                order.getLimit(),
+                order.getAvgExecutedPrice(),
+                order.getEntryDate(),
+                order.getGoodTillDate());
+    }
+
+    public void generateReport(String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write(String.join(",", headers));
+            writer.newLine();
+
+            // Write data
+            for (Order order : orders) {
+                writer.write(orderToCSVString(order));
+                writer.newLine();
+            }
+
+            System.out.println("CSV file exported successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle the exception appropriately, e.g., show an error message to the user
+        }
     }
 
     private static class OrderComparator implements Comparator<Order> {
