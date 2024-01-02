@@ -122,7 +122,7 @@ public class MarketDAO {
     public static int getMarketIdBySymbol(String symbol) throws SQLException {
         int marketId = -1;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
-            String sql = "SELECT id FROM markets WHERE symbol = ?";
+            String sql = "SELECT id FROM market_data WHERE symbol = ?";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setString(1, symbol);
@@ -142,7 +142,7 @@ public class MarketDAO {
 
     public static void createHistoricMarketDataEntry(Market market) throws SQLException {
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
-            String sql = "INSERT INTO historic_market_data (market_id, timestamp, last_price, day_high, day_low, buy_volume, sell_volume) " +
+            String sql = "INSERT INTO historic_market_data (market_id, date, last_price, day_high, day_low, buy_volume, sell_volume) " +
                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {

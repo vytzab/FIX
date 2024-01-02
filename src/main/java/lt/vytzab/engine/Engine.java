@@ -60,7 +60,7 @@ public class Engine {
 
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
         LogPanel logPanel = new LogPanel();
-        EngineApplication application = new EngineApplication(openOrderTableModel, allOrderTableModel, logPanel);
+        EngineApplication application = new EngineApplication(marketTableModel, openOrderTableModel, allOrderTableModel, logPanel);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
         MessageFactory messageFactory = new DefaultMessageFactory();

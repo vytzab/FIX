@@ -64,9 +64,6 @@ public class Market {
 
         bid.execute(price, quantity);
         ask.execute(price, quantity);
-        lastPrice = bid.getAvgExecutedPrice();
-        buyVolume += bid.getQuantity();
-        sellVolume += ask.getQuantity();
     }
 
     public boolean insert(Order order) {
@@ -214,11 +211,11 @@ public class Market {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Market market)) return false;
-        return Objects.equals(getBidOrders(), market.getBidOrders()) && Objects.equals(getAskOrders(), market.getAskOrders()) && Objects.equals(getSymbol(), market.getSymbol());
+        return Objects.equals(getSymbol(), market.getSymbol());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getBidOrders(), getAskOrders(), getSymbol(), getLastPrice(), getDayHigh(), getDayLow(), getBuyVolume(), getSellVolume());
+        return Objects.hash(getSymbol());
     }
 }

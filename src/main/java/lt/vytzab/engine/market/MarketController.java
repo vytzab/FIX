@@ -96,6 +96,10 @@ public class MarketController {
         bid.execute(price, quantity);
         ask.execute(price, quantity);
 
+        getMarket(bid.getSymbol()).setLastPrice(bid.getAvgExecutedPrice());
+        getMarket(bid.getSymbol()).setBuyVolume(getMarket(bid.getSymbol()).getBuyVolume() + bid.getExecutedQuantity());
+        getMarket(ask.getSymbol()).setSellVolume(getMarket(ask.getSymbol()).getSellVolume() + ask.getExecutedQuantity());
+
         MarketOrderDAO.updateMarketOrder(bid);
         MarketOrderDAO.updateMarketOrder(ask);
     }

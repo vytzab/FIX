@@ -33,18 +33,13 @@ public class MarketAPIService {
                 try (Scanner scanner = new Scanner(connection.getInputStream())) {
                     scanner.useDelimiter("\\A");
                     String apiResponse = scanner.hasNext() ? scanner.next() : "";
-
-                    // Parse apiResponse and create Market object
-                    // For now, let's assume there is a static method parseApiResponse in Market class
                     Market market = parseApiResponseToMarket(apiResponse);
                     markets.add(market);
                 }
             } catch (IOException | URISyntaxException e) {
-                // Handle exceptions appropriately
                 e.printStackTrace();
             }
         }
-
         return markets;
     }
 
@@ -61,20 +56,6 @@ public class MarketAPIService {
             double totalVolume = rootNode.path("results").get(0).path("v").asDouble();
             Double buyVolume = Math.floor(totalVolume * 0.6);
             Double sellVolume = Math.floor(totalVolume * 0.4);
-
-            System.out.println("totalVolume = " + totalVolume);
-            System.out.println("buyVolume = " + buyVolume);
-            System.out.println("sellVolume = " + sellVolume);
-
-            DecimalFormat df = new DecimalFormat("#,##");
-            df.format(totalVolume);
-            df.format(buyVolume);
-            df.format(sellVolume);
-            System.out.println("after formatting");
-
-                    System.out.println("totalVolume = " + totalVolume);
-            System.out.println("buyVolume = " + buyVolume);
-            System.out.println("sellVolume = " + sellVolume);
 
             return new Market(symbol, lastPrice, dayHigh, dayLow, buyVolume, sellVolume);
         } catch (IOException e) {

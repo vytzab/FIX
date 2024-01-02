@@ -1,6 +1,7 @@
 package lt.vytzab.engine;
 
 import lt.vytzab.engine.market.Market;
+import lt.vytzab.engine.market.MarketTableModel;
 import lt.vytzab.engine.order.OrderController;
 import lt.vytzab.engine.order.OrderIdGenerator;
 import lt.vytzab.engine.market.MarketController;
@@ -25,13 +26,15 @@ import quickfix.fix42.SecurityStatus;
 public class EngineApplication extends MessageCracker implements quickfix.Application {
     private OrderTableModel openOrderTableModel = null;
     private OrderTableModel allOrderTableModel = null;
+    private MarketTableModel marketTableModel = null;
     private final MarketController marketController = new MarketController();
     private final OrderController orderController = new OrderController();
     private final OrderIdGenerator generator = new OrderIdGenerator();
     private final LogPanel logPanel;
     private List<SessionID> sessionIDs = new ArrayList<>();
 
-    public EngineApplication(OrderTableModel openOrderTableModel, OrderTableModel allOrderTableModel, LogPanel logPanel) {
+    public EngineApplication(MarketTableModel marketTableModel, OrderTableModel openOrderTableModel, OrderTableModel allOrderTableModel, LogPanel logPanel) {
+        this.marketTableModel = marketTableModel;
         this.openOrderTableModel = openOrderTableModel;
         this.allOrderTableModel = allOrderTableModel;
         this.logPanel = logPanel;
@@ -187,7 +190,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 orders.remove(0);
             }
             openOrderTableModel.removeFullyExecutedOrders();
-            sendSecurityStatusFromMarket(marketController.getMarket(order.getSymbol()), 0);
+            marketTableModel.addMarket(marketController.getMarket(order.getSymbol()));
+            sendSecurityStatusFromMarket(marketController.getMarket(order.getSymbol()), 1);
         } else {
             messageExecutionReport(newOrderSingle, '8');
         }
