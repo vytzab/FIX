@@ -40,9 +40,9 @@ public class MarketFillWorker extends SwingWorker<Void, List<Market>> {
         List<Market> markets = MarketDAO.readAllMarkets();
         if (markets.isEmpty()) {
             markets = marketAPIService.fetchMarketData();
-        }
-        for (Market market : markets) {
-            MarketDAO.createMarket(market);
+            for (Market market : markets) {
+                MarketDAO.createMarket(market);
+            }
         }
         return markets;
     }

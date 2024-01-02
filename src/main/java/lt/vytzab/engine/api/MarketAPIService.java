@@ -52,14 +52,29 @@ public class MarketAPIService {
         ObjectMapper objectMapper = new ObjectMapper();
         try {
             JsonNode rootNode = objectMapper.readTree(apiResponse);
-//            DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
             String symbol = rootNode.path("ticker").asText();
-            Double lastPrice = Math.floor(rootNode.path("results").get(0).path("c").asDouble() * 100)/100;
-            Double dayHigh = Math.floor(rootNode.path("results").get(0).path("h").asDouble() * 100)/100;
-            Double dayLow = Math.floor(rootNode.path("results").get(0).path("l").asDouble() * 100)/100;
-            Double buyVolume = (double) Math.round(rootNode.path("results").get(0).path("v").asDouble()*0.6);
-            Double sellVolume = (double) Math.round(rootNode.path("results").get(0).path("v").asDouble()*0.4);
+            Double lastPrice = Math.floor(rootNode.path("results").get(0).path("c").asDouble() * 100) / 100;
+            Double dayHigh = Math.floor(rootNode.path("results").get(0).path("h").asDouble() * 100) / 100;
+            Double dayLow = Math.floor(rootNode.path("results").get(0).path("l").asDouble() * 100) / 100;
+
+            double totalVolume = rootNode.path("results").get(0).path("v").asDouble();
+            Double buyVolume = Math.floor(totalVolume * 0.6);
+            Double sellVolume = Math.floor(totalVolume * 0.4);
+
+            System.out.println("totalVolume = " + totalVolume);
+            System.out.println("buyVolume = " + buyVolume);
+            System.out.println("sellVolume = " + sellVolume);
+
+            DecimalFormat df = new DecimalFormat("#,##");
+            df.format(totalVolume);
+            df.format(buyVolume);
+            df.format(sellVolume);
+            System.out.println("after formatting");
+
+                    System.out.println("totalVolume = " + totalVolume);
+            System.out.println("buyVolume = " + buyVolume);
+            System.out.println("sellVolume = " + sellVolume);
 
             return new Market(symbol, lastPrice, dayHigh, dayLow, buyVolume, sellVolume);
         } catch (IOException e) {

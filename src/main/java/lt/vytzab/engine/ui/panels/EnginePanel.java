@@ -47,7 +47,7 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
         allOrderPanel = new OrderPanel(allOrderTableModel, application);
         marketPanel = new MarketPanel(marketTableModel);
 
-        tabbedPane.add("Markets", marketPanel);
+        tabbedPane.add("Current Markets", marketPanel);
         tabbedPane.add("Open Orders", openOrderPanel);
         tabbedPane.add("All Orders", allOrderPanel);
         tabbedPane.add("Logs", logPanel);

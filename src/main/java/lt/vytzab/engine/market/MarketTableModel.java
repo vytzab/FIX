@@ -1,10 +1,13 @@
 package lt.vytzab.engine.market;
 
+import lt.vytzab.engine.dao.MarketDAO;
+
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.util.*;
 
@@ -111,15 +114,15 @@ public class MarketTableModel extends AbstractTableModel {
                 case SYMBOL:
                     return market.getSymbol();
                 case LASTPRICE:
-                    return market.getLastPrice();
+                    return formatDouble(market.getLastPrice());
                 case DAYHIGH:
-                    return market.getDayHigh();
+                    return formatDouble(market.getDayHigh());
                 case DAYLOW:
-                    return market.getDayLow();
+                    return formatDouble(market.getDayLow());
                 case BUYVOLUME:
-                    return market.getBuyVolume();
+                    return formatDouble(market.getBuyVolume());
                 case SELLVOLUME:
-                    return market.getSellVolume();
+                    return formatDouble(market.getSellVolume());
                 default:
                     return "";
             }
@@ -127,9 +130,22 @@ public class MarketTableModel extends AbstractTableModel {
         return "";
     }
 
-    public void clearMarkets() {
+    private String formatDouble(double value) {
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        return decimalFormat.format(value);
+
+        // OR using String.format
+        // return String.format("%.2f", value);
+    }
+
+    public void clearMarkets() throws SQLException {
+        for (Market market : markets) {
+            MarketDAO.createHistoricMarketDataEntry(market);
+            market.setSellVolume(0);
+            market.setBuyVolume(0);
+            MarketDAO.updateMarket(market);
+        }
         markets.clear();
-//        fireTableRowsDeleted(start, end);
     }
 
     public void setMarkets(List<Market> updatedMarkets) {

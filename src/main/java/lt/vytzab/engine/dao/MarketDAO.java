@@ -4,6 +4,7 @@ import lt.vytzab.engine.Variables;
 import lt.vytzab.engine.market.Market;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -116,7 +117,106 @@ public class MarketDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
+    }
 
+    public static int getMarketIdBySymbol(String symbol) throws SQLException {
+        int marketId = -1;
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
+            String sql = "SELECT id FROM markets WHERE symbol = ?";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                preparedStatement.setString(1, symbol);
+
+                try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                    if (resultSet.next()) {
+                        marketId = resultSet.getInt("id");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+            return marketId;
+        }
+    }
+
+    public static void createHistoricMarketDataEntry(Market market) throws SQLException {
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
+            String sql = "INSERT INTO historic_market_data (market_id, timestamp, last_price, day_high, day_low, buy_volume, sell_volume) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+            try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+                int marketId = getMarketIdBySymbol(market.getSymbol()); // Assuming you have a method to get market ID by symbol
+                preparedStatement.setInt(1, marketId);
+                preparedStatement.setDate(2, Date.valueOf(LocalDate.now()));
+                preparedStatement.setDouble(3, market.getLastPrice());
+                preparedStatement.setDouble(4, market.getDayHigh());
+                preparedStatement.setDouble(5, market.getDayLow());
+                preparedStatement.setDouble(6, market.getBuyVolume());
+                preparedStatement.setDouble(7, market.getSellVolume());
+
+                preparedStatement.executeUpdate();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    public static List<Market> readAllHistoricMarketsForDate(LocalDate date) {
+        List<Market> markets = new ArrayList<>();
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
+            String sql = "SELECT * FROM historic_market_data WHERE date = ?";
+
+            try (PreparedStatement statement = connection.prepareStatement(sql)) {
+                statement.setDate(1, Date.valueOf(date));
+
+                try (ResultSet resultSet = statement.executeQuery()) {
+                    while (resultSet.next()) {
+                        Market market = new Market(
+                                resultSet.getString("symbol"),
+                                resultSet.getDouble("last_price"),
+                                resultSet.getDouble("day_high"),
+                                resultSet.getDouble("day_low"),
+                                resultSet.getDouble("buy_volume"),
+                                resultSet.getDouble("sell_volume")
+                        );
+                        markets.add(market);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return markets;
+    }
+
+    public static Market getLatestMarketEntry(int marketId) {
+        String sql = "SELECT * FROM historic_market_data WHERE market_id = ? ORDER BY date DESC LIMIT 1";
+
+        try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword());
+             PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
+
+            preparedStatement.setInt(1, marketId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return new Market(
+                            resultSet.getString("symbol"),
+                            resultSet.getDouble("last_price"),
+                            resultSet.getDouble("day_high"),
+                            resultSet.getDouble("day_low"),
+                            resultSet.getDouble("buy_volume"),
+                            resultSet.getDouble("sell_volume")
+                    );
+                } else {
+                    return null;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 
     public static boolean checkDatabaseConnectivity() {

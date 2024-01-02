@@ -93,15 +93,16 @@ public class MarketController {
         // Determine the quantity to be executed (minimum of bid and ask open quantities)
         long quantity = Math.min(bid.getOpenQuantity(), ask.getOpenQuantity());
 
-        // Execute the bid and ask orders at the determined price and quantity
         bid.execute(price, quantity);
         ask.execute(price, quantity);
 
-        // Update the bid and ask orders in the market order DAO (Data Access Object)
         MarketOrderDAO.updateMarketOrder(bid);
         MarketOrderDAO.updateMarketOrder(ask);
     }
     public List<Market> getMarkets() {
         return markets;
+    }
+    public static void saveHistoricMarkets() {
+
     }
 }

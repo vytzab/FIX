@@ -65,6 +65,8 @@ public class Market {
         bid.execute(price, quantity);
         ask.execute(price, quantity);
         lastPrice = bid.getAvgExecutedPrice();
+        buyVolume += bid.getQuantity();
+        sellVolume += ask.getQuantity();
     }
 
     public boolean insert(Order order) {

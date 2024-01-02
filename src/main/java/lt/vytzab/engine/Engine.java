@@ -1,6 +1,5 @@
 package lt.vytzab.engine;
 
-import lt.vytzab.engine.api.MarketAPIService;
 import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.market.workers.MarketFillWorker;
 import lt.vytzab.engine.market.MarketTableModel;
@@ -28,6 +27,7 @@ import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.Scanner;
 
 import static lt.vytzab.engine.ui.EngineFrame.centerFrameOnScreen;
@@ -38,7 +38,6 @@ public class Engine {
     private static final MarketTableModel marketTableModel = new MarketTableModel();
     private static final OrderTableModel openOrderTableModel = new OrderTableModel();
     private static final OrderTableModel allOrderTableModel = new OrderTableModel();
-    private static final MarketAPIService marketApiService = new MarketAPIService();
     private static boolean started = false;
 
     public static void main(String[] args) {
@@ -48,14 +47,11 @@ public class Engine {
             log.info(e.getMessage(), e);
         }
         try {
-            // bitu stream arba is failo arba default
             InputStream inputStream = getSettingsInputStream(args);
-            // settings is bitu streamo
             SessionSettings settings = new SessionSettings(inputStream);
             inputStream.close();
             setDBCredentials();
 
-            // sukuriamas Engine objektas
             Engine engine = new Engine(settings);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -63,18 +59,12 @@ public class Engine {
     }
 
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
-        // Ivykiu registro atvaizdavimas
         LogPanel logPanel = new LogPanel();
-        // Sukuriama Engine aplikacija
         EngineApplication application = new EngineApplication(openOrderTableModel, allOrderTableModel, logPanel);
-        // Kaupia FIX zinutes
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
-        // Ivykiu registravimas
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
-        // Kuria FIX zinutes
         MessageFactory messageFactory = new DefaultMessageFactory();
 
-        // Sukuriamas acceptorius priimantis connections is iniciatoriu
         acceptor = new SocketAcceptor(application, messageStoreFactory, settings, logFactory, messageFactory);
         JMenuBar menuBar = createMenu();
         JFrame frame = new EngineFrame(marketTableModel, openOrderTableModel, allOrderTableModel, logPanel, application, menuBar);
@@ -95,7 +85,7 @@ public class Engine {
         }
     }
 
-    private static void stop() {
+    private static void stop() throws SQLException {
         marketTableModel.clearMarkets();
         openOrderTableModel.clearOrders();
         allOrderTableModel.clearOrders();
@@ -105,10 +95,6 @@ public class Engine {
         }
     }
 
-    // Grazina bitu streama
-    // Jeigu pateiktas argumentas, nuskaito faila
-    // Jeigu nepateiktas, nuskaito default
-    // Jeigu null, ismeta pranesima kaip naudoti
     private static InputStream getSettingsInputStream(String[] args) throws FileNotFoundException {
         InputStream inputStream = null;
         if (args.length == 0) {
@@ -138,7 +124,11 @@ public class Engine {
         });
 
         stopItem.addActionListener(e -> {
-            stop();
+            try {
+                stop();
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
+            }
         });
 
         sessionMenu.add(startItem);
