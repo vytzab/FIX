@@ -1,13 +1,11 @@
 package lt.vytzab.initiator.order;
 
-import lt.vytzab.initiator.market.Market;
-import quickfix.field.TimeInForce;
-
 import javax.swing.*;
 import javax.swing.table.AbstractTableModel;
-import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
 
 public class OrderTableModel extends AbstractTableModel {
     private List<Order> orders;
@@ -202,6 +200,38 @@ public class OrderTableModel extends AbstractTableModel {
             return (sortOrder == SortOrder.DESCENDING) ? -result : result;
         });
         return sortedOrders;
+    }
+
+    private String orderToCSVString(Order order) {
+        return String.format("%s,%.2f,%.2f,%.2f,%s,%s,%.2f,%.2f,%s,%s",
+                order.getSymbol(),
+                order.getQuantity(),
+                order.getOpenQuantity(),
+                order.getExecutedQuantity(),
+                order.getSide().toString(),
+                order.getType().toString(),
+                order.getLimit(),
+                order.getAvgPx(),
+                order.getEntryDate(),
+                order.getGoodTillDate());
+    }
+
+    public void generateReport(String fileName) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
+            writer.write(String.join(",", headers));
+            writer.newLine();
+
+            // Write data
+            for (Order order : orders) {
+                writer.write(orderToCSVString(order));
+                writer.newLine();
+            }
+
+            System.out.println("CSV file exported successfully!");
+        } catch (IOException e) {
+            e.printStackTrace();
+            // Handle the exception appropriately, e.g., show an error message to the user
+        }
     }
 
     private static class OrderComparator implements Comparator<Order> {

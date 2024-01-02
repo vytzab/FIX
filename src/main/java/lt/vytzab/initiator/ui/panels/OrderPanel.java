@@ -45,21 +45,34 @@ public class OrderPanel extends JPanel {
             keywordTextField = new JTextField(20);
 
             JButton filterButton = new JButton("Filter");
-            filterButton.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    filterOrders();
-                }
-            });
+            JButton generateReportButton = new JButton("Generate Report");
+
+            filterButton.addActionListener(e -> filterOrders());
+            generateReportButton.addActionListener(e -> generateReport());
 
             add(keywordLabel);
             add(keywordTextField);
             add(filterButton);
+            add(generateReportButton);
         }
 
         private void filterOrders() {
             String keyword = keywordTextField.getText();
             orderTableModel.filterByKeyword(keyword);
+        }
+
+        private void generateReport() {
+            JFileChooser fileChooser = new JFileChooser();
+            int userSelection = fileChooser.showSaveDialog(this);
+
+            if (userSelection == JFileChooser.APPROVE_OPTION) {
+                String fileName = fileChooser.getSelectedFile().getAbsolutePath();// Append .csv extension if not already present
+                if (!fileName.toLowerCase().endsWith(".csv")) {
+                    fileName += ".csv";
+                }
+                orderTableModel.generateReport(fileName);
+                System.out.println("Generating Report...");
+            }
         }
     }
 }
