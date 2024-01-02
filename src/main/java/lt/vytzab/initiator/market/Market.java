@@ -9,6 +9,7 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 public class Market {
     private String symbol;
@@ -88,5 +89,17 @@ public class Market {
 
     public void setSellVolume(Double sellVolume) {
         this.sellVolume = sellVolume;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Market market)) return false;
+        return Objects.equals(getSymbol(), market.getSymbol());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSymbol());
     }
 }

@@ -112,15 +112,15 @@ public class MarketTableModel extends AbstractTableModel {
                 case SYMBOL:
                     return market.getSymbol();
                 case LASTPRICE:
-                    return market.getLastPrice();
+                    return formatDouble(market.getLastPrice());
                 case DAYHIGH:
-                    return market.getDayHigh();
+                    return formatDouble(market.getDayHigh());
                 case DAYLOW:
-                    return market.getDayLow();
+                    return formatDouble(market.getDayLow());
                 case BUYVOLUME:
-                    return market.getBuyVolume();
+                    return formatDouble(market.getBuyVolume());
                 case SELLVOLUME:
-                    return market.getSellVolume();
+                    return formatDouble(market.getSellVolume());
                 default:
                     return "";
             }
@@ -128,9 +128,16 @@ public class MarketTableModel extends AbstractTableModel {
         return "";
     }
 
+    private String formatDouble(double value) {
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        return decimalFormat.format(value);
+
+        // OR using String.format
+        // return String.format("%.2f", value);
+    }
+
     public void clearMarkets() {
         markets.clear();
-//        fireTableRowsDeleted(start, end);
     }
 
     public void fillMarkets() {
