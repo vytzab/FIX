@@ -104,13 +104,9 @@ public class OrderEntry {
         JMenuItem startItem = new JMenuItem("Logon");
         JMenuItem stopItem = new JMenuItem("Logout");
 
-        startItem.addActionListener(e -> {
-            logon();
-        });
+        startItem.addActionListener(e -> logon());
 
-        stopItem.addActionListener(e -> {
-            logout();
-        });
+        stopItem.addActionListener(e -> logout());
 
         sessionMenu.add(startItem);
         sessionMenu.addSeparator();
