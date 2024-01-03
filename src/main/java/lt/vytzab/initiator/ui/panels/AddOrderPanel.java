@@ -201,7 +201,7 @@ public class AddOrderPanel extends JPanel implements Observer {
         public void itemStateChanged(ItemEvent e) {
             OrderTIF item = (OrderTIF) tifComboBox.getSelectedItem();
             enableDate(item == OrderTIF.GTD);
-            if (dateChooser.getDate() != null) {
+            if (dateChooser.getDate() != null && dateChooser.getDate().after(new Date())) {
                 activateSubmit();
             }
         }
@@ -249,6 +249,7 @@ public class AddOrderPanel extends JPanel implements Observer {
 
         private void addOrder(Order order) {
             try {
+                setMessage(" ");
                 orderTableModel.addOrder(order);
                 application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
             } catch (SessionNotFound ex) {
@@ -258,11 +259,12 @@ public class AddOrderPanel extends JPanel implements Observer {
 
 
         private boolean checkDateField() {
-            return dateChooser.getDate() != null && dateChooser.getDate().after(new Date());
+            return dateChooser.getDate() != null;
         }
 
         private void showMessageDialog() {
-            JOptionPane.showMessageDialog(AddOrderPanel.this, "Please pick a valid date.", "Invalid Date", JOptionPane.ERROR_MESSAGE);
+            setMessage("Please pick a valid date.");
+//            JOptionPane.showMessageDialog(AddOrderPanel.this, "Please pick a valid date.", "Invalid Date", JOptionPane.ERROR_MESSAGE);
         }
     }
 
