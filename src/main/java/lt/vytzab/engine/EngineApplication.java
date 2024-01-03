@@ -3,7 +3,7 @@ package lt.vytzab.engine;
 import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
 import lt.vytzab.engine.order.OrderController;
-import lt.vytzab.engine.order.OrderIdGenerator;
+import lt.vytzab.engine.helpers.IDGenerator;
 import lt.vytzab.engine.market.MarketController;
 import lt.vytzab.engine.order.Order;
 import lt.vytzab.engine.order.OrderTableModel;
@@ -29,21 +29,23 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     private MarketTableModel marketTableModel = null;
     private final MarketController marketController = new MarketController();
     private final OrderController orderController = new OrderController();
-    private final OrderIdGenerator generator = new OrderIdGenerator();
     private final LogPanel logPanel;
     private List<SessionID> sessionIDs = new ArrayList<>();
+    private IDGenerator idGenerator = null;
 
-    public EngineApplication(MarketTableModel marketTableModel, OrderTableModel openOrderTableModel, OrderTableModel allOrderTableModel, LogPanel logPanel) {
+    public EngineApplication(MarketTableModel marketTableModel, OrderTableModel openOrderTableModel, OrderTableModel allOrderTableModel, LogPanel logPanel, IDGenerator idGenerator) {
         this.marketTableModel = marketTableModel;
         this.openOrderTableModel = openOrderTableModel;
         this.allOrderTableModel = allOrderTableModel;
         this.logPanel = logPanel;
+        this.idGenerator = idGenerator;
     }
 
     public void onCreate(SessionID sessionId) {
     }
 
     public void onLogon(SessionID sessionId) {
+        this.idGenerator.setSenderCompID(sessionId.getSenderCompID());
         sessionIDs.add(sessionId);
         Session session = Session.lookupSession(sessionId);
         if (session != null && session.isLoggedOn()) {
@@ -101,7 +103,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             messageExecutionReport(message, OrdStatus.CANCELED);
         } else {
             OrderCancelReject orderCancelReject = new OrderCancelReject(
-                    new OrderID(generator.genOrderID()),
+                    new OrderID(idGenerator.genOrderID()),
                     new ClOrdID(message.getString(ClOrdID.FIELD)),
                     new OrigClOrdID(message.getString(OrigClOrdID.FIELD)),
                     new OrdStatus(OrdStatus.REJECTED),
@@ -124,7 +126,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             messageExecutionReport(message, '5');
         } else {
             OrderCancelReject orderCancelReject = new OrderCancelReject(
-                    new OrderID(generator.genOrderID()),
+                    new OrderID(idGenerator.genOrderID()),
                     new ClOrdID(message.getString(ClOrdID.FIELD)),
                     new OrigClOrdID(message.getString(OrigClOrdID.FIELD)),
                     new OrdStatus(OrdStatus.REJECTED),
@@ -233,8 +235,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     private void orderExecutionReport(Order order, char ordStatus) throws FieldNotFound {
         ExecutionReport executionReport = new ExecutionReport(
-                new OrderID(generator.genOrderID()),
-                new ExecID(generator.genExecutionID()),
+                new OrderID(idGenerator.genOrderID()),
+                new ExecID(idGenerator.genExecutionID()),
                 new ExecTransType(ExecTransType.NEW),
                 new ExecType(ordStatus),
                 new OrdStatus(ordStatus),
@@ -264,8 +266,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     private ExecutionReport NewOrderSingleER(NewOrderSingle message, char ordStatus) throws FieldNotFound {
         ExecutionReport executionReport = new ExecutionReport(
-                new OrderID(generator.genOrderID()),
-                new ExecID(generator.genExecutionID()),
+                new OrderID(idGenerator.genOrderID()),
+                new ExecID(idGenerator.genExecutionID()),
                 new ExecTransType(ExecTransType.NEW),
                 new ExecType(ExecType.REJECTED),
                 new OrdStatus(OrdStatus.REJECTED),
@@ -291,8 +293,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     private ExecutionReport OrderCancelRequestER(OrderCancelRequest message, char ordStatus) throws FieldNotFound {
         ExecutionReport executionReport = new ExecutionReport(
-                new OrderID(generator.genOrderID()),
-                new ExecID(generator.genExecutionID()),
+                new OrderID(idGenerator.genOrderID()),
+                new ExecID(idGenerator.genExecutionID()),
                 new ExecTransType(ExecTransType.NEW),
                 new ExecType(ExecType.CANCELED),
                 new OrdStatus(OrdStatus.CANCELED),
@@ -309,8 +311,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     private ExecutionReport OrderCancelReplaceRequestER(OrderCancelReplaceRequest message, char ordStatus) throws FieldNotFound {
         ExecutionReport executionReport = new ExecutionReport(
-                new OrderID(generator.genOrderID()),
-                new ExecID(generator.genExecutionID()),
+                new OrderID(idGenerator.genOrderID()),
+                new ExecID(idGenerator.genExecutionID()),
                 new ExecTransType(ExecTransType.NEW),
                 new ExecType(ExecType.REJECTED),
                 new OrdStatus(OrdStatus.REJECTED),
@@ -422,5 +424,9 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 Session.sendToTarget(securityStatusFromMarket(market, status), sessionID.getSenderCompID(), sessionID.getTargetCompID());
             }
         }
+    }
+
+    public IDGenerator getIdGenerator() {
+        return idGenerator;
     }
 }

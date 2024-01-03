@@ -1,5 +1,6 @@
 package lt.vytzab.engine;
 
+import lt.vytzab.engine.helpers.IDGenerator;
 import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.market.workers.MarketFillWorker;
 import lt.vytzab.engine.market.MarketTableModel;
@@ -60,7 +61,8 @@ public class Engine {
 
     public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
         LogPanel logPanel = new LogPanel();
-        EngineApplication application = new EngineApplication(marketTableModel, openOrderTableModel, allOrderTableModel, logPanel);
+        IDGenerator idGenerator = new IDGenerator();
+        EngineApplication application = new EngineApplication(marketTableModel, openOrderTableModel, allOrderTableModel, logPanel, idGenerator);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true);
         MessageFactory messageFactory = new DefaultMessageFactory();
