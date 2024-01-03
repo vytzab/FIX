@@ -46,6 +46,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void onLogon(SessionID sessionId) {
         this.idGenerator.setSenderCompID(sessionId.getSenderCompID());
+        marketController.refreshMarkets();
         sessionIDs.add(sessionId);
         Session session = Session.lookupSession(sessionId);
         if (session != null && session.isLoggedOn()) {
