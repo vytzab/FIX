@@ -233,7 +233,6 @@ public class AddOrderPanel extends JPanel implements Observer {
             OrderType type = order.getType();
             if (type == OrderType.LIMIT) {
                 order.setLimit(limitPriceTextField.getText());
-                addOrder(order);
             }
             if (order.getTIF() == OrderTIF.DAY) {
                 order.setGoodTillDate(LocalDate.now());
