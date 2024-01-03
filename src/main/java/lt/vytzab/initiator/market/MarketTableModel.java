@@ -185,7 +185,6 @@ public class MarketTableModel extends AbstractTableModel {
     }
 
     private String marketToCSVString(Market market) {
-        DecimalFormat priceFormat = new DecimalFormat("#.00");
         DecimalFormat volumeFormat = new DecimalFormat("###.##");
 
         return String.format("%s,%.2f,%.2f,%.2f,%s,%s",
