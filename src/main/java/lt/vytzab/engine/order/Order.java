@@ -210,6 +210,11 @@ public class Order {
         this.lastExecutedQuantity = lastExecutedQuantity;
     }
 
+    public void cancelOrder() {
+        this.canceled = true;
+        this.openQuantity = 0;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
