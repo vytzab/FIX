@@ -154,8 +154,10 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         List<Order> symbolOrders = orderController.getAllOrdersBySymbolAndSender(symbol, senderCompId);
         if (!symbolOrders.isEmpty()) {
             for (Order order : symbolOrders) {
-                noMDEntries = noMDEntriesFromOrder(order);
-                fixMD.addGroup(noMDEntries);
+                if (!order.getCanceled()){
+                    noMDEntries = noMDEntriesFromOrder(order);
+                    fixMD.addGroup(noMDEntries);
+                }
             }
             try {
                 Session.sendToTarget(fixMD, targetCompId, senderCompId);
