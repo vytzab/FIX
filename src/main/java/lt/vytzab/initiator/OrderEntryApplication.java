@@ -56,7 +56,7 @@ public class OrderEntryApplication implements Application {
     public void onLogon(SessionID sessionID) {
         observableLogon.logon(sessionID);
         this.sessionID = sessionID;
-        this.idGenerator.setSenderCompID(sessionID.toString());
+        this.idGenerator.setSenderCompID(sessionID.getSenderCompID());
     }
 
     public void onLogout(SessionID sessionID) {
