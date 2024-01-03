@@ -73,7 +73,7 @@ public class MarketController {
         // Iterate through all orders to categorize them as bid or ask orders
         for (Order order : allOrders) {
             // Check if the order is not fully executed
-            if (!order.isClosed() && !order.getCanceled()) {
+            if (!order.isClosed()) {
                 // Categorize orders based on side
                 if (order.getSide() == '1') {
                     bidOrders.add(order);

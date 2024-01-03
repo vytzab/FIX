@@ -195,6 +195,10 @@ public class OrderTableModel extends AbstractTableModel {
         fillOrders();
     }
 
+    public boolean isOrdersEmpty() {
+        return orders.isEmpty();
+    }
+
     public void setSortedOrders(int columnIndex, SortOrder sortOrder) {
         orders = sortOrders(columnIndex, sortOrder);
 

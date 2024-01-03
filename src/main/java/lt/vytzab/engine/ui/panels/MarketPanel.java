@@ -61,13 +61,15 @@ public class MarketPanel extends JPanel {
             JFileChooser fileChooser = new JFileChooser();
             int userSelection = fileChooser.showSaveDialog(this);
 
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
-                if (!fileName.toLowerCase().endsWith(".csv")) {
-                    fileName += ".csv";
+            if (!marketTableModel.isMarketsEmpty()) {
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    String fileName = fileChooser.getSelectedFile().getAbsolutePath();
+                    if (!fileName.toLowerCase().endsWith(".csv")) {
+                        fileName += ".csv";
+                    }
+                    marketTableModel.generateReport(fileName);
+                    System.out.println("Generating Report...");
                 }
-                marketTableModel.generateReport(fileName);
-                System.out.println("Generating Report...");
             }
         }
     }
