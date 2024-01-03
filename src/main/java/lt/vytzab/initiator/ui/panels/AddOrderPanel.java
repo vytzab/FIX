@@ -22,6 +22,7 @@ import javax.swing.*;
 import com.toedter.calendar.JDateChooser;
 import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.helpers.DoubleNumberTextField;
+import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.helpers.IntegerNumberTextField;
 import lt.vytzab.initiator.helpers.LogonEvent;
 import lt.vytzab.initiator.order.Order;
@@ -219,7 +220,7 @@ public class AddOrderPanel extends JPanel implements Observer {
 
     private class SubmitListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            Order order = new Order();
+            Order order = new Order(application.getIdGenerator().genOrderID());
             order.setSide((OrderSide) sideComboBox.getSelectedItem());
             order.setType((OrderType) typeComboBox.getSelectedItem());
             order.setTIF((OrderTIF) tifComboBox.getSelectedItem());

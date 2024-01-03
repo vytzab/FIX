@@ -6,6 +6,7 @@ import java.util.concurrent.CountDownLatch;
 
 import javax.swing.*;
 
+import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.market.MarketTableModel;
 import lt.vytzab.initiator.ui.panels.LogPanel;
 import lt.vytzab.initiator.order.OrderTableModel;
@@ -55,7 +56,8 @@ public class OrderEntry {
         OrderTableModel executedOrdersTableModel = new OrderTableModel();
         MarketTableModel marketTableModel = new MarketTableModel();
         LogPanel logPanel = new LogPanel();
-        OrderEntryApplication application = new OrderEntryApplication(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel);
+        IDGenerator idGenerator = new IDGenerator();
+        OrderEntryApplication application = new OrderEntryApplication(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, idGenerator);
         MessageStoreFactory messageStoreFactory = new FileStoreFactory(settings);
         LogFactory logFactory = new ScreenLogFactory(true, true, true, logHeartbeats);
         MessageFactory messageFactory = new DefaultMessageFactory();
@@ -66,7 +68,7 @@ public class OrderEntry {
         JmxExporter exporter = new JmxExporter();
         exporter.register(initiator);
 
-        JFrame frame = new OrderEntryFrame(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application, menuBar);
+        JFrame frame = new OrderEntryFrame(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application, menuBar, idGenerator);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         centerFrameOnScreen(frame);
     }

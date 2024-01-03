@@ -40,12 +40,14 @@ public class OrderEntryApplication implements Application {
     static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(OrderEntryApplication.class);
     private SessionID sessionID = null;
+    private IDGenerator idGenerator = null;
 
-    public OrderEntryApplication(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel) {
+    public OrderEntryApplication(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel, IDGenerator idGenerator) {
         this.marketTableModel = marketTableModel;
         this.orderTableModel = orderTableModel;
         this.executedOrdersTableModel = executedOrdersTableModel;
         this.logPanel = logPanel;
+        this.idGenerator = idGenerator;
     }
 
     public void onCreate(SessionID sessionID) {
@@ -54,6 +56,7 @@ public class OrderEntryApplication implements Application {
     public void onLogon(SessionID sessionID) {
         observableLogon.logon(sessionID);
         this.sessionID = sessionID;
+        this.idGenerator.setSenderCompID(sessionID.toString());
     }
 
     public void onLogout(SessionID sessionID) {
@@ -167,7 +170,7 @@ public class OrderEntryApplication implements Application {
     public void sendOrderCancelRequest(Order order) throws SessionNotFound {
         OrderCancelRequest orderCancelRequest = new OrderCancelRequest(
                 new OrigClOrdID(order.getClOrdID()),
-                new ClOrdID(IDGenerator.genOrderID()),
+                new ClOrdID(idGenerator.genOrderID()),
                 new Symbol(order.getSymbol()),
                 sideToFIXSide(order.getSide()),
                 new TransactTime());
@@ -190,7 +193,7 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendMarketDataRequest(Market market, SessionID sessionID) throws SessionNotFound {
-        MarketDataRequest marketDataRequest = new MarketDataRequest(new MDReqID(IDGenerator.genMarketRequestID()), new SubscriptionRequestType('1'), new MarketDepth(1));
+        MarketDataRequest marketDataRequest = new MarketDataRequest(new MDReqID(idGenerator.genMarketRequestID()), new SubscriptionRequestType('1'), new MarketDepth(1));
         MarketDataRequest.NoMDEntryTypes noMDEntryTypes = new MarketDataRequest.NoMDEntryTypes();
         noMDEntryTypes.set(new MDEntryType('0'));
         marketDataRequest.addGroup(noMDEntryTypes);
@@ -204,7 +207,7 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendSecurityStatusRequest(SessionID sessionID) throws SessionNotFound {
-        SecurityStatusRequest securityStatusRequest = new SecurityStatusRequest(new SecurityStatusReqID(IDGenerator.genOrderID()), new Symbol("AAPL"), new SubscriptionRequestType('1'));
+        SecurityStatusRequest securityStatusRequest = new SecurityStatusRequest(new SecurityStatusReqID(idGenerator.genOrderID()), new Symbol("AAPL"), new SubscriptionRequestType('1'));
 
         Session.sendToTarget(securityStatusRequest, sessionID);
     }
@@ -267,7 +270,7 @@ public class OrderEntryApplication implements Application {
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
         int numEntries = message.getInt(NoMDEntries.FIELD);
         for (int i = 1; i <= numEntries; i++) {
-            Order order = new Order();
+            Order order = new Order(idGenerator.genOrderID());
             if (message.getGroup(i, noMDEntries) != null) {
                 order = orderFromNoMDEntries(message.getGroup(i, noMDEntries));
             }
@@ -409,7 +412,7 @@ public class OrderEntryApplication implements Application {
     }
 
     public Order orderFromNoMDEntries(Group noMDEntries) throws FieldNotFound {
-        Order order = new Order();
+        Order order = new Order(idGenerator.genOrderID());
         order.setQuantity(noMDEntries.getDouble(MDEntrySize.FIELD));
         order.setOpenQuantity(noMDEntries.getDouble(LeavesQty.FIELD));
         order.setExecutedQuantity(noMDEntries.getDouble(CumQty.FIELD));
@@ -424,5 +427,9 @@ public class OrderEntryApplication implements Application {
         order.setClOrdID(noMDEntries.getString(OrderID.FIELD));
 //TODO implement stop and limit
         return order;
+    }
+
+    public IDGenerator getIdGenerator() {
+        return idGenerator;
     }
 }

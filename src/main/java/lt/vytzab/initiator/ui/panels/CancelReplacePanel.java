@@ -92,8 +92,11 @@ public class CancelReplacePanel extends JPanel {
 
     private class ReplaceListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            Order newOrder = (Order) order.clone();
-            newOrder.setClOrdID(IDGenerator.genOrderID());
+            Order newOrder = order;
+            newOrder.setClOrdID(order.getOrderID());
+            newOrder.setOrderID(order.getClOrdID());
+
+            newOrder.setClOrdID(application.getIdGenerator().genOrderID());
             if (checkQuantityField()) {
                 newOrder.setQuantity(Double.parseDouble(quantityTextField.getText()));
                 newOrder.setRejected(false);

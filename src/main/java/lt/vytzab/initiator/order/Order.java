@@ -5,7 +5,7 @@ import quickfix.SessionID;
 
 import java.time.LocalDate;
 
-public class Order implements Cloneable {
+public class Order {
     private SessionID sessionID = null;
     private String symbol = null;
     private double quantity = 0;
@@ -25,19 +25,8 @@ public class Order implements Cloneable {
     private LocalDate entryDate = null;
     private LocalDate goodTillDate = null;
 
-    public Order() {
-        ClOrdID = IDGenerator.genOrderID();
-    }
-
-    public Object clone() {
-        try {
-            Order order = (Order) super.clone();
-            order.setClOrdID(getOrderID());
-            order.setOrderID(IDGenerator.genOrderID());
-            return order;
-        } catch (CloneNotSupportedException e) {
-        }
-        return null;
+    public Order(String id) {
+        ClOrdID = id;
     }
 
     public SessionID getSessionID() {

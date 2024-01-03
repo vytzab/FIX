@@ -16,6 +16,7 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import lt.vytzab.initiator.OrderEntryApplication;
+import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.market.MarketTableModel;
 import lt.vytzab.initiator.order.Order;
 import lt.vytzab.initiator.order.OrderTableModel;
@@ -27,11 +28,13 @@ public class OrderEntryPanel extends JPanel implements Observer, ActionListener 
     private final CancelReplacePanel cancelReplacePanel;
     private final OrderTableModel orderTableModel;
     private final LogPanel logPanel;
+    private final IDGenerator idGenerator;
 
-    public OrderEntryPanel(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel, OrderEntryApplication application) {
+    public OrderEntryPanel(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel, OrderEntryApplication application, IDGenerator idGenerator) {
         setName("Order Entry Panel");
         this.orderTableModel = orderTableModel;
         this.logPanel = logPanel;
+        this.idGenerator = idGenerator;
 
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new GridBagLayout());
