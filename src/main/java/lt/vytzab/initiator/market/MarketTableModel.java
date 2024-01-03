@@ -165,6 +165,10 @@ public class MarketTableModel extends AbstractTableModel {
         fireTableDataChanged();
     }
 
+    public boolean isMarketsEmpty() {
+        return markets.isEmpty();
+    }
+
     public void setSortedMarkets(int columnIndex, SortOrder sortOrder) {
         markets = sortMarkets(columnIndex, sortOrder);
 

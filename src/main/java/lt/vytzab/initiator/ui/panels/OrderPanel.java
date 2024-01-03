@@ -65,13 +65,15 @@ public class OrderPanel extends JPanel {
             JFileChooser fileChooser = new JFileChooser();
             int userSelection = fileChooser.showSaveDialog(this);
 
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                String fileName = fileChooser.getSelectedFile().getAbsolutePath();// Append .csv extension if not already present
-                if (!fileName.toLowerCase().endsWith(".csv")) {
-                    fileName += ".csv";
+            if (orderTableModel.isOrdersEmpty()) {
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    String fileName = fileChooser.getSelectedFile().getAbsolutePath();// Append .csv extension if not already present
+                    if (!fileName.toLowerCase().endsWith(".csv")) {
+                        fileName += ".csv";
+                    }
+                    orderTableModel.generateReport(fileName);
+                    System.out.println("Generating Report...");
                 }
-                orderTableModel.generateReport(fileName);
-                System.out.println("Generating Report...");
             }
         }
     }

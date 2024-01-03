@@ -232,16 +232,22 @@ public class AddOrderPanel extends JPanel implements Observer {
             OrderType type = order.getType();
             if (type == OrderType.LIMIT) {
                 order.setLimit(limitPriceTextField.getText());
+                addOrder(order);
             }
             if (order.getTIF() == OrderTIF.DAY) {
                 order.setGoodTillDate(LocalDate.now());
+                addOrder(order);
             } else if (order.getTIF() == OrderTIF.GTD) {
                 if (checkDateField()) {
                     order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
+                    addOrder(order);
                 }
             } else {
                 showMessageDialog();
             }
+        }
+
+        private void addOrder(Order order) {
             try {
                 orderTableModel.addOrder(order);
                 application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
@@ -252,11 +258,11 @@ public class AddOrderPanel extends JPanel implements Observer {
 
 
         private boolean checkDateField() {
-            return dateChooser.getDate() != null;
+            return dateChooser.getDate() != null && dateChooser.getDate().after(new Date());
         }
 
         private void showMessageDialog() {
-            JOptionPane.showMessageDialog(AddOrderPanel.this, "Please pick a date.", "Invalid Date", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(AddOrderPanel.this, "Please pick a valid date.", "Invalid Date", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -153,6 +153,10 @@ public class OrderTableModel extends AbstractTableModel {
 //        fireTableRowsDeleted(start, end);
     }
 
+    public boolean isOrdersEmpty() {
+        return orders.isEmpty();
+    }
+
     public void fillOrders() {
         orders.addAll(originalOrders);
     }
