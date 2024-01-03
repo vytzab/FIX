@@ -176,6 +176,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     private void processNewOrder(quickfix.fix42.NewOrderSingle newOrderSingle) throws FieldNotFound, SessionNotFound {
+        marketController.refreshMarkets();
         Order order = orderFromNewOrderSingle(newOrderSingle);
         if (orderController.createOrder(order)) {
             messageExecutionReport(newOrderSingle, '0');

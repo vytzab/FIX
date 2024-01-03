@@ -106,7 +106,7 @@ public class MarketController {
     public List<Market> getMarkets() {
         return markets;
     }
-    public static void saveHistoricMarkets() {
-
+    public void refreshMarkets() {
+        markets = MarketDAO.readAllMarkets();
     }
 }

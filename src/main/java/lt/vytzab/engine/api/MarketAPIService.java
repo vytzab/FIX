@@ -25,7 +25,7 @@ public class MarketAPIService {
 
         for (String ticker : tickers) {
             try {
-                System.out.println(ticker);
+//                System.out.println(ticker);
                 String tickerApiUrl = apiUrl + ticker + aggUrl + Variables.getApiKey();
                 URL url = new URI(tickerApiUrl).toURL();
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
@@ -35,7 +35,6 @@ public class MarketAPIService {
                     scanner.useDelimiter("\\A");
                     String apiResponse = scanner.hasNext() ? scanner.next() : "";
                     Market market = parseApiResponseToMarket(apiResponse);
-                    System.out.println("TRYING");
                     markets.add(market);
                 }
             } catch (IOException | URISyntaxException e) {
