@@ -5,6 +5,7 @@ import lt.vytzab.engine.order.OrderTableModel;
 import lt.vytzab.engine.order.Order;
 
 import javax.swing.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +49,10 @@ public class OpenOrderFillWorker extends SwingWorker<Void, List<Order>> {
         List<Order> orderList = MarketOrderDAO.readAllMarketOrders();
         List<Order> openOrderList = new ArrayList<>();
         for (Order order : orderList) {
+            if (LocalDate.now().isAfter(order.getGoodTillDate()) && !order.isFullyExecuted() && !order.isClosed() && !order.isFilled()){
+                order.setCanceled(true);
+                MarketOrderDAO.updateMarketOrder(order);
+            }
             if (!order.isClosed() && !order.isFullyExecuted() && !order.isFilled() && !order.getCanceled()) {
                 openOrderList.add(order);
             }
