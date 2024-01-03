@@ -139,7 +139,7 @@ public class MarketTableModel extends AbstractTableModel {
     }
 
     public void clearMarkets() throws SQLException {
-        for (Market market : markets) {
+        for (Market market : originalMarkets) {
             MarketDAO.createHistoricMarketDataEntry(market);
             market.setSellVolume(0);
             market.setBuyVolume(0);
@@ -198,7 +198,7 @@ public class MarketTableModel extends AbstractTableModel {
     public void generateReport(String fileName) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             // Write headers
-            writer.write("Symbol,Last Price,Day High,Day Low,Buy Volume,Sell Volume,Bid Orders,Ask Orders");
+            writer.write("Symbol,Last Price,Day High,Day Low,Buy Volume,Sell Volume");
             writer.newLine();
 
             // Write data

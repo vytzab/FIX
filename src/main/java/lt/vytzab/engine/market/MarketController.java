@@ -100,6 +100,13 @@ public class MarketController {
         getMarket(bid.getSymbol()).setBuyVolume(getMarket(bid.getSymbol()).getBuyVolume() + bid.getExecutedQuantity());
         getMarket(ask.getSymbol()).setSellVolume(getMarket(ask.getSymbol()).getSellVolume() + ask.getExecutedQuantity());
 
+        if (getMarket(ask.getSymbol()).getDayLow() > ask.getAvgExecutedPrice()) {
+            getMarket(ask.getSymbol()).setDayLow(ask.getAvgExecutedPrice());
+        }
+        if (getMarket(ask.getSymbol()).getDayHigh() < ask.getAvgExecutedPrice()) {
+            getMarket(ask.getSymbol()).setDayHigh(ask.getAvgExecutedPrice());
+        }
+
         MarketOrderDAO.updateMarketOrder(bid);
         MarketOrderDAO.updateMarketOrder(ask);
     }

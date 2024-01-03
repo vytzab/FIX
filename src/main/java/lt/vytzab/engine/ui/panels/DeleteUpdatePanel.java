@@ -3,6 +3,7 @@ package lt.vytzab.engine.ui.panels;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.text.DecimalFormat;
 
 import lt.vytzab.engine.*;
 import lt.vytzab.engine.dao.MarketDAO;
@@ -105,6 +106,18 @@ public class DeleteUpdatePanel extends JPanel {
     public void update() {
         setMarket(this.market);
     }
+//                    return formatDouble(market.getSellVolume());
+//    default:
+//            return "";
+//}
+//        }
+//                return "";
+//                }
+
+    private String formatDouble(double value) {
+        DecimalFormat decimalFormat = new DecimalFormat("#.##");
+        return decimalFormat.format(value);
+    }
 
     public void setMarket(Market market) {
         if (market != null) {
@@ -112,8 +125,8 @@ public class DeleteUpdatePanel extends JPanel {
             lastPriceField.setText(Double.toString(market.getLastPrice()));
             dayHighField.setText(Double.toString(market.getDayHigh()));
             dayLowField.setText(Double.toString(market.getDayLow()));
-            buyVolumeField.setText(Double.toString(market.getBuyVolume()));
-            sellVolumeField.setText(Double.toString(market.getSellVolume()));
+            buyVolumeField.setText(formatDouble(market.getBuyVolume()));
+            sellVolumeField.setText(formatDouble(market.getSellVolume()));
             setEnabled(true);
         }
     }
