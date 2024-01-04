@@ -179,16 +179,16 @@ public class OrderEntryApplication implements Application {
         Session.sendToTarget(orderCancelRequest, sessionID);
     }
 
-    public void sendOrderCancelReplaceRequest(Order order, Order newOrder) throws SessionNotFound {
+    public void sendOrderCancelReplaceRequest(Order order, double newQuantity) throws SessionNotFound {
         OrderCancelReplaceRequest orderCancelReplaceRequest = new OrderCancelReplaceRequest(
                 new OrigClOrdID(order.getClOrdID()),
-                new ClOrdID(newOrder.getClOrdID()),
+                new ClOrdID(idGenerator.genOrderID()),
                 new HandlInst('1'),
                 new Symbol(order.getSymbol()),
                 sideToFIXSide(order.getSide()),
                 new TransactTime(),
                 typeToFIXType(order.getType()));
-                orderCancelReplaceRequest.set(new OrderQty(newOrder.getQuantity()));
+                orderCancelReplaceRequest.set(new OrderQty(newQuantity));
         Session.sendToTarget(orderCancelReplaceRequest, sessionID);
     }
 

@@ -92,18 +92,12 @@ public class CancelReplacePanel extends JPanel {
 
     private class ReplaceListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            Order newOrder = order;
-            newOrder.setClOrdID(order.getOrderID());
-            newOrder.setOrderID(order.getClOrdID());
 
-            newOrder.setClOrdID(application.getIdGenerator().genOrderID());
             if (checkQuantityField()) {
-                newOrder.setQuantity(Double.parseDouble(quantityTextField.getText()));
-                newOrder.setRejected(false);
-                newOrder.setCanceled(false);
+                double newQuantity = Double.parseDouble(quantityTextField.getText());
 
                 try {
-                    application.sendOrderCancelReplaceRequest(order, newOrder);
+                    application.sendOrderCancelReplaceRequest(order, newQuantity);
                 } catch (SessionNotFound ex) {
                     throw new RuntimeException(ex);
                 }
