@@ -118,7 +118,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     }
 
     public void onMessage(quickfix.fix42.OrderCancelReplaceRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
-        Order order = orderController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
+        Order order = orderController.getOrderByClOrdID(message.getString(ClOrdID.FIELD));
         if (order != null) {
             order.setQuantity((long)(message.getDouble(OrderQty.FIELD)));
             order.setOpenQuantity((long)(message.getDouble(OrderQty.FIELD)));

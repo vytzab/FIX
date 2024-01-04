@@ -45,6 +45,7 @@ public class OrderTableModel extends AbstractTableModel {
 
     private boolean orderMatchesKeyword(Order order, String keyword) {
         return order.getSymbol().toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(order.getSenderCompID()).toLowerCase().contains(keyword.toLowerCase())
                 || String.valueOf(order.getQuantity()).toLowerCase().contains(keyword.toLowerCase())
                 || String.valueOf(order.getOpenQuantity()).toLowerCase().contains(keyword.toLowerCase())
                 || String.valueOf(order.getExecutedQuantity()).toLowerCase().contains(keyword.toLowerCase())
@@ -132,7 +133,7 @@ public class OrderTableModel extends AbstractTableModel {
                 case TYPE:
                     return order.getOrdType();
                 case LIMITPRICE:
-                    return order.getLimit();
+                    return order.getPrice();
                 case AVGPX:
                     return order.getAvgExecutedPrice();
                 case ENTRYDATE:

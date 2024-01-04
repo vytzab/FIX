@@ -44,7 +44,7 @@ public class MarketController {
                 // Match bid and ask orders
                 matchOrders(bidOrder, askOrder);
                 // Update the last price in the market
-                market.setLastPrice(bidOrder.getAvgExecutedPrice());
+//                market.setLastPrice(bidOrder.getAvgExecutedPrice());
                 // Add matched orders to the orders list (if not already present)
                 if (!orders.contains(bidOrder)) {
                     orders.add(0, bidOrder);
@@ -96,16 +96,18 @@ public class MarketController {
         bid.execute(price, quantity);
         ask.execute(price, quantity);
 
-        getMarket(bid.getSymbol()).setLastPrice(bid.getAvgExecutedPrice());
-        getMarket(bid.getSymbol()).setBuyVolume(getMarket(bid.getSymbol()).getBuyVolume() + bid.getExecutedQuantity());
-        getMarket(ask.getSymbol()).setSellVolume(getMarket(ask.getSymbol()).getSellVolume() + ask.getExecutedQuantity());
+        Market market = getMarket(bid.getSymbol());
+        market.setLastPrice(bid.getAvgExecutedPrice());
+        market.setBuyVolume(market.getBuyVolume() + bid.getLastExecutedQuantity());
+        market.setSellVolume(market.getSellVolume() + ask.getLastExecutedQuantity());
+        if (market.getDayLow() > ask.getAvgExecutedPrice()) {
+            market.setDayLow(ask.getAvgExecutedPrice());
+        }
+        if (market.getDayHigh() < ask.getAvgExecutedPrice()) {
+            market.setDayHigh(ask.getAvgExecutedPrice());
+        }
 
-        if (getMarket(ask.getSymbol()).getDayLow() > ask.getAvgExecutedPrice()) {
-            getMarket(ask.getSymbol()).setDayLow(ask.getAvgExecutedPrice());
-        }
-        if (getMarket(ask.getSymbol()).getDayHigh() < ask.getAvgExecutedPrice()) {
-            getMarket(ask.getSymbol()).setDayHigh(ask.getAvgExecutedPrice());
-        }
+        updateMarket(market);
 
         MarketOrderDAO.updateMarketOrder(bid);
         MarketOrderDAO.updateMarketOrder(ask);
@@ -115,5 +117,8 @@ public class MarketController {
     }
     public void refreshMarkets() {
         markets = MarketDAO.readAllMarkets();
+    }
+    public void updateMarket(Market market) {
+        MarketDAO.updateMarket(market);
     }
 }
