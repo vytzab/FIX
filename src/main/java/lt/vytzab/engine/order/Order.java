@@ -8,7 +8,7 @@ import java.util.Objects;
 public class Order {
     private final long entryTime;
     private String clOrdID;
-    private String symbol;
+    private final String symbol;
     private final String senderCompID;
     private final String targetCompID;
     private final char side;
@@ -147,8 +147,6 @@ public class Order {
         return openQuantity == 0;
     }
 
-
-    // Execute the order with a given price and quantity, update fields based on execution
     public void execute(double price, long quantity) {
         avgExecutedPrice = ((quantity * price) + (avgExecutedPrice * executedQuantity)) / (quantity + executedQuantity);
 

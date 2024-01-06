@@ -11,10 +11,8 @@ import quickfix.SessionNotFound;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.util.Observable;
-import java.util.Observer;
 
-public class AddMarketPanel extends JPanel implements Observer {
+public class AddMarketPanel extends JPanel {
     private boolean symbolEntered = false;
     private boolean lastPriceEntered = false;
     private boolean dayHighEntered = false;
@@ -60,7 +58,7 @@ public class AddMarketPanel extends JPanel implements Observer {
 
     public void setMessage(String message) {
         messageLabel.setText(message);
-        if (message == null || message.equals("")) messageLabel.setText(" ");
+        if (message == null || message.isEmpty()) messageLabel.setText(" ");
     }
 
     public void clearMessage() {
@@ -111,21 +109,15 @@ public class AddMarketPanel extends JPanel implements Observer {
         activateSubmit();
     }
 
-    private JComponent add(JComponent component, int x, int y) {
+    private void add(JComponent component, int x, int y) {
         constraints.gridx = x;
         constraints.gridy = y;
         add(component, constraints);
-        return component;
     }
 
     private void activateSubmit() {
         boolean activate = symbolEntered && lastPriceEntered && dayHighEntered && dayLowEntered && buyVolumeEntered && sellVolumeEntered;
         submitButton.setEnabled(activate); // Set the state of the submit button
-    }
-
-    @Override
-    public void update(Observable o, Object arg) {
-
     }
 
     private class SubmitListener implements ActionListener {
@@ -170,7 +162,7 @@ public class AddMarketPanel extends JPanel implements Observer {
         private boolean testField(Object o) {
             String value = ((JTextField) o).getText();
             value = value.trim();
-            return value.length() > 0;
+            return !value.isEmpty();
         }
 
         public void keyTyped(KeyEvent e) {

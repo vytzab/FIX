@@ -5,8 +5,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Observable;
-import java.util.Observer;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -17,11 +15,9 @@ import lt.vytzab.engine.market.Market;
 import lt.vytzab.engine.market.MarketTableModel;
 import lt.vytzab.engine.order.OrderTableModel;
 
-public class EnginePanel extends JPanel implements Observer, ActionListener {
+public class EnginePanel extends JPanel implements ActionListener {
     private final AddMarketPanel addMarketPanel;
     private final MarketPanel marketPanel;
-    private final OrderPanel openOrderPanel;
-    private final OrderPanel allOrderPanel;
     private final DeleteUpdatePanel deleteUpdatePanel;
     private final MarketTableModel marketTableModel;
 
@@ -43,8 +39,8 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
         constraints.weighty = 10;
 
         JTabbedPane tabbedPane = new JTabbedPane();
-        openOrderPanel = new OrderPanel(openOrderTableModel, application);
-        allOrderPanel = new OrderPanel(allOrderTableModel, application);
+        OrderPanel openOrderPanel = new OrderPanel(openOrderTableModel);
+        OrderPanel allOrderPanel = new OrderPanel(allOrderTableModel);
         marketPanel = new MarketPanel(marketTableModel);
 
         tabbedPane.add("Current Markets", marketPanel);
@@ -61,10 +57,6 @@ public class EnginePanel extends JPanel implements Observer, ActionListener {
         addMarketPanel.addActionListener(this);
         marketPanel.marketTable().getSelectionModel().addListSelectionListener(new MarketSelection());
         deleteUpdatePanel.addActionListener(this);
-    }
-
-    public void update(Observable o, Object arg) {
-        deleteUpdatePanel.update();
     }
 
     public void actionPerformed(ActionEvent e) {

@@ -20,39 +20,26 @@ public class MarketController {
         return null;
     }
 
-    // Check if a market with the given symbol exists
     public boolean checkIfMarketExists(String symbol){
         Market market = MarketDAO.readMarket(symbol);
         return market != null;
     }
-    // Match orders within a market
     public boolean matchMarketOrders(Market market, ArrayList<Order> orders) {
-        // Fetch bid and ask orders for the given market
         getBidAskOrders(market);
-        // Continue matching until there are no bid or ask orders left
         while (true) {
-            // Check if either bid or ask orders are empty
             if (market.getBidOrders().isEmpty() || market.getAskOrders().isEmpty()) {
-                // Return false if there matched orders
                 return !orders.isEmpty();
             }
-            // Get the top bid and ask orders
             Order bidOrder = market.getBidOrders().get(0);
             Order askOrder = market.getAskOrders().get(0);
-            // if bid order type MARKET or ask order type MARKET or bidPrice > askPrice
             if (bidOrder.getOrdType() == OrdType.MARKET || askOrder.getOrdType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
-                // Match bid and ask orders
                 matchOrders(bidOrder, askOrder);
-                // Update the last price in the market
-//                market.setLastPrice(bidOrder.getAvgExecutedPrice());
-                // Add matched orders to the orders list (if not already present)
                 if (!orders.contains(bidOrder)) {
                     orders.add(0, bidOrder);
                 }
                 if (!orders.contains(askOrder)) {
                     orders.add(0, askOrder);
                 }
-                // Remove closed orders from the market
                 if (bidOrder.isClosed()) {
                     market.getBidOrders().remove(0);
                 }
@@ -63,18 +50,12 @@ public class MarketController {
         }
     }
 
-    // Retrieve bid and ask orders for a market
     public void getBidAskOrders(Market market) {
-        // Retrieve all orders for the specified market symbol
         List<Order> allOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(market.getSymbol());
-        // Separate bid and ask orders based on order side
         List<Order> bidOrders = new ArrayList<>();
         List<Order> askOrders = new ArrayList<>();
-        // Iterate through all orders to categorize them as bid or ask orders
         for (Order order : allOrders) {
-            // Check if the order is not fully executed
             if (!order.isClosed()) {
-                // Categorize orders based on side
                 if (order.getSide() == '1') {
                     bidOrders.add(order);
                 } else if (order.getSide() == '2') {
@@ -88,9 +69,7 @@ public class MarketController {
 
     // Execute matching orders
     private void matchOrders(Order bid, Order ask) {
-        // Check if the ask order type is LIMIT, otherwise use bid price
         double price = ask.getOrdType() == OrdType.LIMIT ? ask.getPrice() : bid.getPrice();
-        // Determine the quantity to be executed (minimum of bid and ask open quantities)
         long quantity = Math.min(bid.getOpenQuantity(), ask.getOpenQuantity());
 
         bid.execute(price, quantity);

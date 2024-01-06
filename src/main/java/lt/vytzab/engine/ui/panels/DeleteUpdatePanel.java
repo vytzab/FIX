@@ -28,7 +28,7 @@ public class DeleteUpdatePanel extends JPanel {
     private final JButton replaceButton = new JButton("Update");
     private Market market = null;
 
-    private MarketTableModel marketTableModel = null;
+    private final MarketTableModel marketTableModel;
     private final GridBagConstraints constraints = new GridBagConstraints();
 
     private final EngineApplication application;
@@ -103,17 +103,6 @@ public class DeleteUpdatePanel extends JPanel {
         sellVolumeLabel.setBackground(bgColor);
     }
 
-    public void update() {
-        setMarket(this.market);
-    }
-//                    return formatDouble(market.getSellVolume());
-//    default:
-//            return "";
-//}
-//        }
-//                return "";
-//                }
-
     private String formatDouble(double value) {
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         return decimalFormat.format(value);
@@ -131,11 +120,10 @@ public class DeleteUpdatePanel extends JPanel {
         }
     }
 
-    private JComponent add(JComponent component, int x, int y) {
+    private void add(JComponent component, int x, int y) {
         constraints.gridx = x;
         constraints.gridy = y;
         add(component, constraints);
-        return component;
     }
 
     private class DeleteListener implements ActionListener {

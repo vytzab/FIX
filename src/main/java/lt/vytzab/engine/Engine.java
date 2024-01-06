@@ -13,7 +13,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import quickfix.ConfigError;
 import quickfix.DefaultMessageFactory;
-import quickfix.FieldConvertError;
 import quickfix.FileStoreFactory;
 import quickfix.LogFactory;
 import quickfix.MessageFactory;
@@ -23,7 +22,6 @@ import quickfix.ScreenLogFactory;
 import quickfix.SessionSettings;
 import quickfix.SocketAcceptor;
 
-import javax.management.JMException;
 import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -59,7 +57,7 @@ public class Engine {
         }
     }
 
-    public Engine(SessionSettings settings) throws ConfigError, FieldConvertError, JMException {
+    public Engine(SessionSettings settings) throws ConfigError {
         LogPanel logPanel = new LogPanel();
         IDGenerator idGenerator = new IDGenerator();
         EngineApplication application = new EngineApplication(marketTableModel, openOrderTableModel, allOrderTableModel, logPanel, idGenerator);

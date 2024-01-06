@@ -10,22 +10,20 @@ import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class MarketAPIService {
-    private String[] tickers = {"AAPL", "MSFT", "AMZN", "NVDA", "GOOG"};
-    private final String apiUrl = "https://api.polygon.io/v2/aggs/ticker/";
-    private final String aggUrl = "/prev?adjusted=true&apiKey=";
+    private final String[] tickers = {"AAPL", "MSFT", "AMZN", "NVDA", "GOOG"};
 
     public List<Market> fetchMarketData() {
         List<Market> markets = new ArrayList<>();
 
         for (String ticker : tickers) {
             try {
-//                System.out.println(ticker);
+                String aggUrl = "/prev?adjusted=true&apiKey=";
+                String apiUrl = "https://api.polygon.io/v2/aggs/ticker/";
                 String tickerApiUrl = apiUrl + ticker + aggUrl + Variables.getApiKey();
                 URL url = new URI(tickerApiUrl).toURL();
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();

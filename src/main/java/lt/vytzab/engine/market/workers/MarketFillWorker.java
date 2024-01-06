@@ -9,14 +9,14 @@ import javax.swing.*;
 import java.util.List;
 
 public class MarketFillWorker extends SwingWorker<Void, List<Market>> {
-    private MarketTableModel tableModel;
+    private final MarketTableModel tableModel;
 
     public MarketFillWorker(MarketTableModel tableModel) {
         this.tableModel = tableModel;
     }
 
     @Override
-    protected Void doInBackground() throws Exception {
+    protected Void doInBackground(){
         List<Market> updatedMarkets = fetchData();
 
         publish(updatedMarkets);
@@ -29,10 +29,6 @@ public class MarketFillWorker extends SwingWorker<Void, List<Market>> {
         if (!isCancelled()) {
             tableModel.setMarkets(chunks.get(chunks.size() - 1));
         }
-    }
-
-    @Override
-    protected void done() {
     }
 
     private List<Market> fetchData() {

@@ -24,14 +24,14 @@ import quickfix.MessageCracker;
 import quickfix.fix42.SecurityStatus;
 
 public class EngineApplication extends MessageCracker implements quickfix.Application {
-    private OrderTableModel openOrderTableModel = null;
-    private OrderTableModel allOrderTableModel = null;
-    private MarketTableModel marketTableModel = null;
+    private final OrderTableModel openOrderTableModel;
+    private final OrderTableModel allOrderTableModel;
+    private final MarketTableModel marketTableModel;
     private final MarketController marketController = new MarketController();
     private final OrderController orderController = new OrderController();
     private final LogPanel logPanel;
-    private List<SessionID> sessionIDs = new ArrayList<>();
-    private IDGenerator idGenerator = null;
+    private final List<SessionID> sessionIDs = new ArrayList<>();
+    private final IDGenerator idGenerator;
 
     public EngineApplication(MarketTableModel marketTableModel, OrderTableModel openOrderTableModel, OrderTableModel allOrderTableModel, LogPanel logPanel, IDGenerator idGenerator) {
         this.marketTableModel = marketTableModel;
@@ -83,7 +83,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     // Messages from OrderEntry ||
     //                          \/
 
-    public void onMessage(quickfix.fix42.NewOrderSingle message, SessionID sessionID) throws FieldNotFound, IncorrectDataFormat, IncorrectTagValue, UnsupportedMessageType {
+    public void onMessage(quickfix.fix42.NewOrderSingle message, SessionID sessionID) throws FieldNotFound {
         if (marketController.checkIfMarketExists(message.getString(Symbol.FIELD))) {
             try {
                 processNewOrder(message);
@@ -95,7 +95,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    public void onMessage(quickfix.fix42.OrderCancelRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+    public void onMessage(quickfix.fix42.OrderCancelRequest message, SessionID sessionID) throws FieldNotFound {
         Order order = orderController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
         if (order != null) {
             order.cancel();
@@ -117,7 +117,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    public void onMessage(quickfix.fix42.OrderCancelReplaceRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+    public void onMessage(quickfix.fix42.OrderCancelReplaceRequest message, SessionID sessionID) throws FieldNotFound {
         Order order = orderController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
         if (order != null) {
             order.setQuantity((long)(message.getDouble(OrderQty.FIELD)));
@@ -140,7 +140,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    public void onMessage(MarketDataRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+    public void onMessage(MarketDataRequest message, SessionID sessionID) throws FieldNotFound {
         MarketDataRequest.NoRelatedSym noRelatedSyms = new MarketDataRequest.NoRelatedSym();
 
         lt.vytzab.engine.messages.MarketDataSnapshotFullRefresh fixMD = new lt.vytzab.engine.messages.MarketDataSnapshotFullRefresh();
@@ -164,12 +164,12 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
             }
             try {
                 Session.sendToTarget(fixMD, targetCompId, senderCompId);
-            } catch (SessionNotFound e) {
+            } catch (SessionNotFound ignored) {
             }
         }
     }
 
-    public void onMessage(SecurityStatusRequest message, SessionID sessionID) throws FieldNotFound, UnsupportedMessageType, IncorrectTagValue {
+    public void onMessage(SecurityStatusRequest message, SessionID sessionID) throws FieldNotFound {
         SecurityStatus securityStatus = securityStatusFromMarket(marketController.getMarket(message.getSymbol().toString()), 0);
         try {
             Session.sendToTarget(securityStatus, message.getHeader().getString(quickfix.field.TargetCompID.FIELD), message.getHeader().getString(quickfix.field.SenderCompID.FIELD));
@@ -234,7 +234,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    private void orderExecutionReport(Order order, char ordStatus) throws FieldNotFound {
+    private void orderExecutionReport(Order order, char ordStatus) {
         ExecutionReport executionReport = new ExecutionReport(
                 new OrderID(idGenerator.genOrderID()),
                 new ExecID(idGenerator.genExecutionID()),
@@ -339,7 +339,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         return executionReport;
     }
 
-    private SecurityStatus securityStatusFromMarket(Market market, int status) throws FieldNotFound {
+    private SecurityStatus securityStatusFromMarket(Market market, int status) {
         SecurityStatus securityStatus = new SecurityStatus();
         securityStatus.set(new Symbol(market.getSymbol()));
         securityStatus.set(new HighPx(market.getDayHigh()));
@@ -398,7 +398,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         return order;
     }
 
-    public MarketDataSnapshotFullRefresh.NoMDEntries noMDEntriesFromOrder(Order order) throws FieldNotFound {
+    public MarketDataSnapshotFullRefresh.NoMDEntries noMDEntriesFromOrder(Order order) {
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
 
         noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
@@ -425,9 +425,5 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 Session.sendToTarget(securityStatusFromMarket(market, status), sessionID.getSenderCompID(), sessionID.getTargetCompID());
             }
         }
-    }
-
-    public IDGenerator getIdGenerator() {
-        return idGenerator;
     }
 }
