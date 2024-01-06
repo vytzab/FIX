@@ -39,7 +39,7 @@ public class Market {
             }
             Order bidOrder = bidOrders.get(0);
             Order askOrder = askOrders.get(0);
-            if (bidOrder.getOrdType() == OrdType.MARKET || askOrder.getOrdType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
+            if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
                 match(bidOrder, askOrder);
                 if (!orders.contains(bidOrder)) {
                     orders.add(0, bidOrder);
@@ -59,7 +59,7 @@ public class Market {
     }
 
     private void match(Order bid, Order ask) {
-        double price = ask.getOrdType() == OrdType.LIMIT ? ask.getPrice() : bid.getPrice();
+        double price = ask.getType() == OrdType.LIMIT ? ask.getPrice() : bid.getPrice();
         long quantity = Math.min(bid.getOpenQuantity(), ask.getOpenQuantity());
 
         bid.execute(price, quantity);
@@ -73,7 +73,7 @@ public class Market {
     private boolean insert(Order newOrder, boolean descending, List<Order> activeOrders) {
         if (activeOrders.isEmpty()) {
             activeOrders.add(newOrder);
-        } else if (newOrder.getOrdType() == OrdType.MARKET) {
+        } else if (newOrder.getType() == OrdType.MARKET) {
             activeOrders.add(0, newOrder);
         } else {
             for (int i = 0; i < activeOrders.size(); i++) {

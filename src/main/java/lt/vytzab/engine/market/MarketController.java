@@ -32,7 +32,7 @@ public class MarketController {
             }
             Order bidOrder = market.getBidOrders().get(0);
             Order askOrder = market.getAskOrders().get(0);
-            if (bidOrder.getOrdType() == OrdType.MARKET || askOrder.getOrdType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
+            if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
                 matchOrders(bidOrder, askOrder);
                 if (!orders.contains(bidOrder)) {
                     orders.add(0, bidOrder);
@@ -69,7 +69,7 @@ public class MarketController {
 
     // Execute matching orders
     private void matchOrders(Order bid, Order ask) {
-        double price = ask.getOrdType() == OrdType.LIMIT ? ask.getPrice() : bid.getPrice();
+        double price = ask.getType() == OrdType.LIMIT ? ask.getPrice() : bid.getPrice();
         long quantity = Math.min(bid.getOpenQuantity(), ask.getOpenQuantity());
 
         bid.execute(price, quantity);

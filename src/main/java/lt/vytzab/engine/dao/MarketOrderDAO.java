@@ -22,7 +22,7 @@ public class MarketOrderDAO {
                 statement.setString(3, order.getSenderCompID());
                 statement.setString(4, order.getTargetCompID());
                 statement.setString(5, String.valueOf(order.getSide()));
-                statement.setString(6, String.valueOf(order.getOrdType()));
+                statement.setString(6, String.valueOf(order.getType()));
                 statement.setDouble(7, order.getPrice());
                 statement.setLong(8, order.getQuantity());
                 statement.setLong(9, order.getOpenQuantity());
@@ -99,7 +99,7 @@ public class MarketOrderDAO {
                 statement.setString(2, order.getSenderCompID());
                 statement.setString(3, order.getTargetCompID());
                 statement.setString(4, String.valueOf(order.getSide()));
-                statement.setString(5, String.valueOf(order.getOrdType()));
+                statement.setString(5, String.valueOf(order.getType()));
                 statement.setDouble(6, order.getPrice());
                 statement.setLong(7, order.getQuantity());
                 statement.setLong(8, order.getOpenQuantity());

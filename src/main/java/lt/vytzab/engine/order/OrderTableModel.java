@@ -22,6 +22,7 @@ public class OrderTableModel extends AbstractTableModel {
     private final static int AVGPX = 8;
     private final static int ENTRYDATE = 9;
     private final static int GOODTILLDATE = 10;
+    private final static int TIMEINFORCE = 11;
 
     private final String[] headers;
 
@@ -29,7 +30,7 @@ public class OrderTableModel extends AbstractTableModel {
         orders = new ArrayList<>();
         originalOrders = new ArrayList<>();
         sortedOrders = new ArrayList<>();
-        headers = new String[]{"Sender", "Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date"};
+        headers = new String[]{"Sender", "Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date", "Time in Force"};
     }
 
     public void filterByKeyword(String keyword) {
@@ -49,7 +50,7 @@ public class OrderTableModel extends AbstractTableModel {
                 || String.valueOf(order.getOpenQuantity()).toLowerCase().contains(keyword.toLowerCase())
                 || String.valueOf(order.getExecutedQuantity()).toLowerCase().contains(keyword.toLowerCase())
                 || String.valueOf(order.getSide()).toLowerCase().contains(keyword.toLowerCase())
-                || String.valueOf(order.getOrdType()).toLowerCase().contains(keyword.toLowerCase())
+                || String.valueOf(order.getType()).toLowerCase().contains(keyword.toLowerCase())
                 || String.valueOf(order.getLimit()).contains(keyword)
                 || String.valueOf(order.getAvgExecutedPrice()).contains(keyword)
                 || String.valueOf(order.getEntryDate()).contains(keyword)
@@ -122,12 +123,13 @@ public class OrderTableModel extends AbstractTableModel {
                 case QUANTITY -> order.getQuantity();
                 case OPEN -> order.getOpenQuantity();
                 case EXECUTED -> order.getExecutedQuantity();
-                case SIDE -> order.getSide();
-                case TYPE -> order.getOrdType();
-                case LIMITPRICE -> order.getPrice();
+                case SIDE -> getOrderSide(order.getSide());
+                case TYPE -> getOrderType(order.getType());
+                case LIMITPRICE -> getOrderLimit(order);
                 case AVGPX -> order.getAvgExecutedPrice();
                 case ENTRYDATE -> order.getEntryDate();
                 case GOODTILLDATE -> order.getGoodTillDate();
+                case TIMEINFORCE -> getOrderTIF(order.getTif());
                 default -> "";
             };
         }
@@ -197,7 +199,7 @@ public class OrderTableModel extends AbstractTableModel {
                 order.getOpenQuantity(),
                 order.getExecutedQuantity(),
                 order.getSide(),
-                order.getOrdType(),
+                order.getType(),
                 order.getLimit(),
                 order.getAvgExecutedPrice(),
                 order.getEntryDate(),
@@ -221,6 +223,39 @@ public class OrderTableModel extends AbstractTableModel {
         }
     }
 
+    public Object getOrderLimit(Order order) {
+        if (order.getType() == '1') {
+            return null;
+        } else {
+            return order.getPrice();
+        }
+    }
+
+    public OrderSide getOrderSide(char side) {
+        return switch (side) {
+            case '1' -> OrderSide.BUY;
+            case '2' -> OrderSide.SELL;
+            default -> throw new IllegalStateException("Unexpected value: " + side);
+        };
+    }
+
+    public OrderType getOrderType(char type) {
+        return switch (type) {
+            case '1' -> OrderType.MARKET;
+            case '2' -> OrderType.LIMIT;
+            default -> throw new IllegalStateException("Unexpected value: " + type);
+        };
+    }
+
+    public OrderTIF getOrderTIF(char tif) {
+        return switch (tif) {
+            case '0' -> OrderTIF.DAY;
+            case '1' -> OrderTIF.GTC;
+            case '6' -> OrderTIF.GTD;
+            default -> throw new IllegalStateException("Unexpected value: " + tif);
+        };
+    }
+
     private record OrderComparator(int columnIndex) implements Comparator<Order> {
         @Override
             public int compare(Order order1, Order order2) {
@@ -232,11 +267,12 @@ public class OrderTableModel extends AbstractTableModel {
                     case OPEN -> Long.compare(order1.getOpenQuantity(), order2.getOpenQuantity());
                     case EXECUTED -> Long.compare(order1.getExecutedQuantity(), order2.getExecutedQuantity());
                     case SIDE -> Character.compare(order1.getSide(), order2.getSide());
-                    case TYPE -> Character.compare(order1.getOrdType(), order2.getOrdType());
+                    case TYPE -> Character.compare(order1.getType(), order2.getType());
                     case LIMITPRICE -> Double.compare(order1.getLimit(), order2.getLimit());
                     case AVGPX -> Double.compare(order1.getAvgExecutedPrice(), order2.getAvgExecutedPrice());
                     case ENTRYDATE -> order1.getEntryDate().compareTo(order2.getEntryDate());
                     case GOODTILLDATE -> order1.getGoodTillDate().compareTo(order2.getGoodTillDate());
+                    case TIMEINFORCE -> Character.compare(order1.getTif(), order2.getTif());
                     default -> 0; // Default to no sorting
                 };
             }

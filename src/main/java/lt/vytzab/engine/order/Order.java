@@ -126,7 +126,7 @@ public class Order {
         return targetCompID;
     }
 
-    public char getOrdType() {
+    public char getType() {
         return ordType;
     }
 
