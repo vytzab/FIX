@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class OrderTableModel extends AbstractTableModel {
     private List<Order> orders;
-    private List<Order> originalOrders;
+    private final List<Order> originalOrders;
     private List<Order> sortedOrders;
     private final static int SYMBOL = 0;
     private final static int QUANTITY = 1;
@@ -21,17 +21,15 @@ public class OrderTableModel extends AbstractTableModel {
     private final static int AVGPX = 7;
     private final static int ENTRYDATE = 8;
     private final static int GOODTILLDATE = 9;
-    private boolean filtered = false;
+    private final static int TIMEINFORCE = 10;
 
     private final String[] headers;
-
-    private List<Order> displayedOrders;
 
     public OrderTableModel() {
         orders = new ArrayList<>();
         originalOrders = new ArrayList<>();
         sortedOrders = new ArrayList<>();
-        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date"};
+        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date", "Time in Force"};
     }
 
     public void filterByKeyword(String keyword) {
@@ -121,12 +119,13 @@ public class OrderTableModel extends AbstractTableModel {
                 case QUANTITY -> order.getQuantity();
                 case OPEN -> order.getOpenQuantity();
                 case EXECUTED -> order.getExecutedQuantity();
-                case SIDE -> order.getSide();
-                case TYPE -> order.getType();
+                case SIDE -> getOrderSide(order.getSide());
+                case TYPE -> getOrderType(order.getType());
                 case LIMITPRICE -> order.getLimit();
-                case AVGPX -> order.getAvgPx();
+                case AVGPX -> order.getAvgExecutedPrice();
                 case ENTRYDATE -> order.getEntryDate();
                 case GOODTILLDATE -> order.getGoodTillDate();
+                case TIMEINFORCE -> getOrderTIF(order.getTif());
                 default -> "";
             };
         }
@@ -139,7 +138,6 @@ public class OrderTableModel extends AbstractTableModel {
 
     public void clearOrders() {
         orders.clear();
-//        fireTableRowsDeleted(start, end);
     }
 
     public boolean isOrdersEmpty() {
@@ -148,27 +146,6 @@ public class OrderTableModel extends AbstractTableModel {
 
     public void fillOrders() {
         orders.addAll(originalOrders);
-    }
-
-    public void updateOrders(List<Order> updatedOrders) {
-        originalOrders = new ArrayList<>(orders);
-        orders = new ArrayList<>(updatedOrders);
-
-        fireTableDataChanged();
-    }
-
-    public void setOrders(List<Order> updatedOrders) {
-        orders = new ArrayList<>(updatedOrders);
-
-        // Initialize or clear the originalMarkets list
-        if (originalOrders == null) {
-            originalOrders = new ArrayList<>(updatedOrders);
-        } else {
-            originalOrders.clear();
-            originalOrders.addAll(updatedOrders);
-        }
-
-        fireTableDataChanged();
     }
 
     public void refreshOrders() {
@@ -196,15 +173,15 @@ public class OrderTableModel extends AbstractTableModel {
     }
 
     private String orderToCSVString(Order order) {
-        return String.format("%s,%.2f,%.2f,%.2f,%s,%s,%.2f,%.2f,%s,%s",
+        return String.format("%s,%,d,%,d,%,d,%s,%s,%.2f,%.2f,%s,%s",
                 order.getSymbol(),
                 order.getQuantity(),
                 order.getOpenQuantity(),
                 order.getExecutedQuantity(),
-                order.getSide().toString(),
-                order.getType().toString(),
+                order.getSide(),
+                order.getType(),
                 order.getLimit(),
-                order.getAvgPx(),
+                order.getAvgExecutedPrice(),
                 order.getEntryDate(),
                 order.getGoodTillDate());
     }
@@ -214,7 +191,6 @@ public class OrderTableModel extends AbstractTableModel {
             writer.write(String.join(",", headers));
             writer.newLine();
 
-            // Write data
             for (Order order : orders) {
                 writer.write(orderToCSVString(order));
                 writer.newLine();
@@ -223,44 +199,52 @@ public class OrderTableModel extends AbstractTableModel {
             System.out.println("CSV file exported successfully!");
         } catch (IOException e) {
             e.printStackTrace();
-            // Handle the exception appropriately, e.g., show an error message to the user
         }
     }
 
-    private static class OrderComparator implements Comparator<Order> {
-        private int columnIndex;
+    public OrderSide getOrderSide(char side) {
+        return switch (side) {
+            case '1' -> OrderSide.BUY;
+            case '2' -> OrderSide.SELL;
+            default -> throw new IllegalStateException("Unexpected value: " + side);
+        };
+    }
 
-        public OrderComparator(int columnIndex) {
-            this.columnIndex = columnIndex;
-        }
+    public OrderType getOrderType(char type) {
+        return switch (type) {
+            case '1' -> OrderType.MARKET;
+            case '2' -> OrderType.LIMIT;
+            default -> throw new IllegalStateException("Unexpected value: " + type);
+        };
+    }
+
+    public OrderTIF getOrderTIF(char tif) {
+        return switch (tif) {
+            case '0' -> OrderTIF.DAY;
+            case '1' -> OrderTIF.GTC;
+            case '6' -> OrderTIF.GTD;
+            default -> throw new IllegalStateException("Unexpected value: " + tif);
+        };
+    }
+
+    private record OrderComparator(int columnIndex) implements Comparator<Order> {
 
         @Override
-        public int compare(Order order1, Order order2) {
-            // Implement comparison logic based on the specified column index
-            switch (columnIndex) {
-                case SYMBOL:
-                    return order1.getSymbol().compareTo(order2.getSymbol());
-                case QUANTITY:
-                    return Double.compare(order1.getQuantity(), order2.getQuantity());
-                case OPEN:
-                    return Double.compare(order1.getOpenQuantity(), order2.getOpenQuantity());
-                case EXECUTED:
-                    return Double.compare(order1.getExecutedQuantity(), order2.getExecutedQuantity());
-                case SIDE:
-                    return order1.getSide().compareTo(order2.getSide());
-                case TYPE:
-                    return order1.getType().compareTo(order2.getType());
-                case LIMITPRICE:
-                    return Double.compare(order1.getLimit(), order2.getLimit());
-                case AVGPX:
-                    return Double.compare(order1.getAvgPx(), order2.getAvgPx());
-                case ENTRYDATE:
-                    return order1.getEntryDate().compareTo(order2.getEntryDate());
-                case GOODTILLDATE:
-                    return order1.getGoodTillDate().compareTo(order2.getGoodTillDate());
-                default:
-                    return 0; // Default to no sorting
+            public int compare(Order order1, Order order2) {
+                // Implement comparison logic based on the specified column index
+                return switch (columnIndex) {
+                    case SYMBOL -> order1.getSymbol().compareTo(order2.getSymbol());
+                    case QUANTITY -> Double.compare(order1.getQuantity(), order2.getQuantity());
+                    case OPEN -> Double.compare(order1.getOpenQuantity(), order2.getOpenQuantity());
+                    case EXECUTED -> Double.compare(order1.getExecutedQuantity(), order2.getExecutedQuantity());
+                    case SIDE -> Character.compare(order1.getSide(), order2.getSide());
+                    case TYPE -> Character.compare(order1.getType(), order2.getType());
+                    case LIMITPRICE -> Double.compare(order1.getLimit(), order2.getLimit());
+                    case AVGPX -> Double.compare(order1.getAvgExecutedPrice(), order2.getAvgExecutedPrice());
+                    case ENTRYDATE -> order1.getEntryDate().compareTo(order2.getEntryDate());
+                    case GOODTILLDATE -> order1.getGoodTillDate().compareTo(order2.getGoodTillDate());
+                    default -> 0; // Default to no sorting
+                };
             }
         }
-    }
 }

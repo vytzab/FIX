@@ -45,8 +45,8 @@ public class OrderTable extends JTable implements MouseListener {
         if (order != null) {
             int open = (int) order.getOpenQuantity();
             double executed = order.getExecutedQuantity();
-            boolean rejected = order.getRejected();
-            boolean canceled = order.getCanceled();
+            boolean rejected = order.isRejected();
+            boolean canceled = order.isCanceled();
 
             DefaultTableCellRenderer r = (DefaultTableCellRenderer) renderer;
             r.setForeground(Color.black);

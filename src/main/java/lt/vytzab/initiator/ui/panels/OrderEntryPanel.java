@@ -104,7 +104,6 @@ public class OrderEntryPanel extends JPanel implements Observer, ActionListener 
             else {
                 Order order = orderTableModel.getOrder(selectedRow);
                 if (order != null) {
-                    orderEntryPanel.setMessage(order.getMessage());
                     cancelReplacePanel.setOrder(order);
                 }
             }
