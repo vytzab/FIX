@@ -52,7 +52,7 @@ public class OrderTableModel extends AbstractTableModel {
                 || String.valueOf(order.getSide()).toLowerCase().contains(keyword.toLowerCase())
                 || String.valueOf(order.getType()).toLowerCase().contains(keyword.toLowerCase())
                 || String.valueOf(order.getLimit()).contains(keyword)
-                || String.valueOf(order.getAvgPx()).contains(keyword)
+                || String.valueOf(order.getAvgExecutedPrice()).contains(keyword)
                 || String.valueOf(order.getEntryDate()).contains(keyword)
                 || String.valueOf(order.getGoodTillDate()).contains(keyword);
     }
