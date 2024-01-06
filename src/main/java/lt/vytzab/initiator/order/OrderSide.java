@@ -42,7 +42,6 @@ public class OrderSide implements Comparable<OrderSide>{
 
     @Override
     public int compareTo(OrderSide other) {
-        // Compare based on the order in the array
         return Integer.compare(Arrays.asList(array).indexOf(this), Arrays.asList(array).indexOf(other));
     }
 }

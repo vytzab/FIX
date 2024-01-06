@@ -1,6 +1,5 @@
 package lt.vytzab.initiator.ui.tables;
 
-import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.order.Order;
 import lt.vytzab.initiator.order.OrderTableModel;
 
@@ -29,7 +28,6 @@ public class OrderTable extends JTable implements MouseListener {
         this.currentSortOrder = currentSortOrder;
     }
 
-    // Helper method to toggle sort order between ASCENDING and DESCENDING
     private SortOrder toggleSortOrder(SortOrder currentSortOrder) {
         if (currentSortOrder == null || currentSortOrder == SortOrder.DESCENDING) {
             setCurrentSortOrder(SortOrder.ASCENDING);

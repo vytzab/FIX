@@ -116,30 +116,19 @@ public class OrderTableModel extends AbstractTableModel {
         Order order = getOrder(rowIndex);
 
         if (order != null) {
-            switch (columnIndex) {
-                case SYMBOL:
-                    return order.getSymbol();
-                case QUANTITY:
-                    return order.getQuantity();
-                case OPEN:
-                    return order.getOpenQuantity();
-                case EXECUTED:
-                    return order.getExecutedQuantity();
-                case SIDE:
-                    return order.getSide();
-                case TYPE:
-                    return order.getType();
-                case LIMITPRICE:
-                    return order.getLimit();
-                case AVGPX:
-                    return order.getAvgPx();
-                case ENTRYDATE:
-                    return order.getEntryDate();
-                case GOODTILLDATE:
-                    return order.getGoodTillDate();
-                default:
-                    return "";
-            }
+            return switch (columnIndex) {
+                case SYMBOL -> order.getSymbol();
+                case QUANTITY -> order.getQuantity();
+                case OPEN -> order.getOpenQuantity();
+                case EXECUTED -> order.getExecutedQuantity();
+                case SIDE -> order.getSide();
+                case TYPE -> order.getType();
+                case LIMITPRICE -> order.getLimit();
+                case AVGPX -> order.getAvgPx();
+                case ENTRYDATE -> order.getEntryDate();
+                case GOODTILLDATE -> order.getGoodTillDate();
+                default -> "";
+            };
         }
         return "";
     }
