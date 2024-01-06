@@ -400,7 +400,6 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public MarketDataSnapshotFullRefresh.NoMDEntries noMDEntriesFromOrder(Order order) {
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
-
         noMDEntries.setChar(MDEntryType.FIELD, order.getSide());
         noMDEntries.setDouble(MDEntryPx.FIELD, order.getPrice());
         noMDEntries.setDouble(MDEntrySize.FIELD, order.getQuantity());
