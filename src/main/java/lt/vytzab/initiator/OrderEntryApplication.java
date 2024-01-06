@@ -380,7 +380,6 @@ public class OrderEntryApplication implements Application {
 
     public Order orderFromNoMDEntries(Group noMDEntries) throws FieldNotFound {
         Order order = new Order();
-        order.setClOrdID(noMDEntries.getString(ClOrdID.FIELD));
         order.setQuantity((long)noMDEntries.getDouble(MDEntrySize.FIELD));
         order.setOpenQuantity((long)noMDEntries.getDouble(LeavesQty.FIELD));
         order.setExecutedQuantity((long)noMDEntries.getDouble(CumQty.FIELD));
