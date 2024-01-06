@@ -6,14 +6,15 @@ import java.util.Map;
 
 public class OrderType implements Comparable<OrderType> {
     static private final Map<String, OrderType> known = new HashMap<>();
-    static public final OrderType MARKET = new OrderType("Market");
-    static public final OrderType LIMIT = new OrderType("Limit");
+    static public final OrderType MARKET = new OrderType("Market", '1');
+    static public final OrderType LIMIT = new OrderType("Limit", '2');
     private final String name;
-
+    private final char charValue;
     static private final OrderType[] array = {MARKET, LIMIT};
 
-    private OrderType(String name) {
+    private OrderType(String name, char charValue) {
         this.name = name;
+        this.charValue = charValue;
         synchronized (OrderType.class) {
             known.put(name, this);
         }
@@ -21,6 +22,10 @@ public class OrderType implements Comparable<OrderType> {
 
     public String getName() {
         return name;
+    }
+
+    public char getCharValue() {
+        return charValue;
     }
 
     public String toString() {

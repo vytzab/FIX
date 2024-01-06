@@ -14,6 +14,7 @@ import java.awt.event.KeyListener;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Observable;
 import java.util.Observer;
 
@@ -220,24 +221,25 @@ public class AddOrderPanel extends JPanel implements Observer {
 
     private class SubmitListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            Order order = new Order(application.getIdGenerator().genOrderID());
-            order.setSide((OrderSide) sideComboBox.getSelectedItem());
-            order.setType((OrderType) typeComboBox.getSelectedItem());
-            order.setTIF((OrderTIF) tifComboBox.getSelectedItem());
+            Order order = new Order();
+            order.setClOrdID(application.getIdGenerator().genOrderID());
+
+            order.setSide(((OrderSide) Objects.requireNonNull(sideComboBox.getSelectedItem())).getCharValue());
+            order.setType(((OrderType) Objects.requireNonNull(typeComboBox.getSelectedItem())).getCharValue());
+            order.setTif(((OrderTIF) Objects.requireNonNull(tifComboBox.getSelectedItem())).getCharValue());
 
             order.setSymbol(symbolTextField.getText());
             order.setQuantity(Integer.parseInt(quantityTextField.getText()));
             order.setOpenQuantity(order.getQuantity());
             order.setEntryDate(LocalDate.now());
 
-            OrderType type = order.getType();
-            if (type == OrderType.LIMIT) {
-                order.setLimit(limitPriceTextField.getText());
+            if (order.getType() == '2') {
+                order.setLimit(Double.parseDouble(limitPriceTextField.getText()));
             }
-            if (order.getTIF() == OrderTIF.DAY) {
+            if (order.getTif() == '0') {
                 order.setGoodTillDate(LocalDate.now());
                 addOrder(order);
-            } else if (order.getTIF() == OrderTIF.GTD) {
+            } else if (order.getTif() == '6') {
                 if (checkDateField()) {
                     order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                     addOrder(order);
@@ -264,7 +266,6 @@ public class AddOrderPanel extends JPanel implements Observer {
 
         private void showMessageDialog() {
             setMessage("Please pick a valid date.");
-//            JOptionPane.showMessageDialog(AddOrderPanel.this, "Please pick a valid date.", "Invalid Date", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -6,15 +6,15 @@ import java.util.Map;
 
 public class OrderSide implements Comparable<OrderSide>{
     static private final Map<String, OrderSide> known = new HashMap<>();
-    static public final OrderSide BUY = new OrderSide("Buy");
-    static public final OrderSide SELL = new OrderSide("Sell");
-
+    static public final OrderSide BUY = new OrderSide("Buy", '1');
+    static public final OrderSide SELL = new OrderSide("Sell", '2');
     static private final OrderSide[] array = {BUY, SELL};
-
     private final String name;
+    private final char charValue;
 
-    private OrderSide(String name) {
+    private OrderSide(String name, char charValue) {
         this.name = name;
+        this.charValue = charValue;
         synchronized (OrderSide.class) {
             known.put(name, this);
         }
@@ -22,6 +22,9 @@ public class OrderSide implements Comparable<OrderSide>{
 
     public String getName() {
         return name;
+    }
+    public char getCharValue() {
+        return charValue;
     }
 
     public String toString() {

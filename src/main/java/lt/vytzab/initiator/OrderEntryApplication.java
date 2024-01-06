@@ -149,21 +149,12 @@ public class OrderEntryApplication implements Application {
     }
 
     public void sendNewOrderSingle(Order order, SessionID sessionID) throws SessionNotFound {
-        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getClOrdID()), new HandlInst('1'), new Symbol(order.getSymbol()), sideToFIXSide(order.getSide()), new TransactTime(), typeToFIXType(order.getType()));
+        NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getClOrdID()), new HandlInst('1'), new Symbol(order.getSymbol()), new Side(order.getSide()), new TransactTime(), new OrdType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
-
-        if (order.getType() == OrderType.LIMIT) {
+        newOrderSingle.setField(new TimeInForce(order.getTif()));
+        if (order.getType() == '1') {
             newOrderSingle.setField(new Price(order.getLimit()));
         }
-        if (order.getTIF() == OrderTIF.DAY) {
-            newOrderSingle.setField(new TimeInForce('0'));
-        } else if (order.getTIF() == OrderTIF.GTD) {
-            newOrderSingle.setField(new TimeInForce('6'));
-            newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().format(DateTimeFormatter.ofPattern("yyyyMMdd"))));
-        } else if (order.getTIF() == OrderTIF.GTC) {
-            newOrderSingle.setField(new TimeInForce('1'));
-        }
-        System.out.println(sessionID);
         Session.sendToTarget(newOrderSingle, sessionID);
     }
 
@@ -172,7 +163,7 @@ public class OrderEntryApplication implements Application {
                 new OrigClOrdID(order.getClOrdID()),
                 new ClOrdID(idGenerator.genOrderID()),
                 new Symbol(order.getSymbol()),
-                sideToFIXSide(order.getSide()),
+                new Side(order.getSide()),
                 new TransactTime());
         orderCancelRequest.setField(new OrderQty(order.getQuantity()));
 
@@ -185,9 +176,9 @@ public class OrderEntryApplication implements Application {
                 new ClOrdID(idGenerator.genOrderID()),
                 new HandlInst('1'),
                 new Symbol(order.getSymbol()),
-                sideToFIXSide(order.getSide()),
+                new Side(order.getSide()),
                 new TransactTime(),
-                typeToFIXType(order.getType()));
+                new OrdType(order.getType()));
                 orderCancelReplaceRequest.set(new OrderQty(newQuantity));
         Session.sendToTarget(orderCancelReplaceRequest, sessionID);
     }
@@ -224,9 +215,9 @@ public class OrderEntryApplication implements Application {
 
         } else if (message.getChar(OrdStatus.FIELD) == '5') {
             Order order = orderTableModel.getOrder(message.getString(OrigClOrdID.FIELD));
-            order.setExecutedQuantity(message.getDouble(CumQty.FIELD));
-            order.setOpenQuantity(message.getDouble(LeavesQty.FIELD));
-            order.setAvgPx(message.getDouble(AvgPx.FIELD));
+            order.setExecutedQuantity((long)message.getDouble(CumQty.FIELD));
+            order.setOpenQuantity((long)message.getDouble(LeavesQty.FIELD));
+            order.setAvgExecutedPrice(message.getDouble(AvgPx.FIELD));
             orderTableModel.replaceOrder(order);
             orderTableModel.refreshOrders();
         } else if (message.getChar(OrdStatus.FIELD) == '2' || message.getChar(OrdStatus.FIELD) == '1') {
@@ -243,7 +234,7 @@ public class OrderEntryApplication implements Application {
             if (fillSize > 0) {
                 order.setOpenQuantity(order.getOpenQuantity() - (int) fillSize);
                 order.setExecutedQuantity(Integer.parseInt(message.getString(CumQty.FIELD)));
-                order.setAvgPx(Double.parseDouble(message.getString(AvgPx.FIELD)));
+                order.setAvgExecutedPrice(Double.parseDouble(message.getString(AvgPx.FIELD)));
                 executedOrdersTableModel.addOrder(order);
             }
 
@@ -270,7 +261,7 @@ public class OrderEntryApplication implements Application {
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
         int numEntries = message.getInt(NoMDEntries.FIELD);
         for (int i = 1; i <= numEntries; i++) {
-            Order order = new Order(idGenerator.genOrderID());
+            Order order = new Order();
             if (message.getGroup(i, noMDEntries) != null) {
                 order = orderFromNoMDEntries(message.getGroup(i, noMDEntries));
             }
@@ -310,30 +301,6 @@ public class OrderEntryApplication implements Application {
                 return false;
             }
         }
-    }
-
-    public Side sideToFIXSide(OrderSide side) {
-        return (Side) sideMap.getFirst(side);
-    }
-
-    public OrderSide FIXSideToSide(Side side) {
-        return (OrderSide) sideMap.getSecond(side);
-    }
-
-    public OrdType typeToFIXType(OrderType type) {
-        return (OrdType) typeMap.getFirst(type);
-    }
-
-    public OrderType FIXTypeToType(OrdType type) {
-        return (OrderType) typeMap.getSecond(type);
-    }
-
-    public TimeInForce tifToFIXTif(OrderTIF tif) {
-        return (TimeInForce) tifMap.getFirst(tif);
-    }
-
-    public OrderTIF FIXTifToTif(TimeInForce tif) {
-        return (OrderTIF) typeMap.getSecond(tif);
     }
 
     public void addLogonObserver(Observer observer) {
@@ -412,16 +379,17 @@ public class OrderEntryApplication implements Application {
     }
 
     public Order orderFromNoMDEntries(Group noMDEntries) throws FieldNotFound {
-        Order order = new Order(idGenerator.genOrderID());
-        order.setQuantity(noMDEntries.getDouble(MDEntrySize.FIELD));
-        order.setOpenQuantity(noMDEntries.getDouble(LeavesQty.FIELD));
-        order.setExecutedQuantity(noMDEntries.getDouble(CumQty.FIELD));
-        order.setSide(FIXSideToSide(new Side(noMDEntries.getChar(MDEntryType.FIELD))));
-        order.setType(FIXTypeToType(new OrdType(noMDEntries.getChar(OrdType.FIELD))));
-        if (order.getType() == OrderType.LIMIT) {
+        Order order = new Order();
+        order.setClOrdID(noMDEntries.getString(ClOrdID.FIELD));
+        order.setQuantity((long)noMDEntries.getDouble(MDEntrySize.FIELD));
+        order.setOpenQuantity((long)noMDEntries.getDouble(LeavesQty.FIELD));
+        order.setExecutedQuantity((long)noMDEntries.getDouble(CumQty.FIELD));
+        order.setSide(noMDEntries.getChar(MDEntryType.FIELD));
+        order.setType(noMDEntries.getChar(OrdType.FIELD));
+        if (order.getType() == '2') {
             order.setLimit(noMDEntries.getDouble(MDEntryPx.FIELD));
         }
-        order.setAvgPx(noMDEntries.getDouble(AvgPx.FIELD));
+        order.setAvgExecutedPrice(noMDEntries.getDouble(AvgPx.FIELD));
         order.setEntryDate(noMDEntries.getUtcDateOnly(MDEntryDate.FIELD));
         order.setGoodTillDate(noMDEntries.getUtcDateOnly(ExpireDate.FIELD));
         order.setClOrdID(noMDEntries.getString(OrderID.FIELD));
