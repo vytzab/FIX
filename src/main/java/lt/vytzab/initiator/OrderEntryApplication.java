@@ -140,7 +140,7 @@ public class OrderEntryApplication implements Application {
         NewOrderSingle newOrderSingle = new NewOrderSingle(new ClOrdID(order.getClOrdID()), new HandlInst('1'), new Symbol(order.getSymbol()), new Side(order.getSide()), new TransactTime(), new OrdType(order.getType()));
         newOrderSingle.setOrderQty(order.getQuantity());
         newOrderSingle.setField(new TimeInForce(order.getTif()));
-        if (order.getType() == '1') {
+        if (order.getType() == '2') {
             newOrderSingle.setField(new Price(order.getLimit()));
         }
         Session.sendToTarget(newOrderSingle, sessionID);
