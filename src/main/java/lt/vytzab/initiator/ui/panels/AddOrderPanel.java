@@ -23,7 +23,6 @@ import javax.swing.*;
 import com.toedter.calendar.JDateChooser;
 import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.helpers.DoubleNumberTextField;
-import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.helpers.IntegerNumberTextField;
 import lt.vytzab.initiator.helpers.LogonEvent;
 import lt.vytzab.initiator.order.Order;
@@ -33,7 +32,6 @@ import lt.vytzab.initiator.order.OrderTableModel;
 import lt.vytzab.initiator.order.OrderType;
 import quickfix.SessionID;
 import quickfix.SessionNotFound;
-import quickfix.field.TimeInForce;
 
 public class AddOrderPanel extends JPanel implements Observer {
     private boolean symbolEntered = false;
@@ -89,7 +87,7 @@ public class AddOrderPanel extends JPanel implements Observer {
 
     public void setMessage(String message) {
         messageLabel.setText(message);
-        if (message == null || message.equals("")) messageLabel.setText(" ");
+        if (message == null || message.isEmpty()) messageLabel.setText(" ");
     }
 
     public void clearMessage() {
@@ -290,7 +288,7 @@ public class AddOrderPanel extends JPanel implements Observer {
         private boolean testField(Object o) {
             String value = ((JTextField) o).getText();
             value = value.trim();
-            return value.length() > 0;
+            return !value.isEmpty();
         }
 
         public void keyTyped(KeyEvent e) {

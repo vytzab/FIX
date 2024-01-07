@@ -1,25 +1,18 @@
 package lt.vytzab.initiator.ui.panels;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 import javax.swing.*;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 
-import lt.vytzab.initiator.OrderEntryApplication;
 import lt.vytzab.initiator.order.OrderTableModel;
 import lt.vytzab.initiator.ui.tables.OrderTable;
 
 public class OrderPanel extends JPanel {
-    private JTable orderTable;
-    private OrderTableModel orderTableModel;
+    private final JTable orderTable;
 
-    public OrderPanel(OrderTableModel orderTableModel, OrderEntryApplication application) {
+    public OrderPanel(OrderTableModel orderTableModel) {
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         setLayout(new BorderLayout());
-        this.orderTableModel = orderTableModel;
         orderTable = new OrderTable(orderTableModel);
         add(new JScrollPane(orderTable), BorderLayout.CENTER);
         orderTable.setAutoCreateRowSorter(false);
@@ -31,17 +24,16 @@ public class OrderPanel extends JPanel {
     public JTable orderTable() {
         return orderTable;
     }
-    public class FilterPanel extends JPanel {
+    public static class FilterPanel extends JPanel {
         private final OrderTableModel orderTableModel;
         private final JTextField keywordTextField;
-        private final JLabel keywordLabel;
 
         public FilterPanel(OrderTableModel orderTableModel) {
             this.orderTableModel = orderTableModel;
 
             setLayout(new FlowLayout(FlowLayout.LEFT));
 
-            keywordLabel = new JLabel("Keyword:");
+            JLabel keywordLabel = new JLabel("Keyword:");
             keywordTextField = new JTextField(20);
 
             JButton filterButton = new JButton("Filter");

@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.*;
 
 import lt.vytzab.initiator.*;
-import lt.vytzab.initiator.helpers.IDGenerator;
 import lt.vytzab.initiator.helpers.IntegerNumberTextField;
 import lt.vytzab.initiator.order.Order;
 import quickfix.SessionNotFound;

@@ -50,7 +50,7 @@ public class OrderEntry {
         SessionSettings settings = new SessionSettings(inputStream);
         inputStream.close();
 
-        boolean logHeartbeats = Boolean.valueOf(System.getProperty("logHeartbeats", "true"));
+        boolean logHeartbeats = Boolean.parseBoolean(System.getProperty("logHeartbeats", "true"));
 
         OrderTableModel orderTableModel = new OrderTableModel();
         OrderTableModel executedOrdersTableModel = new OrderTableModel();
@@ -68,7 +68,7 @@ public class OrderEntry {
         JmxExporter exporter = new JmxExporter();
         exporter.register(initiator);
 
-        JFrame frame = new OrderEntryFrame(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application, menuBar, idGenerator);
+        JFrame frame = new OrderEntryFrame(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application, menuBar);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         centerFrameOnScreen(frame);
     }

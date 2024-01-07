@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class MarketTableModel extends AbstractTableModel {
     private List<Market> markets;
@@ -19,7 +18,6 @@ public class MarketTableModel extends AbstractTableModel {
     private final static int DAYLOW = 3;
     private final static int BUYVOLUME = 4;
     private final static int SELLVOLUME = 5;
-    private boolean filtered = false;
 
     private final String[] headers;
 
@@ -108,22 +106,15 @@ public class MarketTableModel extends AbstractTableModel {
         Market market = getMarket(rowIndex);
 
         if (market != null) {
-            switch (columnIndex) {
-                case SYMBOL:
-                    return market.getSymbol();
-                case LASTPRICE:
-                    return formatDouble(market.getLastPrice());
-                case DAYHIGH:
-                    return formatDouble(market.getDayHigh());
-                case DAYLOW:
-                    return formatDouble(market.getDayLow());
-                case BUYVOLUME:
-                    return formatDouble(market.getBuyVolume());
-                case SELLVOLUME:
-                    return formatDouble(market.getSellVolume());
-                default:
-                    return "";
-            }
+            return switch (columnIndex) {
+                case SYMBOL -> market.getSymbol();
+                case LASTPRICE -> formatDouble(market.getLastPrice());
+                case DAYHIGH -> formatDouble(market.getDayHigh());
+                case DAYLOW -> formatDouble(market.getDayLow());
+                case BUYVOLUME -> formatDouble(market.getBuyVolume());
+                case SELLVOLUME -> formatDouble(market.getSellVolume());
+                default -> "";
+            };
         }
         return "";
     }
@@ -138,31 +129,6 @@ public class MarketTableModel extends AbstractTableModel {
 
     public void clearMarkets() {
         markets.clear();
-    }
-
-    public void fillMarkets() {
-        markets.addAll(originalMarkets);
-    }
-
-    public void updateMarkets(List<Market> updatedMarkets) {
-        originalMarkets = new ArrayList<>(markets);
-        markets = new ArrayList<>(updatedMarkets);
-
-        fireTableDataChanged();
-    }
-
-    public void setMarkets(List<Market> updatedMarkets) {
-        markets = new ArrayList<>(updatedMarkets);
-
-        // Initialize or clear the originalMarkets list
-        if (originalMarkets == null) {
-            originalMarkets = new ArrayList<>(updatedMarkets);
-        } else {
-            originalMarkets.clear();
-            originalMarkets.addAll(updatedMarkets);
-        }
-
-        fireTableDataChanged();
     }
 
     public boolean isMarketsEmpty() {
@@ -219,32 +185,20 @@ public class MarketTableModel extends AbstractTableModel {
         }
     }
 
-    private static class MarketComparator implements Comparator<Market> {
-        private int columnIndex;
-
-        public MarketComparator(int columnIndex) {
-            this.columnIndex = columnIndex;
-        }
+    private record MarketComparator(int columnIndex) implements Comparator<Market> {
 
         @Override
-        public int compare(Market market1, Market market2) {
-            // Implement comparison logic based on the specified column index
-            switch (columnIndex) {
-                case SYMBOL:
-                    return market1.getSymbol().compareTo(market2.getSymbol());
-                case LASTPRICE:
-                    return Double.compare(market1.getLastPrice(), market2.getLastPrice());
-                case DAYHIGH:
-                    return Double.compare(market1.getDayHigh(), market2.getDayHigh());
-                case DAYLOW:
-                    return Double.compare(market1.getDayLow(), market2.getDayLow());
-                case BUYVOLUME:
-                    return Double.compare(market1.getBuyVolume(), market2.getBuyVolume());
-                case SELLVOLUME:
-                    return Double.compare(market1.getSellVolume(), market2.getSellVolume());
-                default:
-                    return 0; // Default to no sorting
+            public int compare(Market market1, Market market2) {
+                // Implement comparison logic based on the specified column index
+                return switch (columnIndex) {
+                    case SYMBOL -> market1.getSymbol().compareTo(market2.getSymbol());
+                    case LASTPRICE -> Double.compare(market1.getLastPrice(), market2.getLastPrice());
+                    case DAYHIGH -> Double.compare(market1.getDayHigh(), market2.getDayHigh());
+                    case DAYLOW -> Double.compare(market1.getDayLow(), market2.getDayLow());
+                    case BUYVOLUME -> Double.compare(market1.getBuyVolume(), market2.getBuyVolume());
+                    case SELLVOLUME -> Double.compare(market1.getSellVolume(), market2.getSellVolume());
+                    default -> 0; // Default to no sorting
+                };
             }
         }
-    }
 }

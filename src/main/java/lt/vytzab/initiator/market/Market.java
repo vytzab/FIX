@@ -1,14 +1,5 @@
 package lt.vytzab.initiator.market;
 
-import lt.vytzab.initiator.order.Order;
-import lt.vytzab.initiator.order.OrderType;
-import quickfix.field.OrdType;
-import quickfix.field.Side;
-
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 import java.util.Objects;
 
 public class Market {

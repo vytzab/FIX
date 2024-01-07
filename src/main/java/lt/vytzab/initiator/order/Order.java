@@ -27,27 +27,6 @@ public class Order {
     private LocalDate GoodTillDate;
     private boolean isNew = true;
 
-
-//    private SessionID sessionID = null;
-//    private String symbol = null;
-//    private double quantity = 0;
-//    private double openQuantity = 0;
-//    private double executedQuantity = 0;
-//    private OrderSide side = OrderSide.BUY;
-//    private OrderType type = OrderType.MARKET;
-//    private OrderTIF tif = OrderTIF.DAY;
-//    private Double limit = null;
-//    private double avgPx = 0.0;
-//    private boolean isNew = true;
-//    private String message = null;
-//    private String OrderID = null;
-//    private String ClOrdID = null;
-//
-//    private boolean rejected = false;
-//    private boolean canceled = false;
-//    private LocalDate entryDate = null;
-//    private LocalDate goodTillDate = null;
-
     public Order(String clOrdID, String symbol, char side, char type, double price, long quantity, long openQuantity, long executedQuantity, double avgExecutedPrice, double lastExecutedPrice, long lastExecutedQuantity, boolean rejected, boolean canceled, LocalDate entryDate, LocalDate goodTillDate, char tif) {
         this.clOrdID = clOrdID;
         this.symbol = symbol;

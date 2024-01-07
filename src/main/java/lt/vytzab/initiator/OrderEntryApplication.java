@@ -17,7 +17,6 @@ import quickfix.field.*;
 import quickfix.fix42.*;
 
 import javax.swing.*;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 public class OrderEntryApplication implements Application {
@@ -28,19 +27,13 @@ public class OrderEntryApplication implements Application {
     private final ObservableOrder observableOrder = new ObservableOrder();
     private final ObservableLogon observableLogon = new ObservableLogon();
     private final LogPanel logPanel;
-    private boolean isAvailable = true;
-    private boolean isMissingField;
-    //Pirkimo / pardavimo puses konvertavimui is FIX i object
     static private final TwoWayMap sideMap = new TwoWayMap();
-    //Tipo konvertavimui is FIX i object
     static private final TwoWayMap typeMap = new TwoWayMap();
-    //TIF konvertavimui is FIX i object
     static private final TwoWayMap tifMap = new TwoWayMap();
-    //Tikrinimui ar zinute su tokiu ExecutionID jau processed.
     static private final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
     private final Logger logger = LoggerFactory.getLogger(OrderEntryApplication.class);
     private SessionID sessionID = null;
-    private IDGenerator idGenerator = null;
+    private final IDGenerator idGenerator;
 
     public OrderEntryApplication(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel, IDGenerator idGenerator) {
         this.marketTableModel = marketTableModel;
@@ -90,7 +83,6 @@ public class OrderEntryApplication implements Application {
         }
     }
 
-    //Zinuciu gautu is variklio apdirbimui
     public class MessageProcessor implements Runnable {
         private final quickfix.Message message;
         private final SessionID sessionID;
@@ -103,21 +95,17 @@ public class OrderEntryApplication implements Application {
         public void run() {
             try {
                 MsgType msgType = new MsgType();
-                if (isAvailable) {
-                    //Execution Report
-                    if (message.getHeader().getField(msgType).valueEquals("8")) {
-                        executionReport(message, sessionID);
-                        //SECURITY_STATUS
-                    } else if (message.getHeader().getField(msgType).valueEquals("f")) {
-                        securityStatus(message, sessionID);
-                        //MARKET_DATA_SNAPSHOT
-                    } else if (message.getHeader().getField(msgType).valueEquals("W")) {
-                        marketSnapshot(message, sessionID);
-                    } else {
-                        sendBusinessReject(message, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE, "Unsupported Message Type");
-                    }
+                //Execution Report
+                if (message.getHeader().getField(msgType).valueEquals("8")) {
+                    executionReport(message, sessionID);
+                    //SECURITY_STATUS
+                } else if (message.getHeader().getField(msgType).valueEquals("f")) {
+                    securityStatus(message, sessionID);
+                    //MARKET_DATA_SNAPSHOT
+                } else if (message.getHeader().getField(msgType).valueEquals("W")) {
+                    marketSnapshot(message);
                 } else {
-                    sendBusinessReject(message, BusinessRejectReason.APPLICATION_NOT_AVAILABLE, "Application not available");
+                    sendBusinessReject(message);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -136,15 +124,15 @@ public class OrderEntryApplication implements Application {
         Session.sendToTarget(reply);
     }
 
-    private void sendBusinessReject(Message message, int rejectReason, String rejectText) throws FieldNotFound, SessionNotFound {
+    private void sendBusinessReject(Message message) throws FieldNotFound, SessionNotFound {
         Message reply = (messageFactory.create(message.getHeader().getString(BeginString.FIELD), MsgType.BUSINESS_MESSAGE_REJECT));
         reply.getHeader().setString(SenderCompID.FIELD, message.getHeader().getString(TargetCompID.FIELD));
         reply.getHeader().setString(TargetCompID.FIELD, message.getHeader().getString(SenderCompID.FIELD));
         String refSeqNum = message.getHeader().getString(MsgSeqNum.FIELD);
         reply.setString(RefSeqNum.FIELD, refSeqNum);
         reply.setString(RefMsgType.FIELD, message.getHeader().getString(MsgType.FIELD));
-        reply.setInt(BusinessRejectReason.FIELD, rejectReason);
-        reply.setString(Text.FIELD, rejectText);
+        reply.setInt(BusinessRejectReason.FIELD, BusinessRejectReason.UNSUPPORTED_MESSAGE_TYPE);
+        reply.setString(Text.FIELD, "Unsupported Message Type");
         Session.sendToTarget(reply);
     }
 
@@ -197,14 +185,7 @@ public class OrderEntryApplication implements Application {
         Session.sendToTarget(marketDataRequest, sessionID);
     }
 
-    public void sendSecurityStatusRequest(SessionID sessionID) throws SessionNotFound {
-        SecurityStatusRequest securityStatusRequest = new SecurityStatusRequest(new SecurityStatusReqID(idGenerator.genOrderID()), new Symbol("AAPL"), new SubscriptionRequestType('1'));
-
-        Session.sendToTarget(securityStatusRequest, sessionID);
-    }
-
     private void executionReport(Message message, SessionID sessionID) throws FieldNotFound {
-        //Patikrinti ar jau apdirbta
         ExecID execID = (ExecID) message.getField(new ExecID());
         if (alreadyProcessed(execID, sessionID)) {
             return;
@@ -225,12 +206,10 @@ public class OrderEntryApplication implements Application {
             Order order = orderTableModel.getOrder(message.getString(ClOrdID.FIELD));
             double fillSize;
 
-            // Ar buvo matchinta?
             LeavesQty leavesQty = new LeavesQty();
             message.getField(leavesQty);
             fillSize = order.getQuantity() - leavesQty.getValue();
 
-            //Jeigu ivyko matchinimas, update order table
             if (fillSize > 0) {
                 order.setOpenQuantity(order.getOpenQuantity() - (int) fillSize);
                 order.setExecutedQuantity(Integer.parseInt(message.getString(CumQty.FIELD)));
@@ -257,7 +236,7 @@ public class OrderEntryApplication implements Application {
         }
     }
 
-    private void marketSnapshot(Message message, SessionID sessionID) throws FieldNotFound {
+    private void marketSnapshot(Message message) throws FieldNotFound {
         MarketDataSnapshotFullRefresh.NoMDEntries noMDEntries = new MarketDataSnapshotFullRefresh.NoMDEntries();
         int numEntries = message.getInt(NoMDEntries.FIELD);
         for (int i = 1; i <= numEntries; i++) {
@@ -352,23 +331,6 @@ public class OrderEntryApplication implements Application {
         tifMap.put(OrderTIF.GTC, new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
         tifMap.put(OrderTIF.GTD, new TimeInForce(TimeInForce.GOOD_TILL_DATE));
     }
-
-    public boolean isMissingField() {
-        return isMissingField;
-    }
-
-    public void setMissingField(boolean isMissingField) {
-        this.isMissingField = isMissingField;
-    }
-
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
-
     public void displayFixMessageInLogs(String fixMessage) {
         SwingUtilities.invokeLater(() -> {
             logPanel.getLogModel().addElement(CustomFixMessageParser.parse(fixMessage));
