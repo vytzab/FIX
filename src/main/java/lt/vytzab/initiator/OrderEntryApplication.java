@@ -354,6 +354,13 @@ public class OrderEntryApplication implements Application {
         order.setEntryDate(noMDEntries.getUtcDateOnly(MDEntryDate.FIELD));
         order.setGoodTillDate(noMDEntries.getUtcDateOnly(ExpireDate.FIELD));
         order.setClOrdID(noMDEntries.getString(OrderID.FIELD));
+        if (order.getGoodTillDate() == order.getEntryDate()) {
+            order.setTif('0');
+        } else if (order.getGoodTillDate() == null) {
+            order.setTif('1');
+        } else {
+            order.setTif('6');
+        }
 //TODO implement stop and limit
         return order;
     }
