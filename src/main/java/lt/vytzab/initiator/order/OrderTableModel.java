@@ -204,7 +204,7 @@ public class OrderTableModel extends AbstractTableModel {
         if (order.getType() == '1') {
             return null;
         } else {
-            return order.getPrice();
+            return order.getLimit();
         }
     }
 

@@ -213,17 +213,12 @@ public class OrderEntryApplication implements Application {
             orderTableModel.replaceOrder(order);
             orderTableModel.refreshOrders();
         } else if (message.getChar(OrdStatus.FIELD) == '2' || message.getChar(OrdStatus.FIELD) == '1') {
-
             Order order = orderTableModel.getOrder(message.getString(ClOrdID.FIELD));
-            double fillSize;
-
-            LeavesQty leavesQty = new LeavesQty();
-            message.getField(leavesQty);
-            fillSize = order.getQuantity() - leavesQty.getValue();
+            int fillSize = Integer.parseInt(message.getString(CumQty.FIELD));
 
             if (fillSize > 0) {
-                order.setOpenQuantity(order.getOpenQuantity() - (int) fillSize);
-                order.setExecutedQuantity(Integer.parseInt(message.getString(CumQty.FIELD)));
+                order.setOpenQuantity(order.getOpenQuantity() -  fillSize);
+                order.setExecutedQuantity(fillSize);
                 order.setAvgExecutedPrice(Double.parseDouble(message.getString(AvgPx.FIELD)));
                 executedOrdersTableModel.addOrder(order);
             }
