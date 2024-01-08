@@ -214,14 +214,9 @@ public class OrderEntryApplication implements Application {
             orderTableModel.refreshOrders();
         } else if (message.getChar(OrdStatus.FIELD) == '2' || message.getChar(OrdStatus.FIELD) == '1') {
             Order order = orderTableModel.getOrder(message.getString(ClOrdID.FIELD));
-            int fillSize = Integer.parseInt(message.getString(CumQty.FIELD));
-
-            if (fillSize > 0) {
-                order.setOpenQuantity(order.getOpenQuantity() -  fillSize);
-                order.setExecutedQuantity(fillSize);
-                order.setAvgExecutedPrice(Double.parseDouble(message.getString(AvgPx.FIELD)));
-                executedOrdersTableModel.addOrder(order);
-            }
+            order.setOpenQuantity(Long.parseLong(message.getString(LeavesQty.FIELD)));
+            order.setExecutedQuantity(Long.parseLong(message.getString(CumQty.FIELD)));
+            order.setAvgExecutedPrice(Double.parseDouble(message.getString(AvgPx.FIELD)));
 
             OrdStatus ordStatus = (OrdStatus) message.getField(new OrdStatus());
 
