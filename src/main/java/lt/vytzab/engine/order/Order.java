@@ -141,6 +141,12 @@ public class Order {
 
     public void cancel() {
         openQuantity = 0;
+        this.canceled = true;
+    }
+
+    public void reject() {
+        openQuantity = 0;
+        this.rejected = true;
     }
 
     public boolean isClosed() {

@@ -6,6 +6,7 @@ import lt.vytzab.engine.order.OrderController;
 import lt.vytzab.engine.helpers.IDGenerator;
 import lt.vytzab.engine.market.MarketController;
 import lt.vytzab.engine.order.Order;
+import lt.vytzab.engine.order.OrderCreationException;
 import lt.vytzab.engine.order.OrderTableModel;
 import lt.vytzab.engine.ui.panels.LogPanel;
 
@@ -84,14 +85,13 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
     // Messages from OrderEntry ||
     //                          \/
 
-    public void onMessage(quickfix.fix42.NewOrderSingle message, SessionID sessionID) throws FieldNotFound {
-        if (marketController.checkIfMarketExists(message.getString(Symbol.FIELD))) {
-            try {
-                processNewOrder(message);
-            } catch (Exception e) {
-                messageExecutionReport(message, '8');
-            }
-        } else {
+    public void onMessage(quickfix.fix42.NewOrderSingle message, SessionID sessionID) throws FieldNotFound, SessionNotFound {
+        Order order = orderFromNewOrderSingle(message);
+        try {
+            processNewOrder(order);
+        } catch (Exception e) {
+            order.reject();
+            allOrderTableModel.addOrder(order);
             messageExecutionReport(message, '8');
         }
     }
@@ -100,8 +100,9 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         Order order = orderController.getOrderByClOrdID(message.getString(OrigClOrdID.FIELD));
         if (order != null) {
             order.cancel();
-            orderController.deleteOrderByClOrdID(order.getClOrdID());
+            orderController.updateOrder(order);
             openOrderTableModel.removeOrder(order.getClOrdID());
+            allOrderTableModel.replaceOrder(order);
             messageExecutionReport(message, OrdStatus.CANCELED);
         } else {
             OrderCancelReject orderCancelReject = new OrderCancelReject(
@@ -179,28 +180,31 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         }
     }
 
-    private void processNewOrder(quickfix.fix42.NewOrderSingle newOrderSingle) throws FieldNotFound, SessionNotFound {
-        marketController.refreshMarkets();
-        Order order = orderFromNewOrderSingle(newOrderSingle);
-        if (orderController.createOrder(order)) {
-            messageExecutionReport(newOrderSingle, '0');
+    private void processNewOrder(Order order) throws FieldNotFound, SessionNotFound, OrderCreationException {
+        if (marketController.checkIfMarketExists(order.getSymbol())) {
+            marketController.refreshMarkets();
+            if (orderController.createOrder(order)) {
+                orderExecutionReport(order, '0');
 
-            openOrderTableModel.addOrder(order);
-            allOrderTableModel.addOrder(order);
+                openOrderTableModel.addOrder(order);
+                allOrderTableModel.addOrder(order);
 
-            ArrayList<Order> orders = new ArrayList<>();
-            marketController.matchMarketOrders(marketController.getMarket(order.getSymbol()), orders);
-            while (!orders.isEmpty()) {
-                openOrderTableModel.replaceOrder(orders.get(0));
-                allOrderTableModel.replaceOrder(orders.get(0));
-                orderExecutionReport(orders.get(0), orders.get(0).isFilled() ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED);
-                orders.remove(0);
+                ArrayList<Order> orders = new ArrayList<>();
+                marketController.matchMarketOrders(marketController.getMarket(order.getSymbol()), orders);
+                while (!orders.isEmpty()) {
+                    openOrderTableModel.replaceOrder(orders.get(0));
+                    allOrderTableModel.replaceOrder(orders.get(0));
+                    orderExecutionReport(orders.get(0), orders.get(0).isFilled() ? OrdStatus.FILLED : OrdStatus.PARTIALLY_FILLED);
+                    orders.remove(0);
+                }
+                openOrderTableModel.removeFullyExecutedOrders();
+                marketTableModel.addMarket(marketController.getMarket(order.getSymbol()));
+                sendSecurityStatusFromMarket(marketController.getMarket(order.getSymbol()), 1);
+            } else {
+                throw new OrderCreationException("Failed to create order.");
             }
-            openOrderTableModel.removeFullyExecutedOrders();
-            marketTableModel.addMarket(marketController.getMarket(order.getSymbol()));
-            sendSecurityStatusFromMarket(marketController.getMarket(order.getSymbol()), 1);
         } else {
-            messageExecutionReport(newOrderSingle, '8');
+            throw new OrderCreationException("Failed to create order. Market does not exist.");
         }
     }
 
@@ -392,11 +396,9 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 LocalDate.now(),
                 newOrderSingle.getChar(TimeInForce.FIELD));
         String goodTillDateString = newOrderSingle.getString(ExpireDate.FIELD);
-        if (goodTillDateString != null) {
-            order.setGoodTillDate(LocalDate.parse(goodTillDateString));
-        } else {
-            order.setGoodTillDate(LocalDate.now().plusYears(5));
-        }
+
+        order.setGoodTillDate(LocalDate.parse(goodTillDateString));
+
         return order;
     }
 
@@ -413,8 +415,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         noMDEntries.setDouble(LeavesQty.FIELD, order.getOpenQuantity());
         noMDEntries.setUtcDateOnly(ExpireDate.FIELD, order.getGoodTillDate());
         noMDEntries.setString(OrderID.FIELD, order.getClOrdID());
-        noMDEntries.setString(Text.FIELD, "");
-        noMDEntries.setString(Text.FIELD, "MDEntry for " + order.getSymbol());
+        noMDEntries.setString(Text.FIELD, "MDEntry for " + order.getClOrdID());
 
         return noMDEntries;
     }
