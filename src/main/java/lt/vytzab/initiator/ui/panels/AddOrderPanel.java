@@ -241,9 +241,9 @@ public class AddOrderPanel extends JPanel implements Observer {
                 if (checkDateField()) {
                     order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
                     addOrder(order);
+                } else {
+                    showMessageDialog();
                 }
-            } else {
-                showMessageDialog();
             }
         }
 
@@ -259,7 +259,7 @@ public class AddOrderPanel extends JPanel implements Observer {
 
 
         private boolean checkDateField() {
-            return dateChooser.getDate() != null;
+            return dateChooser.getDate() != null && dateChooser.getDate().after(new Date());
         }
 
         private void showMessageDialog() {

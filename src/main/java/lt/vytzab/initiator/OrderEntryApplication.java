@@ -191,9 +191,17 @@ public class OrderEntryApplication implements Application {
             return;
         }
         if (message.getChar(OrdStatus.FIELD) == '4') {
-            orderTableModel.removeOrder(message.getString(OrigClOrdID.FIELD));
+            Order order = orderTableModel.getOrder(message.getString(OrigClOrdID.FIELD));
+            order.setOpenQuantity(0);
+            order.setCanceled(true);
+            orderTableModel.replaceOrder(order);
             orderTableModel.refreshOrders();
-
+        } else if (message.getChar(OrdStatus.FIELD) == '8') {
+            Order order = orderTableModel.getOrder(message.getString(ClOrdID.FIELD));
+            order.setOpenQuantity(0);
+            order.setRejected(true);
+            orderTableModel.replaceOrder(order);
+            orderTableModel.refreshOrders();
         } else if (message.getChar(OrdStatus.FIELD) == '5') {
             Order order = orderTableModel.getOrder(message.getString(OrigClOrdID.FIELD));
             order.setExecutedQuantity((long)message.getDouble(CumQty.FIELD));
@@ -232,7 +240,7 @@ public class OrderEntryApplication implements Application {
             }
 
             orderTableModel.replaceOrder(order);
-            observableOrder.update(order);
+            orderTableModel.refreshOrders();
         }
     }
 
@@ -361,7 +369,6 @@ public class OrderEntryApplication implements Application {
         } else {
             order.setTif('6');
         }
-//TODO implement stop and limit
         return order;
     }
 
