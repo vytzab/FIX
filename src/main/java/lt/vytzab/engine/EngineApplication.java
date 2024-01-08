@@ -13,6 +13,7 @@ import javax.swing.*;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import lt.vytzab.engine.helpers.CustomFixMessageParser;
@@ -390,10 +391,11 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
                 LocalDate.now(),
                 LocalDate.now(),
                 newOrderSingle.getChar(TimeInForce.FIELD));
-        if (newOrderSingle.getChar(TimeInForce.FIELD) == '0') {
-            order.setGoodTillDate(LocalDate.now());
-        } else if (newOrderSingle.getChar(TimeInForce.FIELD) == '6') {
-            order.setGoodTillDate(newOrderSingle.getUtcDateOnly(ExpireDate.FIELD));
+        String goodTillDateString = newOrderSingle.getString(ExpireDate.FIELD);
+        if (goodTillDateString != null) {
+            order.setGoodTillDate(LocalDate.parse(goodTillDateString));
+        } else {
+            order.setGoodTillDate(LocalDate.now().plusYears(5));
         }
         return order;
     }
