@@ -237,6 +237,9 @@ public class AddOrderPanel extends JPanel implements Observer {
             if (order.getTif() == '0') {
                 order.setGoodTillDate(LocalDate.now());
                 addOrder(order);
+            } else if (order.getTif() == '1') {
+                order.setGoodTillDate(null);
+                addOrder(order);
             } else if (order.getTif() == '6') {
                 if (checkDateField()) {
                     order.setGoodTillDate(dateChooser.getDate().toInstant().atZone(ZoneId.systemDefault()).toLocalDate());

@@ -121,7 +121,7 @@ public class OrderTableModel extends AbstractTableModel {
                 case EXECUTED -> order.getExecutedQuantity();
                 case SIDE -> getOrderSide(order.getSide());
                 case TYPE -> getOrderType(order.getType());
-                case LIMITPRICE -> order.getLimit();
+                case LIMITPRICE -> getOrderLimit(order);
                 case AVGPX -> order.getAvgExecutedPrice();
                 case ENTRYDATE -> order.getEntryDate();
                 case GOODTILLDATE -> order.getGoodTillDate();
@@ -199,6 +199,14 @@ public class OrderTableModel extends AbstractTableModel {
             System.out.println("CSV file exported successfully!");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public Object getOrderLimit(Order order) {
+        if (order.getType() == '1') {
+            return null;
+        } else {
+            return order.getPrice();
         }
     }
 

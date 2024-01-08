@@ -143,6 +143,7 @@ public class OrderEntryApplication implements Application {
         if (order.getType() == '2') {
             newOrderSingle.setField(new Price(order.getLimit()));
         }
+        newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().toString()));
         Session.sendToTarget(newOrderSingle, sessionID);
     }
 
