@@ -17,6 +17,7 @@ import quickfix.field.*;
 import quickfix.fix42.*;
 
 import javax.swing.*;
+import java.time.LocalDate;
 import java.util.*;
 
 public class OrderEntryApplication implements Application {
@@ -143,11 +144,8 @@ public class OrderEntryApplication implements Application {
         if (order.getType() == '2') {
             newOrderSingle.setField(new Price(order.getLimit()));
         }
-        if (order.getGoodTillDate() != null) {
-            newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().toString()));
-        } else {
-            order.setGoodTillDate(null);
-        }
+        newOrderSingle.setField(new ExpireDate(order.getGoodTillDate().toString()));
+
         Session.sendToTarget(newOrderSingle, sessionID);
     }
 
@@ -367,13 +365,6 @@ public class OrderEntryApplication implements Application {
         order.setEntryDate(noMDEntries.getUtcDateOnly(MDEntryDate.FIELD));
         order.setGoodTillDate(noMDEntries.getUtcDateOnly(ExpireDate.FIELD));
         order.setClOrdID(noMDEntries.getString(OrderID.FIELD));
-        if (order.getGoodTillDate() == order.getEntryDate()) {
-            order.setTif('0');
-        } else if (order.getGoodTillDate() == null) {
-            order.setTif('1');
-        } else {
-            order.setTif('6');
-        }
         return order;
     }
 

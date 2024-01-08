@@ -21,7 +21,6 @@ public class OrderTableModel extends AbstractTableModel {
     private final static int AVGPX = 7;
     private final static int ENTRYDATE = 8;
     private final static int GOODTILLDATE = 9;
-    private final static int TIMEINFORCE = 10;
 
     private final String[] headers;
 
@@ -29,7 +28,7 @@ public class OrderTableModel extends AbstractTableModel {
         orders = new ArrayList<>();
         originalOrders = new ArrayList<>();
         sortedOrders = new ArrayList<>();
-        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date", "Time in Force"};
+        headers = new String[]{"Symbol", "Quantity", "Open", "Executed", "Side", "Type", "Limit", "Average Price", "Entry Date", "Good Till Date"};
     }
 
     public void filterByKeyword(String keyword) {
@@ -125,7 +124,6 @@ public class OrderTableModel extends AbstractTableModel {
                 case AVGPX -> order.getAvgExecutedPrice();
                 case ENTRYDATE -> order.getEntryDate();
                 case GOODTILLDATE -> order.getGoodTillDate();
-                case TIMEINFORCE -> getOrderTIF(order.getTif());
                 default -> "";
             };
         }
