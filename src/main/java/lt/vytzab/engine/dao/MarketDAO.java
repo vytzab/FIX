@@ -30,7 +30,7 @@ public class MarketDAO {
         }
     }
 
-    public static Market readMarket(String symbol) {
+    public static Market getMarket(String symbol) {
         Market market = null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_data WHERE symbol = ?";

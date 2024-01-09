@@ -147,7 +147,7 @@ public class MarketOrderDAO {
         }
     }
 
-    public static List<Order> readAllMarketOrders() {
+    public static List<Order> getAllMarketOrders() {
         List<Order> orders = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders";

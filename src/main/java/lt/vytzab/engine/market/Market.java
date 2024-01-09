@@ -32,62 +32,6 @@ public class Market {
     public Market() {
     }
 
-    public boolean match(String symbol, List<Order> orders) {
-        while (true) {
-            if (bidOrders.isEmpty() || askOrders.isEmpty()) {
-                return !orders.isEmpty();
-            }
-            Order bidOrder = bidOrders.get(0);
-            Order askOrder = askOrders.get(0);
-            if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
-                match(bidOrder, askOrder);
-                if (!orders.contains(bidOrder)) {
-                    orders.add(0, bidOrder);
-                }
-                if (!orders.contains(askOrder)) {
-                    orders.add(0, askOrder);
-                }
-
-                if (bidOrder.isClosed()) {
-                    bidOrders.remove(bidOrder);
-                }
-                if (askOrder.isClosed()) {
-                    askOrders.remove(askOrder);
-                }
-            } else return !orders.isEmpty();
-        }
-    }
-
-    private void match(Order bid, Order ask) {
-        double price = ask.getType() == OrdType.LIMIT ? ask.getPrice() : bid.getPrice();
-        long quantity = Math.min(bid.getOpenQuantity(), ask.getOpenQuantity());
-
-        bid.execute(price, quantity);
-        ask.execute(price, quantity);
-    }
-
-    public boolean insert(Order order) {
-        return order.getSide() == Side.BUY ? insert(order, true, bidOrders) : insert(order, false, askOrders);
-    }
-
-    private boolean insert(Order newOrder, boolean descending, List<Order> activeOrders) {
-        if (activeOrders.isEmpty()) {
-            activeOrders.add(newOrder);
-        } else if (newOrder.getType() == OrdType.MARKET) {
-            activeOrders.add(0, newOrder);
-        } else {
-            for (int i = 0; i < activeOrders.size(); i++) {
-                Order activeOrder = activeOrders.get(i);
-                //If newOrder.side = BUY and price is higher than an active selling orders -
-                if ((descending ? newOrder.getPrice() > activeOrder.getPrice() : newOrder.getPrice() < activeOrder.getPrice()) && newOrder.getEntryTime() < activeOrder.getEntryTime()) {
-                    activeOrders.add(i, newOrder);
-                }
-            }
-            activeOrders.add(newOrder);
-        }
-        return true;
-    }
-
     public void erase(Order order) {
         if (order.getSide() == Side.BUY) {
             bidOrders.remove(find(bidOrders, order.getClOrdID()));

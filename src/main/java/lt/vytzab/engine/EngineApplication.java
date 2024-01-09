@@ -48,7 +48,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     public void onLogon(SessionID sessionId) {
         this.idGenerator.setSenderCompID(sessionId.getSenderCompID());
-        marketController.refreshMarkets();
+//        marketController.refreshMarkets();
         sessionIDs.add(sessionId);
         Session session = Session.lookupSession(sessionId);
         if (session != null && session.isLoggedOn()) {
@@ -80,8 +80,8 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
         crack(message, sessionID);
     }
 
-    // System messages  /\
-    //                  ||
+    //                          /\
+    // System messages          ||
     // Messages from OrderEntry ||
     //                          \/
 
@@ -182,7 +182,7 @@ public class EngineApplication extends MessageCracker implements quickfix.Applic
 
     private void processNewOrder(Order order) throws FieldNotFound, SessionNotFound, OrderCreationException {
         if (marketController.checkIfMarketExists(order.getSymbol())) {
-            marketController.refreshMarkets();
+//            marketController.refreshMarkets();
             if (orderController.createOrder(order)) {
                 orderExecutionReport(order, '0');
 

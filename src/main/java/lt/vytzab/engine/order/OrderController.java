@@ -23,7 +23,7 @@ public class OrderController {
     }
 
     public List<Order> getAllOrders() {
-        return MarketOrderDAO.readAllMarketOrders();
+        return MarketOrderDAO.getAllMarketOrders();
     }
 
     public List<Order> getAllOrdersBySymbolAndSender(String symbol, String senderCompId) {

@@ -6,7 +6,6 @@ import lt.vytzab.engine.order.OrderTableModel;
 
 import javax.swing.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 
 public class AllOrderFillWorker extends SwingWorker<Void, List<Order>> {
@@ -33,7 +32,7 @@ public class AllOrderFillWorker extends SwingWorker<Void, List<Order>> {
     }
 
     private List<Order> fetchData() {
-        List<Order> orderList = MarketOrderDAO.readAllMarketOrders();
+        List<Order> orderList = MarketOrderDAO.getAllMarketOrders();
         for (Order order : orderList) {
             if (LocalDate.now().isAfter(order.getGoodTillDate()) && !order.isFullyExecuted() && !order.isClosed() && !order.isFilled()){
                 order.setOpenQuantity(0);

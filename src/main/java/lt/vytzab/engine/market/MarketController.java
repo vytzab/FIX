@@ -4,6 +4,7 @@ import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.order.Order;
 import quickfix.field.OrdType;
+import quickfix.field.Side;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,23 +13,29 @@ public class MarketController {
     private List<Market> markets = MarketDAO.readAllMarkets();
 
     public Market getMarket(String symbol) {
-        for (Market market : markets) {
-            if (market.getSymbol().equals(symbol)){
-                return market;
-            }
-        }
-        return null;
+        return MarketDAO.getMarket(symbol);
     }
 
     public boolean checkIfMarketExists(String symbol){
-        Market market = MarketDAO.readMarket(symbol);
+        Market market = MarketDAO.getMarket(symbol);
         return market != null;
     }
-    public boolean matchMarketOrders(Market market, ArrayList<Order> orders) {
+
+    public List<Market> getMarkets() {
+        return MarketDAO.readAllMarkets();
+    }
+    public void refreshMarkets() {
+        markets = MarketDAO.readAllMarkets();
+    }
+    public static void updateMarket(Market market) {
+        MarketDAO.updateMarket(market);
+    }
+
+    public void matchMarketOrders(Market market, ArrayList<Order> orders) {
         getBidAskOrders(market);
         while (true) {
             if (market.getBidOrders().isEmpty() || market.getAskOrders().isEmpty()) {
-                return !orders.isEmpty();
+                return;
             }
             Order bidOrder = market.getBidOrders().get(0);
             Order askOrder = market.getAskOrders().get(0);
@@ -46,7 +53,7 @@ public class MarketController {
                 if (askOrder.isClosed()) {
                     market.getAskOrders().remove(0);
                 }
-            } else return !orders.isEmpty();
+            } else return;
         }
     }
 
@@ -55,16 +62,36 @@ public class MarketController {
         List<Order> bidOrders = new ArrayList<>();
         List<Order> askOrders = new ArrayList<>();
         for (Order order : allOrders) {
-            if (!order.isClosed()) {
-                if (order.getSide() == '1') {
-                    bidOrders.add(order);
-                } else if (order.getSide() == '2') {
-                    askOrders.add(order);
-                }
+            if (!order.isClosed() && !order.getCanceled() && !order.getRejected()) {
+                insert(order, bidOrders, askOrders);
             }
         }
         market.setAskOrders(askOrders);
         market.setBidOrders(bidOrders);
+    }
+
+    public void insert(Order order, List<Order> bidOrders, List<Order> askOrders) {
+        if (order.getSide() == Side.BUY) {
+            insert(order, true, bidOrders);
+        } else {
+            insert(order, false, askOrders);
+        }
+    }
+
+    private void insert(Order newOrder, boolean descending, List<Order> activeOrders) {
+        if (activeOrders.isEmpty()) {
+            activeOrders.add(newOrder);
+        } else if (newOrder.getType() == OrdType.MARKET) {
+            activeOrders.add(0, newOrder);
+        } else {
+            for (int i = 0; i < activeOrders.size(); i++) {
+                Order activeOrder = activeOrders.get(i);
+                if ((descending ? newOrder.getPrice() > activeOrder.getPrice() : newOrder.getPrice() < activeOrder.getPrice()) && newOrder.getEntryTime() < activeOrder.getEntryTime()) {
+                    activeOrders.add(i, newOrder);
+                }
+            }
+            activeOrders.add(newOrder);
+        }
     }
 
     // Execute matching orders
@@ -90,14 +117,5 @@ public class MarketController {
 
         MarketOrderDAO.updateMarketOrder(bid);
         MarketOrderDAO.updateMarketOrder(ask);
-    }
-    public List<Market> getMarkets() {
-        return markets;
-    }
-    public void refreshMarkets() {
-        markets = MarketDAO.readAllMarkets();
-    }
-    public void updateMarket(Market market) {
-        MarketDAO.updateMarket(market);
     }
 }
