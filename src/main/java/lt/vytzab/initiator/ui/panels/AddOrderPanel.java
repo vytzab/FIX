@@ -208,6 +208,9 @@ public class AddOrderPanel extends JPanel implements Observer {
 
         private void enableDate(boolean enabled) {
             dateChooser.setEnabled(enabled);
+            if (!enabled) {
+                dateChooser.cleanup();
+            }
         }
     }
 
@@ -251,13 +254,9 @@ public class AddOrderPanel extends JPanel implements Observer {
         }
 
         private void addOrder(Order order) {
-            try {
-                setMessage(" ");
-                orderTableModel.addOrder(order);
-                application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
-            } catch (SessionNotFound ex) {
-                throw new RuntimeException(ex);
-            }
+            setMessage(" ");
+            orderTableModel.addOrder(order);
+            application.sendNewOrderSingle(order, (SessionID) sessionComboBox.getSelectedItem());
         }
 
 
