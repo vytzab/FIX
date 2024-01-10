@@ -130,11 +130,7 @@ public class DeleteUpdatePanel extends JPanel {
         public void actionPerformed(ActionEvent e) {
             MarketDAO.deleteMarket(market.getSymbol());
             marketTableModel.removeMarket(market.getSymbol());
-            try {
-                application.sendSecurityStatusFromMarket(market, 2);
-            } catch (FieldNotFound | SessionNotFound ex) {
-                throw new RuntimeException(ex);
-            }
+            application.sendSecurityStatusFromMarket(market, 2);
         }
     }
 
@@ -150,11 +146,7 @@ public class DeleteUpdatePanel extends JPanel {
 
             MarketDAO.updateMarket(newMarket);
             marketTableModel.replaceMarket(newMarket);
-            try {
-                application.sendSecurityStatusFromMarket(newMarket, 1);
-            } catch (FieldNotFound | SessionNotFound ex) {
-                throw new RuntimeException(ex);
-            }
+            application.sendSecurityStatusFromMarket(newMarket, 1);
         }
     }
 }

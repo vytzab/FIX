@@ -7,10 +7,10 @@ import quickfix.field.OrdType;
 import quickfix.field.Side;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 public class MarketController {
-    private List<Market> markets = MarketDAO.readAllMarkets();
 
     public Market getMarket(String symbol) {
         return MarketDAO.getMarket(symbol);
@@ -24,36 +24,46 @@ public class MarketController {
     public List<Market> getMarkets() {
         return MarketDAO.readAllMarkets();
     }
-    public void refreshMarkets() {
-        markets = MarketDAO.readAllMarkets();
-    }
     public static void updateMarket(Market market) {
         MarketDAO.updateMarket(market);
     }
 
     public void matchMarketOrders(Market market, ArrayList<Order> orders) {
         getBidAskOrders(market);
-        while (true) {
-            if (market.getBidOrders().isEmpty() || market.getAskOrders().isEmpty()) {
-                return;
+
+        List<Order> bidOrders = market.getBidOrders();
+        List<Order> askOrders = market.getAskOrders();
+
+        Iterator<Order> bidIterator = bidOrders.iterator();
+
+        while (bidIterator.hasNext()) {
+            Order bidOrder = bidIterator.next();
+
+            Iterator<Order> askIterator = askOrders.iterator();
+
+            while (askIterator.hasNext()) {
+                Order askOrder = askIterator.next();
+
+                if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
+                    matchOrders(bidOrder, askOrder);
+
+                    if (!orders.contains(bidOrder)) {
+                        orders.add(0, bidOrder);
+                    }
+
+                    if (!orders.contains(askOrder)) {
+                        orders.add(0, askOrder);
+                    }
+
+                    if (bidOrder.isClosed()) {
+                        bidIterator.remove();
+                    }
+
+                    if (askOrder.isClosed()) {
+                        askIterator.remove();
+                    }
+                }
             }
-            Order bidOrder = market.getBidOrders().get(0);
-            Order askOrder = market.getAskOrders().get(0);
-            if (bidOrder.getType() == OrdType.MARKET || askOrder.getType() == OrdType.MARKET || (bidOrder.getPrice() >= askOrder.getPrice())) {
-                matchOrders(bidOrder, askOrder);
-                if (!orders.contains(bidOrder)) {
-                    orders.add(0, bidOrder);
-                }
-                if (!orders.contains(askOrder)) {
-                    orders.add(0, askOrder);
-                }
-                if (bidOrder.isClosed()) {
-                    market.getBidOrders().remove(0);
-                }
-                if (askOrder.isClosed()) {
-                    market.getAskOrders().remove(0);
-                }
-            } else return;
         }
     }
 

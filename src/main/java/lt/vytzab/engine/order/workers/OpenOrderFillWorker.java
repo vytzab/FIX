@@ -27,8 +27,10 @@ public class OpenOrderFillWorker extends SwingWorker<Void, List<Order>> {
 
     @Override
     protected void process(List<List<Order>> chunks) {
-        if (!isCancelled()) {
-            tableModel.setOrders(chunks.get(chunks.size() - 1));
+        if (!isCancelled() && !chunks.isEmpty()) {
+            SwingUtilities.invokeLater(() -> {
+                tableModel.setOrders(chunks.get(chunks.size() - 1));
+            });
         }
     }
 

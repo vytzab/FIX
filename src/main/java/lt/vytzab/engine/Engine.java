@@ -1,11 +1,9 @@
 package lt.vytzab.engine;
 
-import lt.vytzab.engine.dao.MarketOrderDAO;
 import lt.vytzab.engine.helpers.IDGenerator;
 import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.market.workers.MarketFillWorker;
 import lt.vytzab.engine.market.MarketTableModel;
-import lt.vytzab.engine.order.Order;
 import lt.vytzab.engine.order.OrderTableModel;
 import lt.vytzab.engine.order.workers.AllOrderFillWorker;
 import lt.vytzab.engine.order.workers.OpenOrderFillWorker;
@@ -23,20 +21,19 @@ import quickfix.RuntimeError;
 import quickfix.ScreenLogFactory;
 import quickfix.SessionSettings;
 import quickfix.SocketAcceptor;
-import quickfix.field.*;
 
 import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
-import java.time.LocalDate;
 import java.util.Scanner;
 
 import static lt.vytzab.engine.ui.EngineFrame.centerFrameOnScreen;
 
 public class Engine {
-    private final static Logger log = LoggerFactory.getLogger(Engine.class);
+    private static final Logger engLogger = LoggerFactory.getLogger(Engine.class);
     private static SocketAcceptor acceptor = null;
     private static final MarketTableModel marketTableModel = new MarketTableModel();
     private static final OrderTableModel openOrderTableModel = new OrderTableModel();
@@ -47,7 +44,7 @@ public class Engine {
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
         } catch (Exception e) {
-            log.info(e.getMessage(), e);
+            engLogger.debug("Exception " + e.getMessage() + " was caught while setting Engine look and feel.");
         }
         try {
             InputStream inputStream = getSettingsInputStream(args);
@@ -56,8 +53,12 @@ public class Engine {
             setDBCredentials();
 
             Engine engine = new Engine(settings);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
+        } catch (ConfigError e) {
+            engLogger.debug("ConfigError " + e.getMessage() + " was caught while initializing Session settings or Engine .");
+        } catch (FileNotFoundException e) {
+            engLogger.debug("FileNotFoundException " + e.getMessage() + " was caught while creating input stream.");
+        } catch (IOException e) {
+            engLogger.debug("IOException " + e.getMessage() + " was caught while closing input stream.");
         }
     }
 
@@ -87,6 +88,7 @@ public class Engine {
             acceptor.start();
             started = true;
         }
+        engLogger.info("Engine has started successfully.");
     }
 
     private static void stop() throws SQLException {
@@ -97,18 +99,22 @@ public class Engine {
             acceptor.stop();
             started = false;
         }
+        engLogger.info("Engine has stopped successfully.");
     }
 
     private static InputStream getSettingsInputStream(String[] args) throws FileNotFoundException {
         InputStream inputStream = null;
         if (args.length == 0) {
             inputStream = Engine.class.getResourceAsStream("/engine.cfg");
+            engLogger.info("Engine configuration input stream was taken from resources file.");
         } else if (args.length == 1) {
             inputStream = new FileInputStream(args[0]);
+            engLogger.info("Engine configuration input stream was taken from user provided file.");
         }
         if (inputStream == null) {
             System.out.println("usage: " + Engine.class.getName() + " [configFile].");
             System.exit(1);
+            engLogger.info("Engine configuration input stream is null.");
         }
         return inputStream;
     }
@@ -124,7 +130,7 @@ public class Engine {
             try {
                 start();
             } catch (ConfigError ex) {
-                throw new RuntimeException(ex);
+                engLogger.debug("ConfigError " + ex.getMessage() + " was caught while starting Engine.");
             }
         });
 
@@ -132,7 +138,7 @@ public class Engine {
             try {
                 stop();
             } catch (SQLException ex) {
-                throw new RuntimeException(ex);
+                engLogger.debug("SQLException " + ex.getMessage() + " was caught while stopping Engine.");
             }
         });
 

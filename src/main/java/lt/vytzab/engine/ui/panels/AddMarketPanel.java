@@ -132,11 +132,8 @@ public class AddMarketPanel extends JPanel {
 
             MarketDAO.createMarket(market);
             marketTableModel.addMarket(market);
-            try {
-                application.sendSecurityStatusFromMarket(market, 0);
-            } catch (FieldNotFound | SessionNotFound ex) {
-                throw new RuntimeException(ex);
-            }
+            application.sendSecurityStatusFromMarket(market, 0);
+
         }
     }
 

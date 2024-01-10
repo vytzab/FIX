@@ -3,7 +3,7 @@
         <file>logs/logfile.log</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- Set the filename pattern for the rolled log files -->
-            <FileNamePattern>logs/logfile-%d{yyyyMMddHHmm}.log</FileNamePattern>
+            <FileNamePattern>logs/logfile-%d{yyyyMMddHH}.log</FileNamePattern>
 
             <!-- Set the maximum history of rolled log files (optional) -->
         </rollingPolicy>
