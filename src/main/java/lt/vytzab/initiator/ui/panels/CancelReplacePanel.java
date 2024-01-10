@@ -81,11 +81,7 @@ public class CancelReplacePanel extends JPanel {
 
     private class CancelListener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
-            try {
-                application.sendOrderCancelRequest(order);
-            } catch (SessionNotFound ex) {
-                throw new RuntimeException(ex);
-            }
+            application.sendOrderCancelRequest(order);
         }
     }
 
@@ -94,12 +90,7 @@ public class CancelReplacePanel extends JPanel {
 
             if (checkQuantityField()) {
                 double newQuantity = Double.parseDouble(quantityTextField.getText());
-
-                try {
-                    application.sendOrderCancelReplaceRequest(order, newQuantity);
-                } catch (SessionNotFound ex) {
-                    throw new RuntimeException(ex);
-                }
+                application.sendOrderCancelReplaceRequest(order, newQuantity);
             }
         }
 
