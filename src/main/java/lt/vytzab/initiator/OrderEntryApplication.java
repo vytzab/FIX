@@ -299,10 +299,13 @@ public class OrderEntryApplication implements Application {
                 order.setOpenQuantity(Long.parseLong(message.getString(LeavesQty.FIELD)));
                 order.setExecutedQuantity(Long.parseLong(message.getString(CumQty.FIELD)));
                 order.setAvgExecutedPrice(Double.parseDouble(message.getString(AvgPx.FIELD)));
-
                 OrdStatus ordStatus = (OrdStatus) message.getField(new OrdStatus());
-
-                if (ordStatus.valueEquals(OrdStatus.REJECTED)) {
+                if (ordStatus.valueEquals(OrdStatus.PARTIALLY_FILLED)) {
+                    executedOrdersTableModel.addOrder(order);
+                } else if (ordStatus.valueEquals(OrdStatus.FILLED)) {
+                    executedOrdersTableModel.addOrder(order);
+                    orderTableModel.removeOrder(order.getClOrdID());
+                } else if (ordStatus.valueEquals(OrdStatus.REJECTED)) {
                     order.setRejected(true);
                     order.setOpenQuantity(0);
                 } else if (ordStatus.valueEquals(OrdStatus.CANCELED) || ordStatus.valueEquals(OrdStatus.DONE_FOR_DAY)) {
