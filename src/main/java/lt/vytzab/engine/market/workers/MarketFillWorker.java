@@ -33,7 +33,7 @@ public class MarketFillWorker extends SwingWorker<Void, List<Market>> {
 
     private List<Market> fetchData() {
         MarketAPIService marketAPIService = new MarketAPIService();
-        List<Market> markets = MarketDAO.readAllMarkets();
+        List<Market> markets = MarketDAO.getAllMarkets();
         if (markets.isEmpty()) {
             markets = marketAPIService.fetchMarketData();
             for (Market market : markets) {

@@ -7,7 +7,6 @@ public class IDGenerator {
     private Long orderIdCounter = 0L;
     private Long executionIdCounter = 0L;
     private String senderCompID;
-
     public IDGenerator() {
     }
 

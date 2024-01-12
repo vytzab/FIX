@@ -32,48 +32,6 @@ public class Market {
     public Market() {
     }
 
-    public void erase(Order order) {
-        if (order.getSide() == Side.BUY) {
-            bidOrders.remove(find(bidOrders, order.getClOrdID()));
-        } else {
-            askOrders.remove(find(askOrders, order.getClOrdID()));
-        }
-    }
-
-    public Order find(String symbol, char side, String id) {
-        return find(side == Side.BUY ? bidOrders : askOrders, id);
-    }
-
-    private Order find(List<Order> orders, String clientOrderId) {
-        for (Order order : orders) {
-            if (order.getClOrdID().equals(clientOrderId)) {
-                return order;
-            }
-        }
-        return null;
-    }
-
-    public void display(String symbol) {
-        if (!bidOrders.isEmpty() || !askOrders.isEmpty()) {
-            System.out.println("MARKET: " + symbol);
-        }
-        if (!bidOrders.isEmpty()) {
-            displaySide(askOrders, "ASKS");
-        }
-        if (!askOrders.isEmpty()) {
-            displaySide(askOrders, "ASKS");
-        }
-    }
-
-    private void displaySide(List<Order> orders, String title) {
-        DecimalFormat priceFormat = new DecimalFormat("#.00");
-        DecimalFormat qtyFormat = new DecimalFormat("######");
-        System.out.println(title + ":\n----");
-        for (Order order : orders) {
-            System.out.println(qtyFormat.format(order.getOpenQuantity()) + " x " + priceFormat.format(order.getPrice()) + "$  |" + " - entered by " + order.getSenderCompID() + " at " + new Date(order.getEntryTime()));
-        }
-    }
-
     public String getSymbol() {
         return symbol;
     }

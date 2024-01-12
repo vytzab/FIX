@@ -186,7 +186,7 @@ public class MarketOrderDAO {
         return orders;
     }
 
-    public static List<Order> readAllMarketOrdersBySenderCompID(String senderCompID) {
+    public static List<Order> getAllMarketOrdersBySenderCompID(String senderCompID) {
         List<Order> orders = new ArrayList<>();
         Order order = null;
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
@@ -232,7 +232,7 @@ public class MarketOrderDAO {
         return orders;
     }
 
-    public static List<Order> readAllMarketOrdersByField(String column, String value) {
+    public static List<Order> getAllMarketOrdersByField(String column, String value) {
         List<Order> orders = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders WHERE " + column + " = ?";
@@ -272,7 +272,7 @@ public class MarketOrderDAO {
         return orders;
     }
 
-    public static List<Order> readAllMarketOrdersBySymbol(String symbol) {
+    public static List<Order> getAllMarketOrdersBySymbol(String symbol) {
         List<Order> orders = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders WHERE symbol = ?";
@@ -312,7 +312,7 @@ public class MarketOrderDAO {
         return orders;
     }
 
-    public static List<Order> readAllMarketOrdersBySymbolAndSender(String symbol, String senderCompID) {
+    public static List<Order> getAllMarketOrdersBySymbolAndSender(String symbol, String senderCompID) {
         List<Order> orders = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_orders WHERE symbol = ? AND senderCompID = ?";

@@ -1,8 +1,6 @@
 package lt.vytzab.engine.order;
 
-import lt.vytzab.engine.dao.MarketDAO;
 import lt.vytzab.engine.dao.MarketOrderDAO;
-import lt.vytzab.engine.market.Market;
 
 import java.util.List;
 
@@ -29,7 +27,7 @@ public class OrderController {
     }
 
     public List<Order> getAllOrdersBySymbolAndSender(String symbol, String senderCompId) {
-        return MarketOrderDAO.readAllMarketOrdersBySymbolAndSender(symbol, senderCompId);
+        return MarketOrderDAO.getAllMarketOrdersBySymbolAndSender(symbol, senderCompId);
     }
 
     public boolean checkIfOrderExists(String clOrdID){

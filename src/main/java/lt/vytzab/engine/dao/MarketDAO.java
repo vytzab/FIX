@@ -57,7 +57,7 @@ public class MarketDAO {
         return market;
     }
 
-    public static List<Market> readAllMarkets() {
+    public static List<Market> getAllMarkets() {
         List<Market> markets = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM market_data";
@@ -162,7 +162,7 @@ public class MarketDAO {
         }
     }
 
-    public static List<Market> readAllHistoricMarketsForDate(LocalDate date) {
+    public static List<Market> getAllHistoricMarketsForDate(LocalDate date) {
         List<Market> markets = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(JDBC_URL, Variables.getUsername(), Variables.getPassword())) {
             String sql = "SELECT * FROM historic_market_data WHERE date = ?";

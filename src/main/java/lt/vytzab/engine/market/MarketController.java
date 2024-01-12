@@ -22,7 +22,7 @@ public class MarketController {
     }
 
     public List<Market> getMarkets() {
-        return MarketDAO.readAllMarkets();
+        return MarketDAO.getAllMarkets();
     }
     public static void updateMarket(Market market) {
         MarketDAO.updateMarket(market);
@@ -68,7 +68,7 @@ public class MarketController {
     }
 
     public void getBidAskOrders(Market market) {
-        List<Order> allOrders = MarketOrderDAO.readAllMarketOrdersBySymbol(market.getSymbol());
+        List<Order> allOrders = MarketOrderDAO.getAllMarketOrdersBySymbol(market.getSymbol());
         List<Order> bidOrders = new ArrayList<>();
         List<Order> askOrders = new ArrayList<>();
         for (Order order : allOrders) {
