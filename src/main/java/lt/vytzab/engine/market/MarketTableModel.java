@@ -205,7 +205,6 @@ public class MarketTableModel extends AbstractTableModel {
     private record MarketComparator(int columnIndex) implements Comparator<Market> {
         @Override
             public int compare(Market market1, Market market2) {
-                // Implement comparison logic based on the specified column index
             return switch (columnIndex) {
                 case SYMBOL -> market1.getSymbol().compareTo(market2.getSymbol());
                 case LASTPRICE -> Double.compare(market1.getLastPrice(), market2.getLastPrice());
@@ -213,7 +212,7 @@ public class MarketTableModel extends AbstractTableModel {
                 case DAYLOW -> Double.compare(market1.getDayLow(), market2.getDayLow());
                 case BUYVOLUME -> Double.compare(market1.getBuyVolume(), market2.getBuyVolume());
                 case SELLVOLUME -> Double.compare(market1.getSellVolume(), market2.getSellVolume());
-                default -> 0; // Default to no sorting
+                default -> 0;
             };
             }
         }

@@ -58,7 +58,7 @@ public class MarketAPIService {
 
             return new Market(symbol, lastPrice, dayHigh, dayLow, buyVolume, sellVolume);
         } catch (IOException e) {
-            e.printStackTrace();  // Handle the exception based on your application's needs
+            e.printStackTrace();
             return null;
         }
     }

@@ -146,7 +146,7 @@ public class MarketDAO {
                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
 
             try (PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
-                int marketId = getMarketIdBySymbol(market.getSymbol()); // Assuming you have a method to get market ID by symbol
+                int marketId = getMarketIdBySymbol(market.getSymbol());
                 preparedStatement.setInt(1, marketId);
                 preparedStatement.setDate(2, Date.valueOf(LocalDate.now()));
                 preparedStatement.setDouble(3, market.getLastPrice());

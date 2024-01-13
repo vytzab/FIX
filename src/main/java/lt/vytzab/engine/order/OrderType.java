@@ -40,7 +40,6 @@ public class OrderType implements Comparable<OrderType> {
     }
     @Override
     public int compareTo(OrderType other) {
-        // Compare based on the order in the array
         return Integer.compare(Arrays.asList(array).indexOf(this), Arrays.asList(array).indexOf(other));
     }
 }

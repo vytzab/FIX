@@ -55,7 +55,7 @@ public class OrderPanel extends JPanel {
 
             if (!orderTableModel.isOrdersEmpty()) {
                 if (userSelection == JFileChooser.APPROVE_OPTION) {
-                    String fileName = fileChooser.getSelectedFile().getAbsolutePath();// Append .csv extension if not already present
+                    String fileName = fileChooser.getSelectedFile().getAbsolutePath();
                     if (!fileName.toLowerCase().endsWith(".csv")) {
                         fileName += ".csv";
                     }
