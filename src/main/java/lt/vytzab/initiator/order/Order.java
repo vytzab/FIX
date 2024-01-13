@@ -1,7 +1,5 @@
 package lt.vytzab.initiator.order;
 
-import lt.vytzab.initiator.helpers.IDGenerator;
-import quickfix.SessionID;
 import quickfix.field.Side;
 
 import java.time.LocalDate;

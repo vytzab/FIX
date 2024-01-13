@@ -31,7 +31,6 @@ import lt.vytzab.initiator.order.OrderTIF;
 import lt.vytzab.initiator.order.OrderTableModel;
 import lt.vytzab.initiator.order.OrderType;
 import quickfix.SessionID;
-import quickfix.SessionNotFound;
 
 public class AddOrderPanel extends JPanel implements Observer {
     private boolean symbolEntered = false;

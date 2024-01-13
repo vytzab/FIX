@@ -68,26 +68,21 @@ public class OrderTable extends JTable implements MouseListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        // Handle mouse click events as needed
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // Handle mouse entered events as needed
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // Handle mouse exited events as needed
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // Handle mouse pressed events as needed
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // Handle mouse released events as needed
     }
 }

@@ -28,9 +28,6 @@ public class OrderEntryApplication implements Application {
     private final ObservableOrder observableOrder = new ObservableOrder();
     private final ObservableLogon observableLogon = new ObservableLogon();
     private final LogPanel logPanel;
-    private static final TwoWayMap sideMap = new TwoWayMap();
-    private static final TwoWayMap typeMap = new TwoWayMap();
-    private static final TwoWayMap tifMap = new TwoWayMap();
     private static final HashMap<SessionID, HashSet<ExecID>> execIDs = new HashMap<>();
     private SessionID sessionID = null;
     private final IDGenerator idGenerator;
@@ -437,18 +434,6 @@ public class OrderEntryApplication implements Application {
             notifyObservers(new LogonEvent(sessionID, false));
             clearChanged();
         }
-    }
-
-    static {
-        sideMap.put(OrderSide.BUY, new Side(Side.BUY));
-        sideMap.put(OrderSide.SELL, new Side(Side.SELL));
-
-        typeMap.put(OrderType.MARKET, new OrdType(OrdType.MARKET));
-        typeMap.put(OrderType.LIMIT, new OrdType(OrdType.LIMIT));
-
-        tifMap.put(OrderTIF.DAY, new TimeInForce(TimeInForce.DAY));
-        tifMap.put(OrderTIF.GTC, new TimeInForce(TimeInForce.GOOD_TILL_CANCEL));
-        tifMap.put(OrderTIF.GTD, new TimeInForce(TimeInForce.GOOD_TILL_DATE));
     }
 
     public void displayFixMessageInLogs(String fixMessage) {

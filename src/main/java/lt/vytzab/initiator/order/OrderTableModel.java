@@ -162,7 +162,6 @@ public class OrderTableModel extends AbstractTableModel {
 
         OrderTableModel.OrderComparator comparator = new OrderTableModel.OrderComparator(columnIndex);
 
-        // Sort the list based on the comparator and sortOrder
         sortedOrders.sort((market1, market2) -> {
             int result = comparator.compare(market1, market2);
             return (sortOrder == SortOrder.DESCENDING) ? -result : result;
@@ -237,7 +236,6 @@ public class OrderTableModel extends AbstractTableModel {
 
         @Override
             public int compare(Order order1, Order order2) {
-                // Implement comparison logic based on the specified column index
                 return switch (columnIndex) {
                     case SYMBOL -> order1.getSymbol().compareTo(order2.getSymbol());
                     case QUANTITY -> Double.compare(order1.getQuantity(), order2.getQuantity());
@@ -249,7 +247,7 @@ public class OrderTableModel extends AbstractTableModel {
                     case AVGPX -> Double.compare(order1.getAvgExecutedPrice(), order2.getAvgExecutedPrice());
                     case ENTRYDATE -> order1.getEntryDate().compareTo(order2.getEntryDate());
                     case GOODTILLDATE -> order1.getGoodTillDate().compareTo(order2.getGoodTillDate());
-                    default -> 0; // Default to no sorting
+                    default -> 0;
                 };
             }
         }
