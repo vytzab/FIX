@@ -134,7 +134,6 @@ public class Order {
         this.clOrdID = clOrdID;
     }
 
-    //Returns true if order filled
     public boolean isFilled() {
         return quantity == executedQuantity;
     }

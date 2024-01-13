@@ -125,9 +125,6 @@ public class MarketTableModel extends AbstractTableModel {
     private String formatDouble(double value) {
         DecimalFormat decimalFormat = new DecimalFormat("#.##");
         return decimalFormat.format(value);
-
-        // OR using String.format
-        // return String.format("%.2f", value);
     }
 
     public void clearMarkets() throws SQLException {
@@ -143,7 +140,6 @@ public class MarketTableModel extends AbstractTableModel {
     public void setMarkets(List<Market> updatedMarkets) {
         markets = new ArrayList<>(updatedMarkets);
 
-        // Initialize or clear the originalMarkets list
         if (originalMarkets == null) {
             originalMarkets = new ArrayList<>(updatedMarkets);
         } else {
@@ -165,7 +161,6 @@ public class MarketTableModel extends AbstractTableModel {
 
         MarketComparator comparator = new MarketComparator(columnIndex);
 
-        // Sort the list based on the comparator and sortOrder
         sortedMarkets.sort((market1, market2) -> {
             int result = comparator.compare(market1, market2);
             return (sortOrder == SortOrder.DESCENDING) ? -result : result;
@@ -189,11 +184,9 @@ public class MarketTableModel extends AbstractTableModel {
 
     public void generateReport(String fileName) {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
-            // Write headers
             writer.write("Symbol,Last Price,Day High,Day Low,Buy Volume,Sell Volume");
             writer.newLine();
 
-            // Write data
             for (Market market : markets) {
                 writer.write(marketToCSVString(market));
                 writer.newLine();
@@ -202,7 +195,6 @@ public class MarketTableModel extends AbstractTableModel {
             System.out.println("CSV file exported successfully!");
         } catch (IOException e) {
             e.printStackTrace();
-            // Handle the exception appropriately
         }
     }
 
