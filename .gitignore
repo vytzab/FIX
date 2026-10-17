@@ -1,0 +1,5 @@
+# Build output and IDE files when the repository root is opened as a project
+target/
+.idea/
+*.iml
+.vscode/

@@ -1,41 +1,15 @@
+# Build output and QuickFIX/J session store (target/data)
 target/
-!.mvn/wrapper/maven-wrapper.jar
-!**/src/main/**/target/
-!**/src/test/**/target/
 
-### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
-*.iws
-*.iml
-*.ipr
+# Runtime logs
+logs/
 
-### Eclipse ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-
-### NetBeans ###
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
-
-### VS Code ###
-.vscode/
-
-### Mac OS ###
-.DS_Store
-/out/
-/logs/
+# Local settings with the database URL and API key; see Variables.java.example
 /src/main/java/lt/vytzab/engine/Variables.java
+
+# IDE files
+.idea/
+*.iml
+.vscode/
+out/
+.DS_Store

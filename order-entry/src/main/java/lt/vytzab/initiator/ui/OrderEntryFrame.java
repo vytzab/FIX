@@ -14,7 +14,7 @@ public class OrderEntryFrame extends JFrame {
 
     public OrderEntryFrame(MarketTableModel marketTableModel, OrderTableModel orderTableModel, OrderTableModel executedOrdersTableModel, LogPanel logPanel, final OrderEntryApplication application, JMenuBar menuBar) {
         super();
-        setTitle("Order Entry Frame");
+        setTitle("FIX Order Entry");
         setSize(900, 600);
 
         getContentPane().add(new OrderEntryPanel(marketTableModel, orderTableModel, executedOrdersTableModel, logPanel, application), BorderLayout.CENTER);
